@@ -1,0 +1,140 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* =========================
+   CSS Variables (Design Tokens)
+   ========================= */
+:root {
+  /* Colors */
+  --color-background: #020817;
+  --color-surface: rgba(15, 23, 42, 0.85);
+  --color-panel: rgba(30, 41, 59, 0.7);
+  --color-border: rgba(148, 163, 184, 0.25);
+
+  --color-foreground: #e2e8f0;
+  --color-muted: #94a3b8;
+
+  --color-primary: #34d399;
+  --color-danger: #f87171;
+
+  /* Typography */
+  --font-sans: var(--font-vazirmatn);
+
+  /* Layout */
+  --container-max: 1320px;
+}
+
+/* =========================
+   Base Styles
+   ========================= */
+html {
+  color-scheme: dark;
+}
+
+body {
+  background-color: var(--color-background);
+  background-image:
+    radial-gradient(at top left, rgba(16, 185, 129, 0.08), transparent 55%),
+    radial-gradient(at 30% 60%, rgba(14, 165, 233, 0.15), transparent 60%),
+    linear-gradient(120deg, rgba(15, 23, 42, 0.9), rgba(2, 8, 23, 0.9));
+  color: var(--color-foreground);
+  font-family: var(--font-sans);
+  line-height: 1.75;
+  min-height: 100vh;
+  position: relative;
+  overflow-x: hidden;
+}
+
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  background-image: linear-gradient(
+      rgba(148, 163, 184, 0.07) 1px,
+      transparent 1px
+    ),
+    linear-gradient(90deg, rgba(148, 163, 184, 0.07) 1px, transparent 1px);
+  background-size: 42px 42px;
+  opacity: 0.35;
+  pointer-events: none;
+  z-index: -1;
+}
+
+body *,
+body *::before,
+body *::after {
+  box-sizing: border-box;
+}
+
+body {
+  text-align: right;
+}
+
+/* =========================
+   Utilities
+   ========================= */
+.bg-background {
+  background-color: var(--color-background);
+}
+
+.bg-surface {
+  background-color: var(--color-surface);
+}
+
+.bg-panel {
+  background-color: var(--color-panel);
+}
+
+.text-foreground {
+  color: var(--color-foreground);
+}
+
+.text-muted {
+  color: var(--color-muted);
+}
+
+.text-primary {
+  color: var(--color-primary);
+}
+
+.bg-primary {
+  background-color: var(--color-primary);
+}
+
+.border-primary {
+  border-color: var(--color-primary);
+}
+
+.bg-danger {
+  background-color: var(--color-danger);
+}
+
+.border-default {
+  border-color: var(--color-border);
+}
+
+.container {
+  max-width: var(--container-max);
+  margin-inline: auto;
+  padding-inline: 1rem;
+}
+
+/* =========================
+   Media-style Defaults
+   ========================= */
+h1,
+h2,
+h3,
+h4 {
+  font-weight: 700;
+  line-height: 1.4;
+}
+
+a {
+  transition: color 0.2s ease;
+}
+
+a:hover {
+  color: var(--color-primary);
+}
