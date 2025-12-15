@@ -1,13 +1,15 @@
+import { HeroSlider } from "@/components/hero/HeroSlider";
 import { Header } from "@/components/layout/Header";
+import { LiveToday } from "@/components/live/LiveToday";
+import { HomePage as HomeContent } from "@/components/home/HomePage";
 
-export default function HomePage() {
+export default function Home() {
   return (
     <>
       <Header />
-
-      <main className="container py-8">
-        <h1 className="text-2xl font-bold">صفحه اصلی</h1>
-      </main>
+      <HeroSlider />
+      <LiveToday />
+      <HomeContent />
     </>
   );
 }

@@ -4,8 +4,8 @@ import Link from "next/link";
 
 export function NavMenu() {
   return (
-    <nav className="relative">
-      <ul className="flex items-center gap-6 text-sm font-medium">
+    <nav className="relative" dir="rtl">
+      <ul className="flex items-center gap-8 text-sm font-medium list-none justify-end">
         {/* همه */}
         <li>
           <Link href="/" className="hover:text-primary">
@@ -17,9 +17,11 @@ export function NavMenu() {
         <li className="group relative">
           <span className="cursor-pointer hover:text-primary">فوتسال</span>
 
-          <div className="absolute right-0 top-full mt-3 hidden w-56 rounded-lg bg-surface border border-default shadow-lg group-hover:block">
-            <ul className="p-3 space-y-2 text-sm">
-              <li className="font-semibold text-muted">تیم ملی</li>
+          <div className="absolute right-0 top-full mt-3 hidden w-56 rounded-lg bg-surface border border-default shadow-lg group-hover:block p-4">
+            <ul className="flex flex-col gap-2 text-sm font-medium list-none text-right">
+              <li className="font-semibold text-muted border-b border-default pb-2">
+                تیم ملی
+              </li>
 
               <li>
                 <Link
@@ -66,9 +68,11 @@ export function NavMenu() {
             فوتبال ساحلی
           </span>
 
-          <div className="absolute right-0 top-full mt-3 hidden w-56 rounded-lg bg-surface border border-default shadow-lg group-hover:block">
-            <ul className="p-3 space-y-2 text-sm">
-              <li className="font-semibold text-muted">تیم ملی</li>
+          <div className="absolute right-0 top-full mt-3 hidden w-56 rounded-lg bg-surface border border-default shadow-lg group-hover:block p-4">
+            <ul className="flex flex-col gap-2 text-sm font-medium list-none text-right">
+              <li className="font-semibold text-muted border-b border-default pb-2">
+                تیم ملی
+              </li>
 
               <li>
                 <Link
