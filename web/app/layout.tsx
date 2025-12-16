@@ -16,9 +16,9 @@ export default function RootLayout({
 }) {
   return (
     <html lang="fa" dir="rtl" className={vazirmatn.variable}>
-      <body className="min-h-screen bg-background text-foreground antialiased font-sans">
+      <body className="min-h-screen bg-[var(--background)] text-[var(--foreground)] antialiased font-sans">
         <Header />
-        <main className="pt-28 pb-12">{children}</main>
+        <main className="pt-28 pb-16">{children}</main>
       </body>
     </html>
   );

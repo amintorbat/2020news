@@ -1,10 +1,10 @@
 import { PageHero } from "@/components/common/PageHero";
 import { Footer } from "@/components/layout/Footer";
-import { NewsCard } from "@/components/news/NewsCard";
-import { newsArticles } from "@/data/content";
+import { NewsCard } from "@/components/home/NewsCard";
+import { latestNews } from "@/data/mock/news";
 
 export default function BeachFootballPage() {
-  const beachNews = newsArticles.filter((article) => article.category === "فوتبال ساحلی");
+  const beachNews = latestNews.filter((article) => article.category === "فوتبال ساحلی");
 
   return (
     <div className="space-y-10">

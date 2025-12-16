@@ -1,44 +1,44 @@
 import Link from "next/link";
+import { navigationMenu } from "@/data/navigation";
 
 export function Footer() {
   return (
-    <footer className="border-t border-white/5 bg-[#030816]" dir="rtl">
-      <div className="container flex flex-col gap-8 py-10 text-white/70 md:flex-row md:justify-between">
-        <div>
-          <p className="text-lg font-black text-white">۲۰۲۰نیوز</p>
-          <p className="mt-2 max-w-sm text-sm leading-relaxed">
-            رسانه تخصصی فوتسال و فوتبال ساحلی با تمرکز بر تحلیل‌های فنی، نتایج زنده و پوشش اختصاصی از باشگاه‌ها و تیم‌های ملی.
+    <footer className="mt-16 border-t border-[var(--border)] bg-[#f7f8fa]">
+      <div className="container grid gap-8 py-12 md:grid-cols-[2fr,1fr,1fr]">
+        <div className="space-y-3">
+          <p className="text-xl font-extrabold text-[var(--foreground)]">۲۰۲۰نیوز</p>
+          <p className="text-sm leading-7 text-[var(--muted)]">
+            پوشش لحظه‌ای اخبار، تحلیل‌ها و گزارش‌های اختصاصی از دنیای فوتسال و فوتبال ساحلی ایران. هدف ما ارائه تجربه رسانه‌ای دقیق، سریع و حرفه‌ای برای هواداران این رشته‌ها است.
           </p>
         </div>
-        <div className="grid flex-1 grid-cols-2 gap-6 text-sm">
-          <div>
-            <p className="text-xs font-bold text-white/50">دسترسی سریع</p>
-            <ul className="mt-3 space-y-2">
-              <li>
-                <Link href="/futsal" className="hover:text-white">
-                  اخبار فوتسال
+
+        <div>
+          <p className="text-sm font-semibold text-[var(--foreground)]">دسترسی سریع</p>
+          <ul className="mt-4 space-y-2 text-sm text-[var(--muted)]">
+            {navigationMenu.map((item) => (
+              <li key={item.title}>
+                <Link href={item.href} className="transition hover:text-brand">
+                  {item.title}
                 </Link>
               </li>
-              <li>
-                <Link href="/matches" className="hover:text-white">
-                  برنامه مسابقات
-                </Link>
-              </li>
-              <li>
-                <Link href="/league-table" className="hover:text-white">
-                  جدول لیگ
-                </Link>
-              </li>
-            </ul>
-          </div>
-          <div>
-            <p className="text-xs font-bold text-white/50">ارتباط با ما</p>
-            <ul className="mt-3 space-y-2">
-              <li>info@2020news.ir</li>
-              <li>۰۲۱-۴۴۴۴۴۴۴</li>
-              <li>تهران، بلوار ورزش</li>
-            </ul>
-          </div>
+            ))}
+          </ul>
+        </div>
+
+        <div className="space-y-2 text-sm text-[var(--muted)]">
+          <p className="text-sm font-semibold text-[var(--foreground)]">راه‌های ارتباطی</p>
+          <p>info@2020news.ir</p>
+          <p>۰۲۱-۴۴۴۴۴۴۴</p>
+          <p>تهران، بلوار ورزش</p>
+        </div>
+      </div>
+
+      <div className="border-t border-[var(--border)] bg-white py-4">
+        <div className="container flex flex-col items-center gap-2 text-center text-xs text-[var(--muted)] sm:flex-row sm:justify-between">
+          <span>© {new Date().getFullYear()} تمامی حقوق محفوظ است.</span>
+          <a href="https://www.torbatesfahaniagency.ir/" target="_blank" rel="noreferrer" className="text-[var(--muted)] transition hover:text-brand">
+            طراحی و توسعه توسط TeaBusiness – Torbat Esfahani Agency
+          </a>
         </div>
       </div>
     </footer>

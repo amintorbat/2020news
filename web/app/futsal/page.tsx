@@ -1,10 +1,10 @@
 import { PageHero } from "@/components/common/PageHero";
 import { Footer } from "@/components/layout/Footer";
-import { NewsCard } from "@/components/news/NewsCard";
-import { newsArticles } from "@/data/content";
+import { NewsCard } from "@/components/home/NewsCard";
+import { latestNews } from "@/data/mock/news";
 
 export default function FutsalPage() {
-  const futsalNews = newsArticles.filter((article) => article.category === "فوتسال");
+  const futsalNews = latestNews.filter((article) => article.category === "فوتسال");
 
   return (
     <div className="space-y-10">

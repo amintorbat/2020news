@@ -1,23 +1,16 @@
 import { ReactNode } from "react";
 
-type PageHeroProps = {
-  title: string;
-  subtitle: string;
-  eyebrow?: string;
-  actions?: ReactNode;
-};
-
-export function PageHero({ title, subtitle, eyebrow, actions }: PageHeroProps) {
+export function PageHero({ title, subtitle, eyebrow, action }: { title: string; subtitle: string; eyebrow?: string; action?: ReactNode }) {
   return (
     <section className="container" dir="rtl">
-      <div className="rounded-3xl border border-white/10 bg-gradient-to-l from-[#050f23] via-[#09142c]/80 to-[#050f23] p-8 text-white">
-        {eyebrow && <p className="text-xs font-bold text-white/60">{eyebrow}</p>}
-        <div className="mt-2 flex flex-wrap items-center justify-between gap-4">
+      <div className="rounded-[28px] border border-[var(--border)] bg-white px-8 py-10 shadow-card">
+        {eyebrow && <p className="text-xs font-semibold text-brand">{eyebrow}</p>}
+        <div className="flex flex-wrap items-center justify-between gap-4">
           <div className="space-y-3">
-            <h1 className="text-3xl font-black leading-relaxed">{title}</h1>
-            <p className="max-w-3xl text-sm leading-relaxed text-white/70">{subtitle}</p>
+            <h1 className="text-3xl font-extrabold text-[var(--foreground)]">{title}</h1>
+            <p className="max-w-2xl text-sm text-[var(--muted)]">{subtitle}</p>
           </div>
-          {actions}
+          {action}
         </div>
       </div>
     </section>

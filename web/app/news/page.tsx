@@ -1,7 +1,7 @@
 import { PageHero } from "@/components/common/PageHero";
 import { Footer } from "@/components/layout/Footer";
-import { NewsCard } from "@/components/news/NewsCard";
-import { newsArticles } from "@/data/content";
+import { NewsCard } from "@/components/home/NewsCard";
+import { latestNews } from "@/data/mock/news";
 
 export default function NewsIndexPage() {
   return (
@@ -13,7 +13,7 @@ export default function NewsIndexPage() {
       />
 
       <section className="container space-y-4">
-        {newsArticles.map((article) => (
+        {latestNews.map((article) => (
           <NewsCard key={article.id} article={article} />
         ))}
       </section>
