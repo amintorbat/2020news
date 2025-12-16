@@ -1,7 +1,7 @@
 import { PageHero } from "@/components/common/PageHero";
 import { Footer } from "@/components/layout/Footer";
 import { NewsCard } from "@/components/home/NewsCard";
-import { latestNews } from "@/data/mock/news";
+import { latestNews } from "@/lib/data";
 
 export default function NewsIndexPage() {
   return (

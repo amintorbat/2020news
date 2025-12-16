@@ -3,7 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { PageHero } from "@/components/common/PageHero";
 import { Footer } from "@/components/layout/Footer";
-import { getArticleBySlug, latestNews } from "@/data/mock/news";
+import { getArticleBySlug, latestNews } from "@/lib/data";
 
 type PageProps = {
   params: { slug: string };

@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import "@/app/globals.css";
 import { vazirmatn } from "@/lib/fonts";
-import { Header } from "@/components/layout/Header";
+import { Navbar } from "@/components/layout/Navbar";
 
 export const metadata: Metadata = {
   title: "2020news | رسانه تخصصی فوتسال و فوتبال ساحلی",
@@ -17,7 +17,7 @@ export default function RootLayout({
   return (
     <html lang="fa" dir="rtl" className={vazirmatn.variable}>
       <body className="min-h-screen bg-[var(--background)] text-[var(--foreground)] antialiased font-sans">
-        <Header />
+        <Navbar />
         <main className="pt-28 pb-16">{children}</main>
       </body>
     </html>

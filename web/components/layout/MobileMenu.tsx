@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { navigationMenu } from "@/data/navigation";
+import { navigationMenu } from "@/lib/data";
 import { cn } from "@/lib/cn";
 
 type MobileMenuProps = {

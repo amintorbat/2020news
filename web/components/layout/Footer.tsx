@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { navigationMenu } from "@/data/navigation";
+import { navigationMenu } from "@/lib/data";
 
 export function Footer() {
   return (
@@ -36,9 +36,12 @@ export function Footer() {
       <div className="border-t border-[var(--border)] bg-white py-4">
         <div className="container flex flex-col items-center gap-2 text-center text-xs text-[var(--muted)] sm:flex-row sm:justify-between">
           <span>© {new Date().getFullYear()} تمامی حقوق محفوظ است.</span>
-          <a href="https://www.torbatesfahaniagency.ir/" target="_blank" rel="noreferrer" className="text-[var(--muted)] transition hover:text-brand">
-            طراحی و توسعه توسط TeaBusiness – Torbat Esfahani Agency
-          </a>
+          <span>
+            طراحی و توسعه: amintorbat –{" "}
+            <a href="https://www.torbatesfahaniagency.ir/" target="_blank" rel="noreferrer" className="text-brand underline-offset-4 hover:underline">
+              torbatesfahaniagency.ir
+            </a>
+          </span>
         </div>
       </div>
     </footer>

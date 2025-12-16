@@ -1,12 +1,10 @@
-import { liveMatches } from "@/data/mock/matches";
+import { liveMatches } from "@/lib/data";
+import { SectionHeader } from "@/components/common/SectionHeader";
 
 export function LiveScores() {
   return (
     <section className="container space-y-6" id="live">
-      <header className="space-y-1">
-        <p className="section-subtitle">پیگیری لحظه‌ای</p>
-        <h2 className="section-title">نتایج زنده امروز</h2>
-      </header>
+      <SectionHeader title="نتایج زنده امروز" subtitle="پیگیری لحظه‌ای" />
       <div className="grid gap-4 md:grid-cols-2">
         {liveMatches.map((match) => (
           <article key={match.id} className="rounded-3xl border border-[var(--border)] bg-white px-5 py-4 shadow-card" dir="rtl">
