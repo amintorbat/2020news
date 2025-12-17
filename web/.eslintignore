@@ -1,1 +1,6 @@
-components/* 2/**
+.next/
+node_modules/
+out/
+build/
+docs/**
+public/**

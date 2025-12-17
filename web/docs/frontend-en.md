@@ -1,10 +1,15 @@
 ## Frontend Guide – 2020news
 
-### Project Structure
-- `app/` holds all App Router routes. The homepage (`app/page.tsx`) orchestrates ACS data, while `app/news`, `app/matches`, and `app/standings` provide dedicated archive views.
-- `components/` contains reusable UI blocks. Files under `components/home/` power the homepage (slider, news list, matches, standings) and `components/layout/` covers global chrome such as the navbar and footer.
-- `lib/acs/` implements the Adaptive Content Sync layer. Each file (`home.ts`, `matches.ts`, `standings.ts`, `articleDetail.ts`) focuses on a single upstream source.
-- `lib/data.ts` stores curated mock data for fallbacks only; it never pushes external URLs directly to the UI.
+### Project Purpose
+2020news renders production content from the official ACS feeds (futsal + beach soccer) with zero editorial tooling. The goal is to show the current hero stories, curated league data, and fallback-friendly match information without depending on private build artifacts.
+
+### Folder Structure
+- `app/` – App Router routes and route handlers. Homepage orchestrates ACS calls, `/news` and `/news/[slug]` render article feeds, `/futsal|/beach` host sport hubs, and `/api/acs/*` wraps the scrapers.
+- `components/` – Shared UI blocks. `home/` widgets render homepage sections, `layout/` holds persistent chrome, `matches/`, `news/`, `tables/`, and `live/` expose feature-specific pieces.
+- `lib/acs/` – Adaptive Content Sync clients plus fallbacks, `lib/data.ts` bundles deterministic mock data for offline rendering, and `lib/acs/types.ts` defines all contract models.
+- `data/` – Navigation, copy decks, and structured content that can change without touching components.
+- `assets/` and `public/` – Static icons/images that Next.js can serve directly.
+- `docs/` – This guide (`frontend-en.md` / `frontend-fa.md`) so engineering onboarding stays in sync.
 
 ### ACS Pipeline
 - All remote calls run server-side through `fetchWithRetry`, which adds timeouts, retries, and consistent headers.
@@ -28,3 +33,15 @@
 - Add another ACS module for historical archives or specific competitions and feed it into `/news` pagination.
 - Introduce a shared KV/Redis cache to persist ACS responses across regions, reducing cold-start latency.
 - Generate SEO metadata (OpenGraph & JSON-LD) from `articleDetail` so that share previews reflect the live ACS content.
+
+### Running Locally
+1. `npm install` – installs Next.js + ACS scraping dependencies. No global binaries are required.
+2. `npm run lint` – runs `next lint` with the production rule-set and must be clean before merging.
+3. `npm run build` – validates the App Router tree and executes the ACS fallbacks. This must succeed locally because CI reproduces the same steps.
+4. `npm run dev` – launches the dev server on port 3000 for manual QA.
+
+### Known Limitations (WIP)
+- Remote ACS endpoints (`2020news.ir`) are blocked during local builds; scrapers rely on curated fallback JSON.
+- The live ticker and schedule components use mocked data until ACS exposes a reliable endpoint for real-time fixtures.
+- No CMS is wired in; updating navigation copy or hero ordering still requires editing `data/` or `lib/data.ts`.
+- Redis / KV cache is not yet connected, so each production request recomputes ACS payloads.
