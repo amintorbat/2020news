@@ -1,29 +1,46 @@
+export const dynamic = "force-dynamic";
+
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { PageHero } from "@/components/common/PageHero";
 import { Footer } from "@/components/layout/Footer";
-import { getArticleBySlug, latestNews } from "@/lib/data";
+import { getArticleDetail } from "@/lib/acs/articleDetail";
+import { getFallbackHomePayload } from "@/lib/acs/fallback";
+import { getHomeContent } from "@/lib/acs/home";
+import { ArticleEngagement } from "@/components/news/ArticleEngagement";
+import { NewsCard } from "@/components/home/NewsCard";
 
 type PageProps = {
   params: { slug: string };
 };
 
-export function generateStaticParams() {
-  return latestNews.map((article) => ({ slug: article.slug }));
-}
+export default async function NewsDetailsPage({ params }: PageProps) {
+  const liveFeed = await getHomeContent().catch(() => null);
+  const fallbackArticle =
+    liveFeed?.latestNews.find((article) => article.slug === params.slug) ??
+    getFallbackHomePayload().latestNews.find((article) => article.slug === params.slug);
+  const detail = await getArticleDetail(params.slug).catch(() => null);
 
-export default function NewsDetailsPage({ params }: PageProps) {
-  const article = getArticleBySlug(params.slug);
-  if (!article) {
+  if (!detail && !fallbackArticle) {
     notFound();
   }
+
+  const title = detail?.title ?? fallbackArticle?.title ?? "گزارش خبری";
+  const category = detail?.category ?? fallbackArticle?.category ?? "اخبار";
+  const publishedAt = detail?.publishedAt ?? fallbackArticle?.publishedAt ?? new Date().toLocaleDateString("fa-IR");
+  const imageUrl = detail?.imageUrl ?? fallbackArticle?.imageUrl ?? "/images/placeholder-article.png";
+  const paragraphs = detail?.paragraphs ?? [fallbackArticle?.excerpt ?? "متن این گزارش به‌زودی منتشر خواهد شد."];
+  const related =
+    liveFeed?.latestNews
+      .filter((article) => article.slug !== params.slug && article.category === category)
+      .slice(0, 3) ?? [];
 
   return (
     <div className="space-y-12">
       <PageHero
-        eyebrow={article.category}
-        title={article.title}
+        eyebrow={category}
+        title={title}
         subtitle="گزارش کامل به همراه تحلیل فنی و گفت‌وگو با مربیان"
         action={
           <Link href="/news" className="rounded-full border border-[var(--border)] px-5 py-2 text-sm text-[var(--muted)] hover:text-brand">
@@ -33,27 +50,32 @@ export default function NewsDetailsPage({ params }: PageProps) {
       />
 
       <article className="container space-y-6" dir="rtl">
-        <div className="relative h-80 w-full overflow-hidden rounded-3xl border border-[var(--border)]">
-          <Image src={article.image} alt={article.title} fill sizes="(min-width: 768px) 1024px, 100vw" className="object-cover" />
+        <div className="relative h-80 w-full overflow-hidden rounded-3xl border border-[var(--border)] bg-white">
+          <Image src={imageUrl} alt={title} fill sizes="(min-width: 768px) 1024px, 100vw" className="object-cover" />
         </div>
         <div className="flex flex-wrap items-center gap-4 text-xs text-[var(--muted)]">
-          <span>نویسنده: {article.author}</span>
+          <span>منتشر شده: {publishedAt}</span>
           <span className="h-1 w-1 rounded-full bg-[var(--border)]" aria-hidden="true" />
-          <span>منتشر شده: {article.publishDate}</span>
-          <span className="h-1 w-1 rounded-full bg-[var(--border)]" aria-hidden="true" />
-          <span>{article.timeAgo}</span>
+          <span>منبع: 2020news.ir</span>
         </div>
-        <div className="space-y-4 rounded-3xl border border-[var(--border)] bg-white p-6 text-base leading-8 text-[var(--muted)]">
-          <p>
-            با برنامه‌ای که کادر فنی چیده است تیم ملی در فاز پرس تیم مقابل را تحت فشار قرار داده و از بازیسازهای سر ضرب جلوگیری می‌کند. حضور دروازه‌بان دوم در نقش پاورپلی هم باعث شده سرعت چرخش توپ بیش‌تر شود.
-          </p>
-          <p>
-            به گفته کارشناسان، استفاده از بازیکنان دونده در قسمت راست باعث شد فضای خالی پشت مدافعان ژاپن ایجاد شود و همین موضوع موقعیت‌های متعددی برای ایران ساخت. تمرکز بر ریکاوری و آنالیز ویدئویی در برنامه امروز است.
-          </p>
-          <p>
-            ۲۰۲۰نیوز لحظه به لحظه با خبرنگاران اعزامی خود حاشیه‌ها و گفتگوها را پوشش می‌دهد. شما نیز می‌توانید از طریق شبکه‌های اجتماعی با ما همراه شوید و تحلیل‌های فنی خود را به اشتراک بگذارید.
-          </p>
+        <div className="space-y-4 rounded-3xl border border-[var(--border)] bg-white p-6 text-base leading-8 text-[var(--foreground)]">
+          {paragraphs.map((paragraph, index) => (
+            <p key={index} className="text-[var(--muted)]">
+              {paragraph}
+            </p>
+          ))}
         </div>
+        <ArticleEngagement slug={params.slug} />
+        {related.length > 0 && (
+          <section className="space-y-3">
+            <h3 className="text-base font-semibold text-[var(--foreground)]">اخبار مرتبط</h3>
+            <div className="space-y-4">
+              {related.map((article) => (
+                <NewsCard key={article.id} article={article} />
+              ))}
+            </div>
+          </section>
+        )}
       </article>
 
       <Footer />

@@ -1,4 +1,4 @@
-export type LeagueKey = "football" | "futsal" | "beach";
+export type LeagueKey = "futsal" | "beach";
 
 export type HeroSlide = {
   id: string;
@@ -63,15 +63,23 @@ export type LeagueRow = {
   points: number;
 };
 
+export type TopScorer = {
+  rank: number;
+  player: string;
+  team: string;
+  goals: number;
+  matches?: number;
+};
+
 export const heroSlides: HeroSlide[] = [
   {
     id: "hero-1",
     title: "نبرد سرنوشت‌ساز ایران و برزیل در دوحه",
     summary: "ترکیب تهاجمی شمسایی برای رسیدن به فینال آماده است.",
     image: "https://images.unsplash.com/photo-1508098682722-e99c43a406fef?auto=format&fit=crop&w=1600&q=80",
-    category: "فوتبال",
+    category: "فوتسال",
     isLive: true,
-    ctaHref: "/matches?league=football&status=live",
+    ctaHref: "/futsal",
   },
   {
     id: "hero-2",
@@ -91,10 +99,10 @@ export const heroSlides: HeroSlide[] = [
   },
   {
     id: "hero-4",
-    title: "گزارش اختصاصی از اردوی تیم فوتبال امید",
+    title: "گزارش اختصاصی از اردوی تیم امید فوتسال",
     summary: "ناظم‌الشریعه: فرصت برای جوان‌ها فراهم شده است.",
     image: "https://images.unsplash.com/photo-1502877338535-766e1452684a?auto=format&fit=crop&w=1600&q=80",
-    category: "فوتبال",
+    category: "فوتسال",
     ctaHref: "/news/iran-squad-announced",
   },
 ];
@@ -103,13 +111,13 @@ export const latestNews: NewsArticle[] = [
   {
     id: "news-iran-squad",
     slug: "iran-squad-announced",
-    title: "لیست جدید تیم ملی فوتبال اعلام شد",
+    title: "لیست جدید تیم ملی فوتسال اعلام شد",
     summary: "سه بازیکن لیگ ایران برای نخستین بار دعوت شدند.",
     timeAgo: "۱۰ دقیقه پیش",
-    category: "فوتبال",
+    category: "فوتسال",
     image: "https://images.unsplash.com/photo-1461896836934-ffe607ba8211?auto=format&fit=crop&w=900&q=80",
     publishDate: "۱۴۰۳/۰۱/۲۲",
-    author: "تحریریه فوتبال",
+    author: "تحریریه فوتسال",
   },
   {
     id: "news-beach-visit",
@@ -148,14 +156,6 @@ export const latestNews: NewsArticle[] = [
 
 export const liveMatches: LiveMatch[] = [
   {
-    id: "live-football",
-    league: "لیگ برتر فوتبال",
-    status: "زنده",
-    time: "۶۵'",
-    home: { name: "پرسپولیس", score: 1 },
-    away: { name: "سپاهان", score: 1 },
-  },
-  {
     id: "live-futsal",
     league: "لیگ برتر فوتسال",
     status: "در انتظار",
@@ -174,10 +174,6 @@ export const liveMatches: LiveMatch[] = [
 ];
 
 export const weeklyMatches: Record<LeagueKey, WeeklyMatch[]> = {
-  football: [
-    { id: "wf-1", opponent: "استقلال - گل‌گهر", venue: "ورزشگاه آزادی", date: "پنجشنبه ۲۶ اسفند", time: "۱۸:۰۰", league: "football" },
-    { id: "wf-2", opponent: "تراکتور - فولاد", venue: "ورزشگاه یادگار", date: "جمعه ۲۷ اسفند", time: "۲۰:۳۰", league: "football" },
-  ],
   futsal: [
     { id: "fs-1", opponent: "گیتی‌پسند - کراپ", venue: "سالن پیروزی", date: "شنبه ۲۸ اسفند", time: "۱۹:۰۰", league: "futsal" },
     { id: "fs-2", opponent: "کراپ - سن‌ایچ", venue: "سالن انقلاب", date: "یکشنبه ۲۹ اسفند", time: "۲۱:۰۰", league: "futsal" },
@@ -206,33 +202,11 @@ export const matchStatuses = [
 ];
 
 export const leagueOptions = [
-  { id: "football" as LeagueKey, label: "فوتبال" },
   { id: "futsal" as LeagueKey, label: "فوتسال" },
   { id: "beach" as LeagueKey, label: "فوتبال ساحلی" },
 ];
 
 export const matchesCollection: MatchResult[] = [
-  {
-    id: "match-football-1",
-    league: "football",
-    opponent: "پرسپولیس ۲ - ۱ تراکتور",
-    venue: "ورزشگاه آزادی",
-    date: "۲۴ اسفند",
-    status: "finished",
-    season: "1403",
-    week: "1",
-    score: "۲-۱",
-  },
-  {
-    id: "match-football-2",
-    league: "football",
-    opponent: "استقلال - گل‌گهر",
-    venue: "ورزشگاه آزادی",
-    date: "امروز",
-    status: "live",
-    season: "1403",
-    week: "1",
-  },
   {
     id: "match-futsal-1",
     league: "futsal",
@@ -278,13 +252,6 @@ export const matchesCollection: MatchResult[] = [
 ];
 
 export const standings: Record<LeagueKey, LeagueRow[]> = {
-  football: [
-    { rank: 1, team: "پرسپولیس", played: 20, wins: 14, draws: 4, losses: 2, goalDifference: 18, points: 46 },
-    { rank: 2, team: "استقلال", played: 20, wins: 13, draws: 5, losses: 2, goalDifference: 20, points: 44 },
-    { rank: 3, team: "سپاهان", played: 20, wins: 12, draws: 4, losses: 4, goalDifference: 16, points: 40 },
-    { rank: 4, team: "تراکتور", played: 20, wins: 10, draws: 6, losses: 4, goalDifference: 9, points: 36 },
-    { rank: 5, team: "گل‌گهر", played: 20, wins: 9, draws: 6, losses: 5, goalDifference: 6, points: 33 },
-  ],
   futsal: [
     { rank: 1, team: "گیتی‌پسند", played: 18, wins: 14, draws: 2, losses: 2, goalDifference: 25, points: 44 },
     { rank: 2, team: "مس سونگون", played: 18, wins: 13, draws: 3, losses: 2, goalDifference: 21, points: 42 },
@@ -298,6 +265,23 @@ export const standings: Record<LeagueKey, LeagueRow[]> = {
     { rank: 3, team: "ایفا اردکان", played: 16, wins: 10, draws: 1, losses: 5, goalDifference: 7, points: 31 },
     { rank: 4, team: "گلساپوش", played: 16, wins: 8, draws: 3, losses: 5, goalDifference: 4, points: 27 },
     { rank: 5, team: "شاهین خزر", played: 16, wins: 7, draws: 2, losses: 7, goalDifference: -3, points: 23 },
+  ],
+};
+
+export const topScorers: Record<LeagueKey, TopScorer[]> = {
+  futsal: [
+    { rank: 1, player: "مهدی جاوید", team: "گیتی‌پسند", goals: 32 },
+    { rank: 2, player: "قدرت بهادری", team: "مس سونگون", goals: 28 },
+    { rank: 3, player: "حمید احمدی", team: "کراپ الوند", goals: 24 },
+    { rank: 4, player: "علیرضا جوان", team: "سن‌ایچ ساوه", goals: 21 },
+    { rank: 5, player: "علی کیانی‌زادگان", team: "ملی حفاری", goals: 19 },
+  ],
+  beach: [
+    { rank: 1, player: "محمد احمدزاده", team: "پارس جنوبی", goals: 27 },
+    { rank: 2, player: "علی نادری", team: "ملوان بوشهر", goals: 25 },
+    { rank: 3, player: "حمیدرضا مختاری", team: "شاهین خزر", goals: 22 },
+    { rank: 4, player: "مهدی زینالی", team: "ایفا اردکان", goals: 20 },
+    { rank: 5, player: "سعید پیرامون", team: "تکاوران", goals: 18 },
   ],
 };
 
@@ -329,18 +313,20 @@ export const navigationMenu: NavItem[] = [
     title: "فوتسال",
     href: "/futsal",
     children: [
-      { title: "اخبار", href: "/futsal" },
+      { title: "اخبار", href: "/news/futsal" },
       { title: "برنامه و نتایج", href: "/matches?league=futsal" },
-      { title: "جدول لیگ", href: "/standings?league=futsal" },
+      { title: "جدول لیگ", href: "/tables/futsal" },
+      { title: "گلزنان", href: "/scorers/futsal" },
     ],
   },
   {
     title: "فوتبال ساحلی",
-    href: "/beach-football",
+    href: "/beach-soccer",
     children: [
-      { title: "اخبار", href: "/beach-football" },
+      { title: "اخبار", href: "/news/beach-soccer" },
       { title: "برنامه و نتایج", href: "/matches?league=beach" },
-      { title: "جدول لیگ", href: "/standings?league=beach" },
+      { title: "جدول لیگ", href: "/tables/beach-soccer" },
+      { title: "گلزنان", href: "/scorers/beach-soccer" },
     ],
   },
   { title: "باشگاه هواداری", href: "/fan-club" },

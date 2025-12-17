@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import { navigationMenu } from "@/lib/data";
 
@@ -34,14 +35,23 @@ export function Footer() {
       </div>
 
       <div className="border-t border-[var(--border)] bg-white py-4">
-        <div className="container flex flex-col items-center gap-2 text-center text-xs text-[var(--muted)] sm:flex-row sm:justify-between">
+        <div className="container flex flex-col items-center gap-3 text-center text-xs text-[var(--muted)] sm:flex-row sm:justify-between">
           <span>© {new Date().getFullYear()} تمامی حقوق محفوظ است.</span>
-          <span>
-            طراحی و توسعه: amintorbat –{" "}
-            <a href="https://www.torbatesfahaniagency.ir/" target="_blank" rel="noreferrer" className="text-brand underline-offset-4 hover:underline">
-              torbatesfahaniagency.ir
+          <div className="flex flex-col items-center gap-2 sm:flex-row sm:gap-4">
+            <a href="https://www.torbatesfahaniagency.ir/" target="_blank" rel="noreferrer" className="text-brand text-sm font-semibold underline-offset-4 hover:underline">
+              توسعه توسط Torbat Esfahani Agency
             </a>
-          </span>
+            <a href="https://e-rasaneh.ir/Certificate/87565" target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 text-[var(--muted)]">
+              <Image
+                src="https://trustseal.e-rasaneh.ir/logo.aspx?id=87565&p=1"
+                alt="گواهی رسانه دیجیتال"
+                width={72}
+                height={72}
+                className="h-12 w-12 rounded-full border border-[var(--border)] object-contain"
+              />
+              <span>گواهی رسانه دیجیتال</span>
+            </a>
+          </div>
         </div>
       </div>
     </footer>

@@ -44,13 +44,17 @@ export function Navbar() {
   }, [mobileOpen]);
 
   return (
-    <header className="sticky inset-x-0 top-0 z-50 border-b border-[var(--border)] bg-white shadow-[0_12px_40px_rgba(15,23,42,0.08)]" ref={navRef}>
+    <header
+      className="sticky inset-x-0 top-0 z-50 border-b border-[var(--border)] bg-white shadow-[0_12px_40px_rgba(15,23,42,0.08)]"
+      ref={navRef}
+      dir="rtl"
+    >
       <div className="container grid grid-cols-[auto,1fr,auto] items-center gap-4 py-3">
-        <Link href="/" className="justify-self-start" aria-label="۲۰۲۰نیوز">
-          <Image src="/images/logo.png" alt="لوگوی ۲۰۲۰نیوز" width={120} height={32} priority className="h-8 w-auto object-contain" />
+        <Link href="/" className="justify-self-end" aria-label="۲۰۲۰نیوز">
+          <Image src="/images/logo.png" alt="لوگوی ۲۰۲۰نیوز" width={140} height={36} priority className="h-9 w-auto object-contain" />
         </Link>
 
-        <nav className="hidden justify-center md:flex" aria-label="منوی اصلی" dir="rtl">
+        <nav className="hidden justify-center md:flex" aria-label="منوی اصلی">
           <ul className="flex items-center gap-6 text-sm font-semibold text-[var(--foreground)]">
             {navigationMenu.map((item) => (
               <DesktopNavItem
@@ -67,7 +71,7 @@ export function Navbar() {
           </ul>
         </nav>
 
-        <div className="flex items-center gap-3 justify-self-end">
+        <div className="flex items-center gap-3 justify-self-start" dir="ltr">
           <button
             type="button"
             aria-label="جستجو"

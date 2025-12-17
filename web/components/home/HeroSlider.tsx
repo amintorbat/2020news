@@ -2,14 +2,17 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useEffect, useState } from "react";
-import { latestNews, type NewsArticle } from "@/lib/data";
+import { useEffect, useMemo, useState } from "react";
+import type { Article } from "@/lib/acs/types";
 import { cn } from "@/lib/cn";
 
 const AUTO_INTERVAL = 7000;
 
-export function HeroSlider() {
-  const slides = latestNews;
+type HeroSliderProps = {
+  slides: Article[];
+};
+
+export function HeroSlider({ slides }: HeroSliderProps) {
   const [active, setActive] = useState(0);
   const slideCount = slides.length;
 
@@ -22,11 +25,11 @@ export function HeroSlider() {
   }, [slideCount]);
 
   const goTo = (index: number) => {
-    if (slideCount === 0) return;
+    if (!slideCount) return;
     setActive((index + slideCount) % slideCount);
   };
 
-  if (slideCount === 0) {
+  if (!slideCount) {
     return null;
   }
 
@@ -38,8 +41,8 @@ export function HeroSlider() {
             <SlideItem key={slide.id} slide={slide} priority={index === 0} />
           ))}
         </div>
-        <div className="absolute inset-x-0 bottom-4 z-10 flex justify-center">
-          <div className="flex items-center gap-2">
+        <div className="absolute inset-x-0 bottom-5 z-10 flex justify-center">
+          <div className="flex items-center gap-2 rounded-full bg-white/80 px-4 py-2 shadow backdrop-blur">
             {slides.map((item, index) => (
               <button
                 key={item.id}
@@ -61,29 +64,55 @@ export function HeroSlider() {
 }
 
 type SlideItemProps = {
-  slide: NewsArticle;
+  slide: Article;
   priority?: boolean;
 };
 
 function SlideItem({ slide, priority }: SlideItemProps) {
+  const formattedDate = useMemo(() => {
+    if (!slide.publishedAt) return "";
+    try {
+      return new Intl.DateTimeFormat("fa-IR", { dateStyle: "medium", timeStyle: "short" }).format(new Date(slide.publishedAt));
+    } catch {
+      return slide.publishedAt;
+    }
+  }, [slide.publishedAt]);
+
   return (
-    <article className="flex min-w-full flex-col md:h-full md:flex-row" dir="ltr">
+    <article className="flex min-w-full flex-col md:h-full md:flex-row" dir="rtl">
       <div className="relative h-64 w-full overflow-hidden md:h-full md:flex-1">
-        <Image src={slide.image} alt={slide.title} fill className="object-cover" sizes="(min-width: 768px) 55vw, 100vw" priority={priority} />
+        <Image
+          src={slide.imageUrl || "/images/placeholder-article.png"}
+          alt={slide.title}
+          fill
+          className="object-cover"
+          sizes="(min-width: 768px) 55vw, 100vw"
+          priority={priority}
+        />
+        <div className="absolute inset-0 bg-gradient-to-l from-black/10 via-transparent to-transparent" />
       </div>
-      <div className="flex w-full flex-col gap-4 border-t border-[var(--border)] bg-gradient-to-l from-[#f1f3f6] to-white px-6 py-8 text-right md:w-[38%] md:border-t-0 md:border-l" dir="rtl">
+      <div
+        className="flex w-full flex-col gap-4 border-t border-[var(--border)] bg-gradient-to-r from-[#0f172a]/5 via-white to-white px-6 py-8 text-right md:w-[38%] md:border-t-0 md:border-l"
+        dir="rtl"
+      >
         <div className="flex flex-wrap items-center gap-3 text-xs font-semibold text-[var(--muted)]">
           <span className="rounded-full bg-brand/10 px-4 py-1 text-brand">{slide.category}</span>
-          <span>{slide.timeAgo}</span>
+          {formattedDate && <span>{formattedDate}</span>}
         </div>
-        <div className="space-y-3">
-          <h1 className="text-2xl font-black leading-tight text-[var(--foreground)] md:text-3xl">{slide.title}</h1>
-          {slide.summary && <p className="text-sm text-[var(--muted)]">{slide.summary}</p>}
+        <div className="space-y-3 text-[var(--foreground)]">
+          <h1
+            className="text-2xl font-black leading-tight md:text-3xl"
+            style={{ textShadow: "0 2px 8px rgba(0,0,0,0.25)" }}
+          >
+            {slide.title}
+          </h1>
+          {slide.excerpt && (
+            <p className="text-sm text-[var(--muted)]" style={{ textShadow: "0 1px 4px rgba(0,0,0,0.15)" }}>
+              {slide.excerpt}
+            </p>
+          )}
         </div>
-        <Link
-          href={`/news/${slide.slug}`}
-          className="mt-auto inline-flex w-fit items-center rounded-full bg-brand px-5 py-3 text-sm font-semibold text-white shadow-lg transition hover:bg-brand/90"
-        >
+        <Link href={`/news/${slide.slug}`} className="mt-auto inline-flex w-fit items-center rounded-full bg-brand px-5 py-3 text-sm font-semibold text-white shadow-lg transition hover:bg-brand/90">
           مشاهده خبر کامل
         </Link>
       </div>

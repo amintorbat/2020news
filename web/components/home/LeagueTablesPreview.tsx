@@ -4,20 +4,24 @@ import { useState } from "react";
 import Link from "next/link";
 import { SectionHeader } from "@/components/common/SectionHeader";
 import { StandingsTable } from "@/components/standings/StandingsTable";
-import { leagueOptions, standings, type LeagueKey } from "@/lib/data";
+import type { StandingsRow } from "@/lib/acs/types";
+import { leagueOptions, type LeagueKey, type LeagueRow } from "@/lib/data";
 import { cn } from "@/lib/cn";
 
 const leagueHeadings: Record<LeagueKey, string> = {
   futsal: "لیگ برتر فوتسال",
-  football: "لیگ برتر فوتبال",
   beach: "لیگ فوتبال ساحلی",
 };
 
-const leagueTabOrder: LeagueKey[] = ["futsal", "football", "beach"];
+const leagueTabOrder: LeagueKey[] = ["futsal", "beach"];
+const standingsCta: Record<LeagueKey, string> = {
+  futsal: "/tables/futsal",
+  beach: "/tables/beach-soccer",
+};
 
-export function LeagueTablesPreview() {
+export function LeagueTablesPreview({ standings }: { standings: Record<LeagueKey, StandingsRow[]> }) {
   const [activeLeague, setActiveLeague] = useState<LeagueKey>("futsal");
-  const rows = standings[activeLeague].slice(0, 4);
+  const rows = standings[activeLeague] ?? [];
   const heading = leagueHeadings[activeLeague];
   const orderedLeagues = leagueTabOrder
     .map((key) => leagueOptions.find((option) => option.id === key))
@@ -50,15 +54,34 @@ export function LeagueTablesPreview() {
           <span className="text-xs text-[var(--muted)]">به‌روزرسانی امروز</span>
         </div>
         <div className="mt-4">
-          <StandingsTable rows={rows} compact />
+          {rows.length ? (
+            <StandingsTable rows={rows.slice(0, 6).map(toLeagueRow)} compact />
+          ) : (
+            <p className="rounded-2xl border border-dashed border-[var(--border)] p-4 text-center text-sm text-[var(--muted)]">
+              جدول این لیگ در دسترس نیست.
+            </p>
+          )}
         </div>
       </div>
 
       <div className="flex justify-end">
-        <Link href={`/standings?league=${activeLeague}`} className="inline-flex text-sm font-semibold text-brand">
+        <Link href={standingsCta[activeLeague]} className="inline-flex text-sm font-semibold text-brand">
           مشاهده جدول کامل
         </Link>
       </div>
     </section>
   );
+}
+
+function toLeagueRow(row: StandingsRow, index: number): LeagueRow {
+  return {
+    rank: row.position || index + 1,
+    team: row.teamName,
+    played: row.played,
+    wins: row.wins,
+    draws: row.draws,
+    losses: row.losses,
+    goalDifference: row.goalDiff,
+    points: row.points,
+  };
 }
