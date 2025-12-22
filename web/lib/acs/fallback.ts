@@ -1,6 +1,6 @@
 import { latestNews, standings, weeklyMatches } from "@/lib/data";
 import { Article, HomeAcsPayload, MatchesPayload, StandingsPayload, type Match, type SportType } from "./types";
-import { cleanText } from "./utils";
+import { cleanText, normalizeTeamName } from "./utils";
 
 type SupportedLeague = SportType;
 
@@ -28,7 +28,7 @@ export function getFallbackHomePayload(): HomeAcsPayload {
 export function getFallbackStandingsPayload(league: SupportedLeague): StandingsPayload {
   const rows = (standings[league] ?? []).map((row) => ({
     position: row.rank,
-    teamName: row.team,
+    teamName: normalizeTeamName(row.team),
     played: row.played,
     wins: row.wins,
     draws: row.draws,
@@ -49,8 +49,8 @@ export function getFallbackMatchesPayload(league: SupportedLeague): MatchesPaylo
   const matches: Match[] = (weeklyMatches[league] ?? []).map((match) => ({
     id: match.id,
     sport: league,
-    homeTeam: cleanText(match.opponent.split("-")[0] ?? match.opponent),
-    awayTeam: cleanText(match.opponent.split("-")[1] ?? match.opponent),
+    homeTeam: normalizeTeamName(cleanText(match.opponent.split("-")[0] ?? match.opponent)),
+    awayTeam: normalizeTeamName(cleanText(match.opponent.split("-")[1] ?? match.opponent)),
     dateTime: match.date,
     venue: match.venue,
     status: match.time,

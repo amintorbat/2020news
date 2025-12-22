@@ -42,7 +42,7 @@ export const liveMatches: LiveMatch[] = [
     league: "جام باشگاه‌های آسیا",
     status: "در انتظار",
     time: "۲۲:۰۰",
-    home: { name: "—", score: 0 },
+    home: { name: "پالایش نفت شازند", score: 0 },
     away: { name: "الریان", score: 0 },
   },
   {
@@ -59,7 +59,7 @@ export const weeklyMatches: Record<"futsal" | "beach", WeeklyMatch[]> = {
   futsal: [
     {
       id: "fs-week-1",
-      title: "گیتی‌پسند - —",
+      title: "گیتی‌پسند - پالایش نفت شازند",
       venue: "سالن پیروزی",
       date: "پنجشنبه ۲۴ اسفند",
       time: "۱۸:۳۰",
@@ -115,7 +115,7 @@ export const matchesCollection: MatchResult[] = [
   {
     id: "match-1",
     type: "futsal",
-    opponent: "مس سونگون ۴ - ۲ —",
+    opponent: "مس سونگون ۴ - ۲ پالایش نفت شازند",
     venue: "سالن پیروزی",
     date: "۲۴ اسفند",
     status: "finished",
@@ -157,7 +157,7 @@ export const matchesCollection: MatchResult[] = [
   {
     id: "match-5",
     type: "futsal",
-    opponent: "— - الریان",
+    opponent: "پالایش نفت شازند - الریان",
     venue: "سالن آزادی",
     date: "امشب",
     status: "live",

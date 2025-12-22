@@ -1,7 +1,7 @@
 import { load } from "cheerio";
 import { getFallbackStandingsPayload } from "./fallback";
 import { StandingsPayload, StandingsRow, type SportType } from "./types";
-import { cleanText, fetchWithRetry, inferSport } from "./utils";
+import { cleanText, fetchWithRetry, inferSport, normalizeTeamName } from "./utils";
 import { logWarnOnce } from "./logger";
 import { readCache, writeCache } from "./cache";
 
@@ -110,7 +110,8 @@ function extractStandingsBySport($: CheerioRoot) {
         const diffIdx = getIndex("تفاضل");
         const pointsIdx = getIndex("امتیاز");
 
-        const teamName = teamIdx >= 0 ? cells[teamIdx] : cells[1];
+        const rawTeamName = teamIdx >= 0 ? cells[teamIdx] : cells[1];
+        const teamName = normalizeTeamName(rawTeamName);
         if (!teamName) return;
 
         rows.push({

@@ -132,7 +132,7 @@ export const liveMatches: LiveMatch[] = [
     league: "جام باشگاه‌های آسیا",
     status: "در انتظار",
     time: "۲۲:۰۰",
-    home: { name: "—", score: 0 },
+    home: { name: "پالایش نفت شازند", score: 0 },
     away: { name: "الریان", score: 0 },
   },
   {
@@ -150,7 +150,7 @@ export const matchSchedules: Record<"futsal" | "beach", MatchBase[]> = {
     {
       id: "fs-match-1",
       league: "futsal",
-      opponent: "گیتی‌پسند - —",
+      opponent: "گیتی‌پسند - پالایش نفت شازند",
       venue: "سالن پیروزی",
       date: "پنجشنبه ۲۴ اسفند",
       time: "۱۸:۳۰",
@@ -204,7 +204,7 @@ export const leagueTables: Record<"futsal" | "beach", LeagueRow[]> = {
   futsal: [
     { rank: 1, team: "گیتی‌پسند", played: 18, points: 45 },
     { rank: 2, team: "مس سونگون", played: 18, points: 41 },
-    { rank: 3, team: "—", played: 18, points: 37 },
+    { rank: 3, team: "پالایش نفت شازند", played: 18, points: 37 },
     { rank: 4, team: "سن‌ایچ ساوه", played: 18, points: 35 },
     { rank: 5, team: "فرش آرا", played: 18, points: 28 },
   ],

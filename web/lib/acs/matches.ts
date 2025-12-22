@@ -1,7 +1,7 @@
 import { load } from "cheerio";
 import { getFallbackMatchesPayload } from "./fallback";
 import { Match, MatchesPayload, type SportType } from "./types";
-import { cleanText, fetchWithRetry, inferSport } from "./utils";
+import { cleanText, fetchWithRetry, inferSport, normalizeTeamName } from "./utils";
 import { logWarnOnce } from "./logger";
 import { readCache, writeCache } from "./cache";
 
@@ -83,9 +83,11 @@ function parseMatchesBySport($: CheerioRoot) {
       cleanText(node.parentsUntil("body").find(".da-header-text, h3, h2").first().text());
     const sport = inferSport(sportLabel);
 
-    const homeTeam = cleanText(node.find(".home, .team-home, .teamA, .team").first().text());
+    const homeTeam = normalizeTeamName(cleanText(node.find(".home, .team-home, .teamA, .team").first().text()));
     const awayTeam =
-      cleanText(node.find(".away, .team-away, .teamB").first().text()) || cleanText(node.find(".team").last().text());
+      normalizeTeamName(
+        cleanText(node.find(".away, .team-away, .teamB").first().text()) || cleanText(node.find(".team").last().text())
+      );
     if (!homeTeam || !awayTeam) return;
 
     const dateTime = cleanText(node.find(".date, .time, .match-time").first().text());

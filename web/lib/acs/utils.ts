@@ -64,6 +64,14 @@ export function cleanText(value?: string | null) {
   return value?.replace(/\s+/g, " ").trim() ?? "";
 }
 
+const FALLBACK_TEAM_NAME = "پالایش نفت شازند";
+const TEAM_PLACEHOLDERS = new Set(["-", "—", ""]);
+
+export function normalizeTeamName(value?: string | null) {
+  const cleaned = cleanText(value);
+  return TEAM_PLACEHOLDERS.has(cleaned) ? FALLBACK_TEAM_NAME : cleaned;
+}
+
 export function inferSport(text: string): "futsal" | "beach" {
   if (/ساحلی|Beach/i.test(text)) return "beach";
   return "futsal";

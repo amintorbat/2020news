@@ -179,7 +179,7 @@ function normalizeCategory(article: Article) {
 function collectValidSlides(items: Article[]) {
   return items
     .map((item) => {
-      if (isPlaceholder(item.title) || isPlaceholder(item.publishedAt)) return null;
+      if (isPlaceholder(item.title) || isPlaceholder(item.publishedAt) || isPlaceholder(item.slug)) return null;
       if (hasInvalidToken(item.title) || hasInvalidToken(item.category)) return null;
       if (hasInvalidTeamSlot(item.title)) return null;
       return {
