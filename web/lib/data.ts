@@ -44,12 +44,18 @@ export type MatchResult = {
   id: string;
   league: LeagueKey;
   opponent: string;
+  homeTeam?: string;
+  awayTeam?: string;
+  homeLogo?: string;
+  awayLogo?: string;
   venue: string;
   date: string;
+  time?: string;
   status: "live" | "finished" | "upcoming";
   season: string;
   week: string;
   score?: string;
+  note?: string;
 };
 
 export type LeagueRow = {

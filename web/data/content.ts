@@ -1,3 +1,5 @@
+import type { MatchResult } from "@/lib/data";
+
 export type HeroSlide = {
   id: string;
   title: string;
@@ -25,16 +27,6 @@ export type LiveMatch = {
   time: string;
   home: { name: string; score: number };
   away: { name: string; score: number };
-};
-
-export type MatchCard = {
-  id: string;
-  sport: "futsal" | "beach";
-  title: string;
-  venue: string;
-  date: string;
-  time: string;
-  note: string;
 };
 
 export type LeagueRow = {
@@ -153,44 +145,56 @@ export const liveMatches: LiveMatch[] = [
   },
 ];
 
-export const matchSchedules: Record<"futsal" | "beach", MatchCard[]> = {
+export const matchSchedules: Record<"futsal" | "beach", MatchResult[]> = {
   futsal: [
     {
       id: "fs-match-1",
-      sport: "futsal",
-      title: "گیتی‌پسند - کراپ الوند",
+      league: "futsal",
+      opponent: "گیتی‌پسند - کراپ الوند",
       venue: "سالن پیروزی",
       date: "پنجشنبه ۲۴ اسفند",
       time: "۱۸:۳۰",
+      status: "upcoming",
+      season: "1404-1405",
+      week: "1",
       note: "نیمه نهایی لیگ",
     },
     {
       id: "fs-match-2",
-      sport: "futsal",
-      title: "فرش آرا - مس سونگون",
+      league: "futsal",
+      opponent: "فرش آرا - مس سونگون",
       venue: "سالن شهید بهشتی",
       date: "جمعه ۲۵ اسفند",
       time: "۲۰:۱۵",
+      status: "upcoming",
+      season: "1404-1405",
+      week: "1",
       note: "گزارش ویژه",
     },
   ],
   beach: [
     {
       id: "bc-match-1",
-      sport: "beach",
-      title: "پارس جنوبی - ایفا اردکان",
+      league: "beach",
+      opponent: "پارس جنوبی - ایفا اردکان",
       venue: "ساحل نقره‌ای",
       date: "شنبه ۲۶ اسفند",
       time: "۱۹:۰۰",
+      status: "upcoming",
+      season: "1404-1405",
+      week: "15",
       note: "هفته ۱۵ لیگ",
     },
     {
       id: "bc-match-2",
-      sport: "beach",
-      title: "ملوان بوشهر - شاهین خزر",
+      league: "beach",
+      opponent: "ملوان بوشهر - شاهین خزر",
       venue: "ساحل المپیک",
       date: "یکشنبه ۲۷ اسفند",
       time: "۲۱:۰۰",
+      status: "upcoming",
+      season: "1404-1405",
+      week: "15",
       note: "نبرد صدر",
     },
   ],
