@@ -36,7 +36,9 @@ async function loadHomeContent(): Promise<HomeAcsPayload> {
     const heroSlides = dedupeArticles(parseHeroSlides($));
     const latestNews = dedupeArticles(parseLatestArticles($, heroSlides.map((slide) => slide.id)));
     const fallback = getFallbackHomePayload();
-    const finalHeroes = ensureMinimumArticles(heroSlides, fallback.heroSlides, 5, 6);
+    const heroCandidates = collectValidSlides([...heroSlides, ...latestNews]);
+    const fallbackHeroes = collectValidSlides(fallback.heroSlides);
+    const finalHeroes = ensureMinimumArticles(heroCandidates, fallbackHeroes, 3, 6);
     const finalNews = ensureMinimumArticles(latestNews, fallback.latestNews, 12, 30);
 
     const payload: HomeAcsPayload = {
@@ -150,4 +152,42 @@ function ensureMinimumArticles(primary: Article[], fallback: Article[], minCount
   const upperBound = typeof maxCount === "number" ? Math.min(maxCount, merged.length) : merged.length;
   const desired = Math.max(minCount, upperBound);
   return merged.slice(0, Math.min(desired, merged.length));
+}
+
+const INVALID_TITLE_TOKENS = ["کراپ", "Crop"];
+const INVALID_FIELD_VALUES = ["-", "—", ""];
+
+function isPlaceholder(value: string | undefined) {
+  const normalized = (value ?? "").trim();
+  return INVALID_FIELD_VALUES.includes(normalized);
+}
+
+function hasInvalidToken(value: string | undefined) {
+  if (!value) return false;
+  return INVALID_TITLE_TOKENS.some((token) => value.includes(token));
+}
+
+function hasInvalidTeamSlot(value: string | undefined) {
+  if (!value || !value.includes(" - ")) return false;
+  return value.split(" - ").some((part) => isPlaceholder(part));
+}
+
+function normalizeCategory(article: Article) {
+  return article.sport === "beach" ? "فوتبال ساحلی" : "فوتسال";
+}
+
+function collectValidSlides(items: Article[]) {
+  return items
+    .map((item) => {
+      if (isPlaceholder(item.title) || isPlaceholder(item.publishedAt)) return null;
+      if (hasInvalidToken(item.title) || hasInvalidToken(item.category)) return null;
+      if (hasInvalidTeamSlot(item.title)) return null;
+      return {
+        ...item,
+        title: item.title.trim(),
+        category: normalizeCategory(item),
+        imageUrl: item.imageUrl?.trim() || ACS_FALLBACK_IMAGE,
+      };
+    })
+    .filter((item): item is Article => Boolean(item));
 }

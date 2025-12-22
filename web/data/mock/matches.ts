@@ -42,7 +42,7 @@ export const liveMatches: LiveMatch[] = [
     league: "جام باشگاه‌های آسیا",
     status: "در انتظار",
     time: "۲۲:۰۰",
-    home: { name: "کراپ الوند", score: 0 },
+    home: { name: "—", score: 0 },
     away: { name: "الریان", score: 0 },
   },
   {
@@ -59,7 +59,7 @@ export const weeklyMatches: Record<"futsal" | "beach", WeeklyMatch[]> = {
   futsal: [
     {
       id: "fs-week-1",
-      title: "گیتی‌پسند - کراپ الوند",
+      title: "گیتی‌پسند - —",
       venue: "سالن پیروزی",
       date: "پنجشنبه ۲۴ اسفند",
       time: "۱۸:۳۰",
@@ -115,7 +115,7 @@ export const matchesCollection: MatchResult[] = [
   {
     id: "match-1",
     type: "futsal",
-    opponent: "مس سونگون ۴ - ۲ کراپ",
+    opponent: "مس سونگون ۴ - ۲ —",
     venue: "سالن پیروزی",
     date: "۲۴ اسفند",
     status: "finished",
@@ -157,7 +157,7 @@ export const matchesCollection: MatchResult[] = [
   {
     id: "match-5",
     type: "futsal",
-    opponent: "کراپ الوند - الریان",
+    opponent: "— - الریان",
     venue: "سالن آزادی",
     date: "امشب",
     status: "live",

@@ -1,4 +1,4 @@
-import { matchStatuses, type MatchResult } from "@/lib/data";
+import { matchStatuses, type MatchBase } from "@/lib/data";
 import { cn } from "@/lib/cn";
 
 const statusClasses: Record<typeof matchStatuses[number]["id"], string> = {
@@ -7,7 +7,7 @@ const statusClasses: Record<typeof matchStatuses[number]["id"], string> = {
   finished: "bg-slate-200 text-slate-700",
 };
 
-export function MatchCard({ match }: { match: MatchResult }) {
+export function MatchCard({ match }: { match: MatchBase }) {
   const statusLabel = matchStatuses.find((item) => item.id === match.status)?.label ?? "";
 
   return (

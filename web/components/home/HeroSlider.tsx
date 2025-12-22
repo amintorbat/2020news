@@ -14,7 +14,8 @@ type HeroSliderProps = {
 
 export function HeroSlider({ slides }: HeroSliderProps) {
   const [active, setActive] = useState(0);
-  const slideCount = slides.length;
+  const normalizedSlides = slides.filter((slide) => slide?.id);
+  const slideCount = normalizedSlides.length;
 
   useEffect(() => {
     if (slideCount <= 1) return;
@@ -37,15 +38,15 @@ export function HeroSlider({ slides }: HeroSliderProps) {
     <section className="container">
       <div className="relative min-h-[520px] overflow-hidden rounded-[32px] border border-[var(--border)] bg-white shadow-card md:h-[420px] md:min-h-0">
         <div className="flex h-full transition-transform duration-500 ease-in-out" style={{ transform: `translateX(-${active * 100}%)` }}>
-          {slides.map((slide, index) => (
-            <SlideItem key={slide.id} slide={slide} priority={index === 0} />
+          {normalizedSlides.map((slide, index) => (
+            <SlideItem key={`${slide.id}-${index}`} slide={slide} priority={index === 0} />
           ))}
         </div>
         <div className="absolute inset-x-0 bottom-5 z-10 flex justify-center">
           <div className="flex items-center gap-2 rounded-full bg-white/80 px-4 py-2 shadow backdrop-blur">
-            {slides.map((item, index) => (
+            {normalizedSlides.map((item, index) => (
               <button
-                key={item.id}
+                key={`${item.id}-${index}`}
                 type="button"
                 aria-label={`اسلاید ${index + 1}`}
                 aria-current={active === index}

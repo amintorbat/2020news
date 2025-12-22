@@ -40,14 +40,10 @@ export type WeeklyMatch = {
   league: LeagueKey;
 };
 
-export type MatchResult = {
+export type MatchBase = {
   id: string;
   league: LeagueKey;
   opponent: string;
-  homeTeam?: string;
-  awayTeam?: string;
-  homeLogo?: string;
-  awayLogo?: string;
   venue: string;
   date: string;
   time?: string;
@@ -56,6 +52,13 @@ export type MatchResult = {
   week: string;
   score?: string;
   note?: string;
+};
+
+export type MatchFull = MatchBase & {
+  homeTeam?: string;
+  awayTeam?: string;
+  homeLogo?: string;
+  awayLogo?: string;
 };
 
 export type LeagueRow = {
@@ -181,8 +184,8 @@ export const liveMatches: LiveMatch[] = [
 
 export const weeklyMatches: Record<LeagueKey, WeeklyMatch[]> = {
   futsal: [
-    { id: "fs-1", opponent: "گیتی‌پسند - کراپ", venue: "سالن پیروزی", date: "شنبه ۲۸ اسفند", time: "۱۹:۰۰", league: "futsal" },
-    { id: "fs-2", opponent: "کراپ - سن‌ایچ", venue: "سالن انقلاب", date: "یکشنبه ۲۹ اسفند", time: "۲۱:۰۰", league: "futsal" },
+    { id: "fs-1", opponent: "گیتی‌پسند - —", venue: "سالن پیروزی", date: "شنبه ۲۸ اسفند", time: "۱۹:۰۰", league: "futsal" },
+    { id: "fs-2", opponent: "— - سن‌ایچ", venue: "سالن انقلاب", date: "یکشنبه ۲۹ اسفند", time: "۲۱:۰۰", league: "futsal" },
   ],
   beach: [
     { id: "bc-1", opponent: "پارس جنوبی - ایفا", venue: "ساحل نقره‌ای", date: "جمعه ۲۷ اسفند", time: "۱۶:۳۰", league: "beach" },
@@ -212,11 +215,11 @@ export const leagueOptions = [
   { id: "beach" as LeagueKey, label: "فوتبال ساحلی" },
 ];
 
-export const matchesCollection: MatchResult[] = [
+export const matchesCollection: MatchFull[] = [
   {
     id: "match-futsal-1",
     league: "futsal",
-    opponent: "مس سونگون ۴ - ۲ کراپ",
+    opponent: "مس سونگون ۴ - ۲ —",
     venue: "سالن پیروزی",
     date: "۲۴ اسفند",
     status: "finished",
@@ -261,7 +264,7 @@ export const standings: Record<LeagueKey, LeagueRow[]> = {
   futsal: [
     { rank: 1, team: "گیتی‌پسند", played: 18, wins: 14, draws: 2, losses: 2, goalDifference: 25, points: 44 },
     { rank: 2, team: "مس سونگون", played: 18, wins: 13, draws: 3, losses: 2, goalDifference: 21, points: 42 },
-    { rank: 3, team: "کراپ الوند", played: 18, wins: 11, draws: 3, losses: 4, goalDifference: 12, points: 36 },
+    { rank: 3, team: "—", played: 18, wins: 11, draws: 3, losses: 4, goalDifference: 12, points: 36 },
     { rank: 4, team: "سن‌ایچ ساوه", played: 18, wins: 10, draws: 5, losses: 3, goalDifference: 10, points: 35 },
     { rank: 5, team: "فرش آرا", played: 18, wins: 8, draws: 5, losses: 5, goalDifference: 3, points: 29 },
   ],
@@ -278,7 +281,7 @@ export const topScorers: Record<LeagueKey, TopScorer[]> = {
   futsal: [
     { rank: 1, player: "مهدی جاوید", team: "گیتی‌پسند", goals: 32 },
     { rank: 2, player: "قدرت بهادری", team: "مس سونگون", goals: 28 },
-    { rank: 3, player: "حمید احمدی", team: "کراپ الوند", goals: 24 },
+    { rank: 3, player: "حمید احمدی", team: "—", goals: 24 },
     { rank: 4, player: "علیرضا جوان", team: "سن‌ایچ ساوه", goals: 21 },
     { rank: 5, player: "علی کیانی‌زادگان", team: "ملی حفاری", goals: 19 },
   ],

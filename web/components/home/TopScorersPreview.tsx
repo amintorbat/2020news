@@ -32,22 +32,22 @@ export function TopScorersPreview({ scorers }: { scorers: Record<LeagueKey, TopS
       </div>
       <div className="overflow-hidden rounded-3xl border border-[var(--border)] bg-white shadow-card">
         {rows.length ? (
-          <table className="w-full text-sm">
+          <table className="w-full text-sm text-right">
             <thead className="bg-[#f7f8fa] text-xs text-[var(--muted)]">
               <tr>
-                <th className="py-3">رتبه</th>
+                <th className="py-3 text-center">رتبه</th>
                 <th className="py-3 text-right">بازیکن</th>
-                <th className="py-3">تیم</th>
-                <th className="py-3">گل</th>
+                <th className="py-3 text-right">تیم</th>
+                <th className="py-3 text-center">گل</th>
               </tr>
             </thead>
             <tbody>
               {rows.slice(0, 5).map((player) => (
-                <tr key={player.rank} className="text-center text-[var(--foreground)]">
-                  <td className="py-3 font-bold">{player.rank}</td>
+                <tr key={player.rank} className="text-[var(--foreground)]">
+                  <td className="py-3 text-center font-bold">{player.rank}</td>
                   <td className="py-3 text-right font-semibold">{player.player}</td>
-                  <td className="py-3 text-[var(--muted)]">{player.team}</td>
-                  <td className="py-3 font-black text-brand">{player.goals}</td>
+                  <td className="py-3 text-right text-[var(--muted)]">{player.team}</td>
+                  <td className="py-3 text-center font-black text-brand">{player.goals}</td>
                 </tr>
               ))}
             </tbody>
