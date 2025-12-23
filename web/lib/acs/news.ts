@@ -182,9 +182,9 @@ function sanitizeBodyHtml(rawHtml: string) {
   root.find("script, style, iframe, noscript, form, input, button, textarea, select, svg").remove();
 
   root.find("*").each((_, element) => {
+    if (element.type !== "tag") return;
     const node = $(element);
-    const tagName = element.tagName?.toLowerCase?.() ?? "";
-    if (!tagName) return;
+    const tagName = element.tagName.toLowerCase();
 
     if (!ALLOWED_TAGS.has(tagName)) {
       node.replaceWith(node.contents());
