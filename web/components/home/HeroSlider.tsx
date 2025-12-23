@@ -14,8 +14,15 @@ type HeroSliderProps = {
   fallbackSlides?: Article[];
 };
 
+type SlideWithSummary = Article & { summary?: string | null };
+
 function filterValidSlides(items: Article[]) {
-  return items.filter((slide) => Boolean(slide?.title?.trim()));
+  return items.filter((slide) => {
+    const hasTitle = Boolean(slide?.title?.trim());
+    const summary = (slide as SlideWithSummary).summary ?? slide.excerpt;
+    const hasSummary = Boolean(summary?.trim());
+    return hasTitle && hasSummary;
+  });
 }
 
 function normalizeSlides(items: Article[]) {
