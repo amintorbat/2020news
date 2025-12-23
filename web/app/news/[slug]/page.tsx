@@ -32,7 +32,7 @@ export default async function NewsDetailsPage({ params }: PageProps) {
   const title = detail?.title ?? fallbackArticle?.title ?? "گزارش خبری";
   const category = detail?.category ?? fallbackArticle?.category ?? "اخبار";
   const publishedAt = detail?.publishedAt ?? fallbackArticle?.publishedAt ?? new Date().toLocaleDateString("fa-IR");
-  const imageUrl = detail?.imageUrl ?? fallbackArticle?.imageUrl ?? "";
+  const imageUrl = detail ? detail.imageUrl : fallbackArticle?.imageUrl ?? "";
   const lead = detail?.lead ?? fallbackArticle?.excerpt ?? "";
   const bodyHtml =
     detail?.bodyHtml ??

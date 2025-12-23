@@ -17,6 +17,12 @@
 - Every ACS module has a companion fallback (`fallback.ts`). When the origin fails, we log once with `logWarnOnce` and immediately serve cached/local data.
 - In-memory caches prevent repeated scraping for the same request window, and Next.js ISR (`revalidate`) keeps responses fresh without hammering the source.
 
+### Featured Image Selection (ACS News)
+- Featured images are selected only from the main article body containers to avoid page chrome or sidebar assets.
+- Any image inside ad/banner/trust/badge containers is ignored, and `trustseal.e-rasaneh.ir` is always excluded.
+- Tiny/icon-like files (e.g., `logo`, `badge`, `icon`) are skipped; if nothing qualifies, `featuredImage` becomes `null`.
+- Debug quickly with `node docs/acs-featured-image-smoke.mjs <fullcontent-url>` to see title, host, and exclusion status.
+
 ### Component Responsibilities
 - **HeroSlider** displays up to six curated stories with image on the right, text on the left, centered pagination dots, and guaranteed placeholder imagery.
 - **NewsList / NewsCard** show only six priority stories on the homepage, always linking internally to `/news/[slug]` and enforcing the RTL image-right layout.

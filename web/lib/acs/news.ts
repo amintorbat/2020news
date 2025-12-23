@@ -1,11 +1,48 @@
 // This module fetches and sanitizes full news articles for the detail page.
-import { load } from "cheerio";
+import { load, type Cheerio, type Element } from "cheerio";
 import { ACS_BASE_URL } from "./constants";
 import { logWarnOnce } from "./logger";
 import { absoluteUrl, cleanText, extractIdFromSlug, fetchWithRetry } from "./utils";
 import { NewsDetail } from "@/types/news";
 
 type CheerioRoot = ReturnType<typeof load>;
+
+const BODY_CONTAINER_SELECTORS = [
+  "#ctl00_cphMain_lblBody",
+  ".articleBody",
+  ".article-body",
+  ".news-body",
+  ".content",
+];
+
+const PARAGRAPH_CONTAINER_SELECTORS = [
+  "#ctl00_cphMain_lblBody",
+  ".articleBody",
+  ".article-body",
+  ".news-body",
+];
+
+const EXCLUDED_CONTAINER_SELECTORS = [
+  "[class*='ads']",
+  "[class*='ad-']",
+  "[id*='ad']",
+  "[class*='banner']",
+  "[class*='trust']",
+  "[id*='trust']",
+  "aside",
+  "footer",
+  ".sidebar",
+  ".widget",
+  ".advert",
+  ".ad",
+  ".banner",
+  ".trust",
+  ".badge",
+];
+
+const EXCLUDED_IMAGE_HOSTS = new Set(["trustseal.e-rasaneh.ir"]);
+const IMAGE_FILENAME_HINTS = ["logo", "icon", "badge", "trust", "seal", "ads", "banner"];
+const MIN_FEATURED_IMAGE_SIZE = 120;
 
 const ALLOWED_TAGS = new Set([
   "p",
@@ -90,26 +127,30 @@ export async function getNewsDetail(slug: string): Promise<NewsDetail> {
 }
 
 function pickMainImage($: CheerioRoot) {
-  const candidate =
-    absoluteUrl($(".img-responsive").first().attr("src")) ||
-    absoluteUrl($("#ctl00_cphMain_imgNews").attr("src")) ||
-    absoluteUrl($(".articleBody img, .article-body img").first().attr("src"));
-  return candidate || undefined;
+  const bodyContainer = pickBodyContainer($);
+  if (!bodyContainer) return null;
+
+  const images = bodyContainer.find("img");
+  for (const element of images.toArray()) {
+    if (element.type !== "tag") continue;
+    const node = $(element);
+    if (isInExcludedContainer(node)) continue;
+
+    const src = (node.attr("src") ?? "").trim();
+    const normalized = normalizeSrc(src);
+    if (!normalized) continue;
+    if (isExcludedImageHost(normalized)) continue;
+    if (isLikelyIconOrBadge(normalized, element)) continue;
+
+    return normalized;
+  }
+
+  return null;
 }
 
 function pickBodyHtml($: CheerioRoot) {
-  const candidates = [
-    $("#ctl00_cphMain_lblBody"),
-    $(".articleBody"),
-    $(".article-body"),
-    $(".news-body"),
-    $(".content"),
-  ];
-  for (const candidate of candidates) {
-    if (candidate.length && cleanText(candidate.text())) {
-      return candidate.html() ?? "";
-    }
-  }
+  const bodyContainer = pickBodyContainer($);
+  if (bodyContainer) return bodyContainer.html() ?? "";
   return "";
 }
 
@@ -122,12 +163,7 @@ function buildParagraphsHtml($: CheerioRoot) {
 }
 
 function collectParagraphs($: CheerioRoot) {
-  const containers = [
-    $("#ctl00_cphMain_lblBody"),
-    $(".articleBody"),
-    $(".article-body"),
-    $(".news-body"),
-  ];
+  const containers = PARAGRAPH_CONTAINER_SELECTORS.map((selector) => $(selector));
   const paragraphs: string[] = [];
 
   containers.forEach((container) => {
@@ -179,6 +215,7 @@ function sanitizeBodyHtml(rawHtml: string) {
   const $ = load(`<div id="root">${rawHtml}</div>`, { decodeEntities: false });
   const root = $("#root");
 
+  root.find(EXCLUDED_CONTAINER_SELECTORS.join(", ")).remove();
   root.find("script, style, iframe, noscript, form, input, button, textarea, select, svg").remove();
 
   root.find("*").each((_, element) => {
@@ -248,6 +285,54 @@ function sanitizeBodyHtml(rawHtml: string) {
   });
 
   return root.html() ?? "";
+}
+
+function pickBodyContainer($: CheerioRoot) {
+  for (const selector of BODY_CONTAINER_SELECTORS) {
+    const candidate = $(selector).first();
+    if (!candidate.length) continue;
+    if (cleanText(candidate.text()) || candidate.find("img").length > 0) {
+      return candidate;
+    }
+  }
+  return null;
+}
+
+function isInExcludedContainer(node: Cheerio<Element>) {
+  const selector = EXCLUDED_CONTAINER_SELECTORS.join(", ");
+  return node.closest(selector).length > 0;
+}
+
+function isExcludedImageHost(src: string) {
+  const host = getHost(src);
+  return Boolean(host && EXCLUDED_IMAGE_HOSTS.has(host));
+}
+
+function isLikelyIconOrBadge(src: string, element: Element) {
+  const filename = src.split("?")[0]?.split("#")[0]?.split("/").pop() ?? "";
+  const hint = `${filename} ${(element.attribs?.class ?? "").toLowerCase()} ${(element.attribs?.id ?? "").toLowerCase()}`.toLowerCase();
+  if (IMAGE_FILENAME_HINTS.some((token) => hint.includes(token))) {
+    return true;
+  }
+  const width = toNumber(element.attribs?.width);
+  const height = toNumber(element.attribs?.height);
+  if (width && width < MIN_FEATURED_IMAGE_SIZE) return true;
+  if (height && height < MIN_FEATURED_IMAGE_SIZE) return true;
+  return false;
+}
+
+function toNumber(value?: string) {
+  if (!value) return null;
+  const parsed = Number.parseInt(value, 10);
+  return Number.isNaN(parsed) ? null : parsed;
+}
+
+function getHost(value: string) {
+  try {
+    return new URL(value).host;
+  } catch {
+    return "";
+  }
 }
 
 function normalizeHref(href: string) {

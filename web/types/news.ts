@@ -3,7 +3,7 @@ export type NewsDetail = {
   title: string;
   category: string;
   publishedAt: string;
-  imageUrl?: string;
+  imageUrl: string | null;
   lead?: string;
   bodyHtml: string;
   sourceUrl: string;
