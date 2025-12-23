@@ -85,7 +85,7 @@ function parseHeroSlides($: CheerioRoot): Article[] {
     const category = cleanText(node.find(".SubTitle").first().text()) || "فوتسال";
     const imageSrc = node.find("img").attr("src");
     const resolvedImage = absoluteUrl(imageSrc);
-    const imageUrl = resolvedImage || ACS_FALLBACK_IMAGE;
+    const imageUrl = resolvedImage;
     const slug = createArticleSlug(id, title);
 
     slides.set(id, {
@@ -216,7 +216,10 @@ function normalizeCategory(article: Article) {
 function collectValidSlides(items: Article[]) {
   return items
     .map((item) => {
+      // فقط اسلایدهایی با تصویر معتبر وارد هرو شوند تا اسلاید خالی نداشته باشیم.
+      // Only accept slides with valid images to prevent empty hero slides.
       if (isPlaceholder(item.title) || isPlaceholder(item.publishedAt) || isPlaceholder(item.slug)) return null;
+      if (!item.imageUrl || !item.imageUrl.trim()) return null;
       if (hasInvalidToken(item.title) || hasInvalidToken(item.category)) return null;
       if (hasInvalidTeamSlot(item.title)) return null;
       return {
