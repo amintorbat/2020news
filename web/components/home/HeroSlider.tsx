@@ -7,30 +7,7 @@ import type { Article } from "@/lib/acs/types";
 import { cn } from "@/lib/cn";
 
 const AUTO_INTERVAL = 7000;
-const FALLBACK_IMAGE = "/images/placeholder-article.png";
-
-const LOCAL_FALLBACK_SLIDES: Article[] = [
-  {
-    id: "local-fallback-1",
-    slug: "news-local-fallback-1",
-    title: "آخرین خبرهای فوتسال",
-    excerpt: "پوشش ویژه از رقابت‌های فوتسال ایران و آسیا.",
-    publishedAt: "۱۴۰۳/۰۱/۲۲",
-    category: "فوتسال",
-    sport: "futsal",
-    imageUrl: FALLBACK_IMAGE,
-  },
-  {
-    id: "local-fallback-2",
-    slug: "news-local-fallback-2",
-    title: "آخرین خبرهای فوتبال ساحلی",
-    excerpt: "گزارش‌های اختصاصی از لیگ فوتبال ساحلی.",
-    publishedAt: "۱۴۰۳/۰۱/۲۲",
-    category: "فوتبال ساحلی",
-    sport: "beach",
-    imageUrl: FALLBACK_IMAGE,
-  },
-];
+const HERO_CACHE_KEY = "2020news.heroSlides";
 
 type HeroSliderProps = {
   slides: Article[];
@@ -38,31 +15,59 @@ type HeroSliderProps = {
 };
 
 function filterValidSlides(items: Article[]) {
-  return items.filter((slide) => Boolean(slide?.title?.trim()) && Boolean(slide?.imageUrl?.trim()));
+  return items.filter((slide) => Boolean(slide?.title?.trim()));
 }
 
-function mergeSlides(primary: Article[], secondary: Article[]) {
-  const seen = new Set<string>();
-  const merged: Article[] = [];
-  [...primary, ...secondary].forEach((item) => {
-    if (!item?.id || seen.has(item.id)) return;
-    seen.add(item.id);
-    merged.push(item);
-  });
-  return merged;
+function normalizeSlides(items: Article[]) {
+  return filterValidSlides(items).filter((slide) => Boolean(slide?.id && slide?.slug));
 }
 
 export function HeroSlider({ slides, fallbackSlides }: HeroSliderProps) {
+  void fallbackSlides;
   const [active, setActive] = useState(0);
-  const normalizedSlides = slides.filter((slide) => slide?.id);
-  const validSlides = useMemo(() => filterValidSlides(normalizedSlides), [normalizedSlides]);
-  const resolvedSlides = useMemo(() => {
-    const fromNews = filterValidSlides(fallbackSlides ?? []);
-    if (!validSlides.length && !fromNews.length) return LOCAL_FALLBACK_SLIDES;
-    const merged = validSlides.length < 3 ? mergeSlides(validSlides, fromNews) : validSlides;
-    return merged.slice(0, 6);
-  }, [fallbackSlides, validSlides]);
-  const slideCount = resolvedSlides.length;
+  const [heroItems, setHeroItems] = useState<Article[]>(() => normalizeSlides(slides));
+  const validSlides = useMemo(() => normalizeSlides(heroItems), [heroItems]);
+  const slideCount = validSlides.length;
+
+  useEffect(() => {
+    setHeroItems(normalizeSlides(slides));
+  }, [slides]);
+
+  useEffect(() => {
+    let cancelled = false;
+    const load = async () => {
+      try {
+        const response = await fetch("/api/acs/home");
+        if (!response.ok) return;
+        const data = (await response.json()) as { heroSlides?: Article[] };
+        const next = normalizeSlides(data.heroSlides ?? []);
+        if (!cancelled && next.length) {
+          setHeroItems(next);
+          try {
+            window.localStorage.setItem(HERO_CACHE_KEY, JSON.stringify(next));
+          } catch {
+            // ignore cache errors
+          }
+        }
+      } catch {
+        try {
+          const cached = window.localStorage.getItem(HERO_CACHE_KEY);
+          if (cached) {
+            const parsed = normalizeSlides(JSON.parse(cached) as Article[]);
+            if (!cancelled && parsed.length) {
+              setHeroItems(parsed);
+            }
+          }
+        } catch {
+          // ignore cache errors
+        }
+      }
+    };
+    load();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   useEffect(() => {
     if (slideCount <= 1) {
@@ -89,7 +94,7 @@ export function HeroSlider({ slides, fallbackSlides }: HeroSliderProps) {
       <div className="relative min-h-[520px] overflow-hidden rounded-[32px] border border-[var(--border)] bg-white shadow-card md:h-[420px] md:min-h-0">
         {slideCount < 2 ? (
           <div className="h-full">
-            <SlideItem slide={resolvedSlides[0]} priority />
+            <SlideItem slide={validSlides[0]} priority />
           </div>
         ) : (
           <>
@@ -97,13 +102,13 @@ export function HeroSlider({ slides, fallbackSlides }: HeroSliderProps) {
               className="flex h-full transition-transform duration-500 ease-in-out"
               style={{ transform: `translateX(-${active * 100}%)` }}
             >
-              {resolvedSlides.map((slide, index) => (
+              {validSlides.map((slide, index) => (
                 <SlideItem key={`${slide.id}-${index}`} slide={slide} priority={index === 0} />
               ))}
             </div>
             <div className="absolute inset-x-0 bottom-5 z-10 flex justify-center">
               <div className="flex items-center gap-2 rounded-full bg-white/80 px-4 py-2 shadow backdrop-blur">
-                {resolvedSlides.map((item, index) => (
+                {validSlides.map((item, index) => (
                   <button
                     key={`${item.id}-${index}`}
                     type="button"
@@ -131,7 +136,7 @@ type SlideItemProps = {
 };
 
 function SlideItem({ slide, priority }: SlideItemProps) {
-  const [imgSrc, setImgSrc] = useState(slide.imageUrl || FALLBACK_IMAGE);
+  const hasImage = Boolean(slide.imageUrl?.trim());
   const formattedDate = useMemo(() => {
     if (!slide.publishedAt) return "";
     try {
@@ -141,26 +146,27 @@ function SlideItem({ slide, priority }: SlideItemProps) {
     }
   }, [slide.publishedAt]);
 
-  useEffect(() => {
-    setImgSrc(slide.imageUrl || FALLBACK_IMAGE);
-  }, [slide.imageUrl]);
-
   return (
-    <article className="flex min-w-full flex-col md:h-full md:flex-row" dir="rtl">
-      <div className="relative h-64 w-full overflow-hidden md:h-full md:flex-1">
-        <Image
-          src={imgSrc}
-          alt={slide.title}
-          fill
-          className="object-cover"
-          sizes="(min-width: 768px) 55vw, 100vw"
-          priority={priority}
-          onError={() => setImgSrc(FALLBACK_IMAGE)}
-        />
-        <div className="absolute inset-0 bg-gradient-to-l from-black/10 via-transparent to-transparent" />
-      </div>
+    <article className={`flex min-w-full flex-col ${hasImage ? "md:h-full md:flex-row" : "md:h-full"}`} dir="rtl">
+      {hasImage ? (
+        <div className="relative h-64 w-full overflow-hidden md:h-full md:flex-1">
+          <Image
+            src={slide.imageUrl as string}
+            alt={slide.title}
+            fill
+            className="object-cover"
+            sizes="(min-width: 768px) 55vw, 100vw"
+            priority={priority}
+          />
+          <div className="absolute inset-0 bg-gradient-to-l from-black/10 via-transparent to-transparent" />
+        </div>
+      ) : null}
       <div
-        className="flex w-full flex-col gap-4 border-t border-[var(--border)] bg-gradient-to-r from-[#0f172a]/5 via-white to-white px-6 py-8 text-right md:w-[38%] md:border-t-0 md:border-l"
+        className={
+          hasImage
+            ? "flex w-full flex-col gap-4 border-t border-[var(--border)] bg-gradient-to-r from-[#0f172a]/5 via-white to-white px-6 py-8 text-right md:w-[38%] md:border-t-0 md:border-l"
+            : "flex h-full w-full flex-col justify-center gap-4 px-6 py-10 text-right md:px-14"
+        }
         dir="rtl"
       >
         <div className="flex flex-wrap items-center gap-3 text-xs font-semibold text-[var(--muted)]">

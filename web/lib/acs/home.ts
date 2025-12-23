@@ -1,5 +1,6 @@
 import { load } from "cheerio";
 import { getFallbackHomePayload } from "./fallback";
+import { heroSlides as localHeroSlides, latestNews as localNews } from "@/lib/data";
 import { Article, HomeAcsPayload } from "./types";
 import { absoluteUrl, cleanText, createArticleSlug, extractIdFromHref, fetchWithRetry, inferSport } from "./utils";
 import { ACS_FALLBACK_IMAGE } from "./constants";
@@ -36,10 +37,12 @@ async function loadHomeContent(): Promise<HomeAcsPayload> {
     const heroSlides = dedupeArticles(parseHeroSlides($));
     const latestNews = dedupeArticles(parseLatestArticles($, heroSlides.map((slide) => slide.id)));
     const fallback = getFallbackHomePayload();
+    const localHeroes = mapLocalHeroSlides(localHeroSlides);
+    const localNewsItems = mapLocalNews(localNews);
     const heroCandidates = collectValidSlides([...heroSlides, ...latestNews]);
-    const fallbackHeroes = collectValidSlides(fallback.heroSlides);
+    const fallbackHeroes = collectValidSlides([...fallback.heroSlides, ...localHeroes, ...localNewsItems]);
     const finalHeroes = ensureMinimumArticles(heroCandidates, fallbackHeroes, 3, 6);
-    const finalNews = ensureMinimumArticles(latestNews, fallback.latestNews, 12, 30);
+    const finalNews = ensureMinimumArticles(latestNews, [...fallback.latestNews, ...localNewsItems], 12, 30);
 
     const payload: HomeAcsPayload = {
       heroSlides: finalHeroes,
@@ -56,7 +59,15 @@ async function loadHomeContent(): Promise<HomeAcsPayload> {
     if (cached) {
       return { ...cached, source: "cache" };
     }
-    return getFallbackHomePayload();
+    const fallbackPayload = getFallbackHomePayload();
+    const localFallbackHeroes = collectValidSlides(mapLocalHeroSlides(localHeroSlides));
+    const localFallbackNews = mapLocalNews(localNews);
+    return {
+      ...fallbackPayload,
+      heroSlides: ensureMinimumArticles(localFallbackHeroes, fallbackPayload.heroSlides, 4, 6),
+      latestNews: ensureMinimumArticles(fallbackPayload.latestNews, localFallbackNews, 12, 30),
+      source: "fallback",
+    };
   }
 }
 
@@ -91,6 +102,32 @@ function parseHeroSlides($: CheerioRoot): Article[] {
   });
 
   return Array.from(slides.values()).slice(0, 6);
+}
+
+function mapLocalHeroSlides(items: typeof localHeroSlides): Article[] {
+  return items.map((item) => ({
+    id: item.id,
+    slug: createArticleSlug(item.id, item.title),
+    title: item.title,
+    excerpt: item.summary ?? "",
+    category: item.category,
+    sport: inferSport(item.category),
+    publishedAt: new Date().toISOString(),
+    imageUrl: item.image,
+  }));
+}
+
+function mapLocalNews(items: typeof localNews): Article[] {
+  return items.map((item) => ({
+    id: item.id,
+    slug: item.slug,
+    title: item.title,
+    excerpt: item.summary ?? "",
+    category: item.category,
+    sport: inferSport(item.category),
+    publishedAt: item.publishDate,
+    imageUrl: item.image,
+  }));
 }
 
 function parseLatestArticles($: CheerioRoot, excludeIds: string[]) {

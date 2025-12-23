@@ -47,6 +47,7 @@ export function Footer() {
                 alt="گواهی رسانه دیجیتال"
                 width={72}
                 height={72}
+                unoptimized
                 className="h-12 w-12 rounded-full border border-[var(--border)] object-contain"
               />
               <span>گواهی رسانه دیجیتال</span>
