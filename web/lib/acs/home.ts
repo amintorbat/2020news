@@ -1,6 +1,6 @@
 import { load } from "cheerio";
 import { getFallbackHomePayload } from "./fallback";
-import { heroSlides as localHeroSlides, latestNews as localNews } from "@/lib/data";
+import { latestNews as localNews } from "@/lib/data";
 import { Article, HomeAcsPayload } from "./types";
 import { absoluteUrl, cleanText, createArticleSlug, extractIdFromHref, fetchWithRetry, inferSport } from "./utils";
 import { ACS_FALLBACK_IMAGE } from "./constants";
@@ -37,11 +37,13 @@ async function loadHomeContent(): Promise<HomeAcsPayload> {
     const heroSlides = dedupeArticles(parseHeroSlides($));
     const latestNews = dedupeArticles(parseLatestArticles($, heroSlides.map((slide) => slide.id)));
     const fallback = getFallbackHomePayload();
-    const localHeroes = mapLocalHeroSlides(localHeroSlides);
     const localNewsItems = mapLocalNews(localNews);
-    const heroCandidates = collectValidSlides([...heroSlides, ...latestNews]);
-    const fallbackHeroes = collectValidSlides([...fallback.heroSlides, ...localHeroes, ...localNewsItems]);
-    const finalHeroes = ensureMinimumArticles(heroCandidates, fallbackHeroes, 3, 6);
+    const rawHeroCandidates = [...heroSlides, ...latestNews];
+    const heroCandidates = collectValidSlides(rawHeroCandidates);
+    if (heroCandidates.length < rawHeroCandidates.length) {
+      console.warn("[ACS][home] Hero slides filtered due to missing/invalid images");
+    }
+    const finalHeroes = heroCandidates.slice(0, 5);
     const finalNews = ensureMinimumArticles(latestNews, [...fallback.latestNews, ...localNewsItems], 12, 30);
 
     const payload: HomeAcsPayload = {
@@ -57,14 +59,21 @@ async function loadHomeContent(): Promise<HomeAcsPayload> {
     logWarnOnce("home", "Falling back to cached hero/news feed", error);
     const cached = await readCache<HomeAcsPayload>("home");
     if (cached) {
-      return { ...cached, source: "cache" };
+      const cachedHeroes = collectValidSlides(cached.heroSlides ?? []);
+      if (cachedHeroes.length < (cached.heroSlides?.length ?? 0)) {
+        console.warn("[ACS][home] Cached hero slides filtered due to missing/invalid images");
+      }
+      return { ...cached, heroSlides: cachedHeroes.slice(0, 5), source: "cache" };
     }
     const fallbackPayload = getFallbackHomePayload();
-    const localFallbackHeroes = collectValidSlides(mapLocalHeroSlides(localHeroSlides));
     const localFallbackNews = mapLocalNews(localNews);
+    const fallbackHeroes = collectValidSlides(fallbackPayload.heroSlides ?? []);
+    if (fallbackHeroes.length < (fallbackPayload.heroSlides?.length ?? 0)) {
+      console.warn("[ACS][home] Fallback hero slides filtered due to missing/invalid images");
+    }
     return {
       ...fallbackPayload,
-      heroSlides: ensureMinimumArticles(localFallbackHeroes, fallbackPayload.heroSlides, 4, 6),
+      heroSlides: fallbackHeroes.slice(0, 5),
       latestNews: ensureMinimumArticles(fallbackPayload.latestNews, localFallbackNews, 12, 30),
       source: "fallback",
     };
@@ -102,19 +111,6 @@ function parseHeroSlides($: CheerioRoot): Article[] {
   });
 
   return Array.from(slides.values()).slice(0, 6);
-}
-
-function mapLocalHeroSlides(items: typeof localHeroSlides): Article[] {
-  return items.map((item) => ({
-    id: item.id,
-    slug: createArticleSlug(item.id, item.title),
-    title: item.title,
-    excerpt: item.summary ?? "",
-    category: item.category,
-    sport: inferSport(item.category),
-    publishedAt: new Date().toISOString(),
-    imageUrl: item.image,
-  }));
 }
 
 function mapLocalNews(items: typeof localNews): Article[] {
@@ -219,7 +215,7 @@ function collectValidSlides(items: Article[]) {
       // فقط اسلایدهایی با تصویر معتبر وارد هرو شوند تا اسلاید خالی نداشته باشیم.
       // Only accept slides with valid images to prevent empty hero slides.
       if (isPlaceholder(item.title) || isPlaceholder(item.publishedAt) || isPlaceholder(item.slug)) return null;
-      if (!item.imageUrl || !item.imageUrl.trim()) return null;
+      if (!item.imageUrl || !item.imageUrl.trim() || !item.imageUrl.startsWith("http")) return null;
       if (hasInvalidToken(item.title) || hasInvalidToken(item.category)) return null;
       if (hasInvalidTeamSlot(item.title)) return null;
       return {

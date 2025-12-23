@@ -14,19 +14,18 @@ type HeroSliderProps = {
   fallbackSlides?: Article[];
 };
 
-type SlideWithSummary = Article & { summary?: string | null };
-
 function filterValidSlides(items: Article[]) {
-  return items.filter((slide) => {
-    const hasTitle = Boolean(slide?.title?.trim());
-    const summary = (slide as SlideWithSummary).summary ?? slide.excerpt;
-    const hasSummary = Boolean(summary?.trim());
-    return hasTitle && hasSummary;
-  });
+  return items.filter(
+    (slide) =>
+      Boolean(slide?.title?.trim()) &&
+      typeof slide?.imageUrl === "string" &&
+      slide.imageUrl.trim().length > 0 &&
+      slide.imageUrl.startsWith("http")
+  );
 }
 
 function normalizeSlides(items: Article[]) {
-  return filterValidSlides(items).filter((slide) => Boolean(slide?.id && slide?.slug));
+  return filterValidSlides(items);
 }
 
 export function HeroSlider({ slides, fallbackSlides }: HeroSliderProps) {
