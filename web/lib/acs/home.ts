@@ -154,7 +154,7 @@ function ensureMinimumArticles(primary: Article[], fallback: Article[], minCount
   return merged.slice(0, Math.min(desired, merged.length));
 }
 
-const INVALID_TITLE_TOKENS = ["کراپ", "Crop"];
+const INVALID_TITLE_TOKENS = ["Crop"];
 const INVALID_FIELD_VALUES = ["-", "—", ""];
 
 function isPlaceholder(value: string | undefined) {

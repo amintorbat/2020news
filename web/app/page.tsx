@@ -30,7 +30,7 @@ export default async function HomePage() {
 
   return (
     <div className="space-y-16">
-      <HeroSlider slides={homeContent.heroSlides} />
+      <HeroSlider slides={homeContent.heroSlides} fallbackSlides={homeContent.latestNews} />
       <NewsList articles={homeContent.latestNews} limit={6} />
       <TopScorersPreview scorers={topScorers} />
       <SchedulePreview schedule={weeklyMatches} />
