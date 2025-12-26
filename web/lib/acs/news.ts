@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-expressions */
 // This module fetches and sanitizes full news articles for the detail page.
 import { load, type Cheerio, type Element } from "cheerio";
 import { ACS_BASE_URL } from "./constants";
