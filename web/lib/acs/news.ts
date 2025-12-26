@@ -29,6 +29,7 @@ const EXCLUDED_CONTAINER_SELECTORS = [
   "[class*='banner']",
   "[class*='trust']",
   "[id*='trust']",
+  "nav",
   "aside",
   "footer",
   ".sidebar",
@@ -42,7 +43,8 @@ const EXCLUDED_CONTAINER_SELECTORS = [
 
 const EXCLUDED_IMAGE_HOSTS = new Set(["trustseal.e-rasaneh.ir"]);
 const IMAGE_FILENAME_HINTS = ["logo", "icon", "badge", "trust", "seal", "ads", "banner"];
-const MIN_FEATURED_IMAGE_SIZE = 120;
+const REQUIRED_CONTENT_PATHS = ["uploads", "news", "media"];
+const MIN_FEATURED_IMAGE_SIZE = 300;
 
 const ALLOWED_TAGS = new Set([
   "p",
@@ -104,8 +106,8 @@ export async function getNewsDetail(slug: string): Promise<NewsDetail> {
       cleanText($(".Abstact").first().text()) ||
       "";
 
-    const imageUrl = pickMainImage($);
-    const rawBodyHtml = pickBodyHtml($);
+    const { bodyHtml: rawBodyHtml, featuredImage } = extractBodyAndFeaturedImage($);
+    const imageUrl = featuredImage ? featuredImage.src : null;
     const bodyHtml = sanitizeBodyHtml(rawBodyHtml) || buildParagraphsHtml($);
 
     return {
@@ -126,32 +128,23 @@ export async function getNewsDetail(slug: string): Promise<NewsDetail> {
   }
 }
 
-function pickMainImage($: CheerioRoot) {
+function extractBodyAndFeaturedImage($: CheerioRoot) {
   const bodyContainer = pickBodyContainer($);
-  if (!bodyContainer) return null;
-
-  const images = bodyContainer.find("img");
-  for (const element of images.toArray()) {
-    if (element.type !== "tag") continue;
-    const node = $(element);
-    if (isInExcludedContainer(node)) continue;
-
-    const src = (node.attr("src") ?? "").trim();
-    const normalized = normalizeSrc(src);
-    if (!normalized) continue;
-    if (isExcludedImageHost(normalized)) continue;
-    if (isLikelyIconOrBadge(normalized, element)) continue;
-
-    return normalized;
+  if (!bodyContainer) {
+    return { bodyHtml: "", featuredImage: null };
   }
 
-  return null;
-}
+  const containerHtml = bodyContainer.html() ?? "";
+  const local = load(`<div id="article-root">${containerHtml}</div>`, { decodeEntities: false });
+  const root = local("#article-root");
 
-function pickBodyHtml($: CheerioRoot) {
-  const bodyContainer = pickBodyContainer($);
-  if (bodyContainer) return bodyContainer.html() ?? "";
-  return "";
+  const featuredFromFigure = findFeaturedImageInFigures(local, root);
+  if (featuredFromFigure) {
+    return { bodyHtml: root.html() ?? "", featuredImage: featuredFromFigure };
+  }
+
+  const featuredAfterLead = findFeaturedImageAfterLead(local, root);
+  return { bodyHtml: root.html() ?? "", featuredImage: featuredAfterLead };
 }
 
 function buildParagraphsHtml($: CheerioRoot) {
@@ -314,11 +307,83 @@ function isLikelyIconOrBadge(src: string, element: Element) {
   if (IMAGE_FILENAME_HINTS.some((token) => hint.includes(token))) {
     return true;
   }
-  const width = toNumber(element.attribs?.width);
-  const height = toNumber(element.attribs?.height);
+  const width = toNumber(element.attribs?.width ?? element.attribs?.["data-width"] ?? element.attribs?.["data-naturalwidth"]);
+  const height = toNumber(element.attribs?.height ?? element.attribs?.["data-height"] ?? element.attribs?.["data-naturalheight"]);
   if (width && width < MIN_FEATURED_IMAGE_SIZE) return true;
   if (height && height < MIN_FEATURED_IMAGE_SIZE) return true;
   return false;
+}
+
+function hasRequiredContentPath(src: string) {
+  const normalized = src.toLowerCase();
+  return REQUIRED_CONTENT_PATHS.some((segment) => normalized.includes(`/${segment}`));
+}
+
+function hasExcludedTokens(src: string) {
+  const normalized = src.toLowerCase();
+  return IMAGE_FILENAME_HINTS.some((token) => normalized.includes(token));
+}
+
+function findFeaturedImageInFigures(local: CheerioRoot, root: Cheerio<Element>) {
+  const figures = root.find("figure img");
+  for (const element of figures.toArray()) {
+    if (element.type !== "tag") continue;
+    const node = local(element);
+    const candidate = buildFeaturedCandidate(node, element);
+    if (!candidate) continue;
+    // EN: remove the selected figure image to avoid duplication in body.
+    // FA: تصویر انتخاب‌شده از بدنه حذف می‌شود تا دوبار نمایش داده نشود.
+    node.closest("figure").remove();
+    return candidate;
+  }
+  return null;
+}
+
+function findFeaturedImageAfterLead(local: CheerioRoot, root: Cheerio<Element>) {
+  const leadNode = root.find(".lead, .Lead, p").first();
+  if (!leadNode.length) return null;
+  const leadElement = leadNode.get(0);
+  if (!leadElement) return null;
+
+  let isAfterLead = false;
+  for (const element of root.find("*").toArray()) {
+    if (element.type !== "tag") continue;
+    if (element === leadElement) {
+      isAfterLead = true;
+      continue;
+    }
+    if (!isAfterLead) continue;
+    if (element.tagName !== "img") continue;
+    const node = local(element);
+    const candidate = buildFeaturedCandidate(node, element);
+    if (!candidate) continue;
+    // EN: remove the selected image from body to prevent duplicated media.
+    // FA: برای جلوگیری از تکرار تصویر، آن را از بدنه حذف می‌کنیم.
+    node.closest("figure").length ? node.closest("figure").remove() : node.remove();
+    return candidate;
+  }
+  return null;
+}
+
+function buildFeaturedCandidate(node: Cheerio<Element>, element: Element) {
+  if (isInExcludedContainer(node)) return null;
+  const src = (node.attr("src") ?? "").trim();
+  const normalized = normalizeSrc(src);
+  if (!normalized) return null;
+  if (!hasRequiredContentPath(normalized)) return null;
+  if (hasExcludedTokens(normalized)) return null;
+  if (isExcludedImageHost(normalized)) return null;
+  if (isLikelyIconOrBadge(normalized, element)) return null;
+
+  const width = toNumber(element.attribs?.width ?? element.attribs?.["data-width"] ?? element.attribs?.["data-naturalwidth"]);
+  const naturalWidth = toNumber(element.attribs?.["data-naturalwidth"] ?? element.attribs?.["data-natural-width"]);
+  const effectiveWidth = width ?? naturalWidth ?? null;
+  if (!effectiveWidth || effectiveWidth < MIN_FEATURED_IMAGE_SIZE) return null;
+
+  return {
+    src: normalized,
+    alt: (node.attr("alt") ?? "").trim(),
+  };
 }
 
 function toNumber(value?: string) {

@@ -19,7 +19,13 @@ const standingsCta: Record<LeagueKey, string> = {
   beach: "/tables/beach-soccer",
 };
 
-export function LeagueTablesPreview({ standings }: { standings: Record<LeagueKey, StandingsRow[]> }) {
+type LeagueTablesPreviewProps = {
+  standings: Record<LeagueKey, StandingsRow[]>;
+  container?: boolean;
+  className?: string;
+};
+
+export function LeagueTablesPreview({ standings, container = true, className }: LeagueTablesPreviewProps) {
   const [activeLeague, setActiveLeague] = useState<LeagueKey>("futsal");
   const rows = standings[activeLeague] ?? [];
   const heading = leagueHeadings[activeLeague];
@@ -28,10 +34,10 @@ export function LeagueTablesPreview({ standings }: { standings: Record<LeagueKey
     .filter((option): option is (typeof leagueOptions)[number] => Boolean(option));
 
   return (
-    <section className="container space-y-6" id="tables-preview">
+    <section className={cn(container && "container", "space-y-6 lg:space-y-4", className)} id="tables-preview">
       <SectionHeader title="جدول لیگ" subtitle="خلاصه امروز" />
 
-      <div className="flex flex-wrap gap-3" role="tablist">
+      <div className="flex flex-wrap gap-3 lg:gap-2" role="tablist">
         {orderedLeagues.map((league) => (
           <button
             key={league.id}
@@ -39,7 +45,7 @@ export function LeagueTablesPreview({ standings }: { standings: Record<LeagueKey
             aria-selected={activeLeague === league.id}
             onClick={() => setActiveLeague(league.id)}
             className={cn(
-              "rounded-full px-5 py-2 text-sm font-semibold",
+              "rounded-full px-5 py-2 text-sm font-semibold lg:px-4 lg:py-1.5 lg:text-xs",
               activeLeague === league.id ? "bg-brand text-white shadow-md" : "bg-slate-100 text-[var(--muted)]"
             )}
           >
@@ -48,12 +54,12 @@ export function LeagueTablesPreview({ standings }: { standings: Record<LeagueKey
         ))}
       </div>
 
-      <div className="rounded-3xl border border-[var(--border)] bg-white p-5 shadow-card" dir="rtl">
+      <div className="rounded-3xl border border-[var(--border)] bg-white p-5 shadow-card lg:p-4" dir="rtl">
         <div className="flex items-center justify-between">
-          <h3 className="text-lg font-semibold text-[var(--foreground)]">{heading}</h3>
+          <h3 className="text-lg font-semibold text-[var(--foreground)] lg:text-base">{heading}</h3>
           <span className="text-xs text-[var(--muted)]">به‌روزرسانی امروز</span>
         </div>
-        <div className="mt-4">
+        <div className="mt-4 lg:mt-3">
           {rows.length ? (
             <StandingsTable rows={rows.slice(0, 6).map(toLeagueRow)} compact />
           ) : (
@@ -65,7 +71,7 @@ export function LeagueTablesPreview({ standings }: { standings: Record<LeagueKey
       </div>
 
       <div className="flex justify-end">
-        <Link href={standingsCta[activeLeague]} className="inline-flex text-sm font-semibold text-brand">
+        <Link href={standingsCta[activeLeague]} className="inline-flex text-sm font-semibold text-brand lg:text-xs">
           مشاهده جدول کامل
         </Link>
       </div>

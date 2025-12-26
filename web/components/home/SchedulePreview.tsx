@@ -7,26 +7,28 @@ import { cn } from "@/lib/cn";
 
 type SchedulePreviewProps = {
   schedule?: Record<LeagueKey, WeeklyMatch[]>;
+  container?: boolean;
+  className?: string;
 };
 
-export function SchedulePreview({ schedule = weeklyMatches }: SchedulePreviewProps) {
+export function SchedulePreview({ schedule = weeklyMatches, container = true, className }: SchedulePreviewProps) {
   const [active, setActive] = useState<LeagueKey>("futsal");
   const matches = schedule[active] ?? [];
 
   return (
-    <section className="container space-y-5" dir="rtl">
+    <section className={cn(container && "container", "space-y-5 lg:space-y-3", className)} dir="rtl">
       <div className="flex items-center justify-between">
-        <h2 className="text-lg font-bold text-[var(--foreground)]">برنامه این هفته</h2>
+        <h2 className="text-lg font-bold text-[var(--foreground)] lg:text-base">برنامه این هفته</h2>
         <span className="text-xs text-[var(--muted)]">فصل جاری</span>
       </div>
-      <div className="flex gap-3">
+      <div className="flex gap-3 lg:gap-2">
         {leagueOptions.map((option) => (
           <button
             key={option.id}
             type="button"
             onClick={() => setActive(option.id)}
             className={cn(
-              "rounded-full px-4 py-1.5 text-sm font-semibold transition",
+              "rounded-full px-4 py-1.5 text-sm font-semibold transition lg:px-3 lg:py-1 lg:text-xs",
               active === option.id ? "bg-amber-500 text-white shadow" : "bg-slate-100 text-[var(--muted)] hover:text-brand"
             )}
           >
@@ -35,16 +37,16 @@ export function SchedulePreview({ schedule = weeklyMatches }: SchedulePreviewPro
         ))}
       </div>
       {matches.length ? (
-        <div className="grid gap-4 md:grid-cols-2">
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-1 lg:gap-3">
           {matches.map((match) => (
-            <article key={match.id} className="rounded-3xl border border-[var(--border)] bg-white p-4 shadow-card">
+            <article key={match.id} className="rounded-3xl border border-[var(--border)] bg-white p-4 shadow-card lg:p-3">
               <div className="flex items-center justify-between text-xs text-[var(--muted)]">
                 <span>{match.date}</span>
                 <span>{match.time}</span>
               </div>
               <div className="mt-3 text-right text-[var(--foreground)]">
-                <p className="text-lg font-bold">{match.opponent}</p>
-                <p className="text-xs text-[var(--muted)]">{match.venue}</p>
+                <p className="text-lg font-bold lg:text-base">{match.opponent}</p>
+                <p className="text-xs text-[var(--muted)] lg:text-[11px]">{match.venue}</p>
               </div>
             </article>
           ))}
@@ -54,7 +56,7 @@ export function SchedulePreview({ schedule = weeklyMatches }: SchedulePreviewPro
           برنامه‌ای برای این هفته ثبت نشده است.
         </p>
       )}
-      <div className="flex justify-start text-sm font-semibold text-brand">
+      <div className="flex justify-start text-sm font-semibold text-brand lg:text-xs">
         <a href={`/matches?league=${active}`}>مشاهده برنامه کامل</a>
       </div>
     </section>
