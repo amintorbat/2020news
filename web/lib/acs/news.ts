@@ -359,7 +359,11 @@ function findFeaturedImageAfterLead(local: CheerioRoot, root: Cheerio<Element>) 
     if (!candidate) continue;
     // EN: remove the selected image from body to prevent duplicated media.
     // FA: برای جلوگیری از تکرار تصویر، آن را از بدنه حذف می‌کنیم.
-    node.closest("figure").length ? node.closest("figure").remove() : node.remove();
+    if (node.closest("figure").length) {
+      node.closest("figure").remove();
+    } else {
+      node.remove();
+    }
     return candidate;
   }
   return null;
