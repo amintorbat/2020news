@@ -1,14 +1,13 @@
 // This module fetches and sanitizes full news articles for the detail page.
 import { load } from "cheerio";
-import type { Cheerio, CheerioAPI } from "cheerio";
 import type { Element as DomElement } from "domhandler";
 import { ACS_BASE_URL } from "./constants";
 import { logWarnOnce } from "./logger";
 import { absoluteUrl, cleanText, extractIdFromSlug, fetchWithRetry } from "./utils";
 import { NewsDetail } from "@/types/news";
 
-type CheerioRoot = CheerioAPI;
-type CheerioSelection = Cheerio<DomElement>;
+type CheerioRoot = ReturnType<typeof load>;
+type CheerioSelection = ReturnType<CheerioRoot>;
 
 const BODY_CONTAINER_SELECTORS = [
   "#ctl00_cphMain_lblBody",
