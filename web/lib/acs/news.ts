@@ -1,11 +1,13 @@
 // This module fetches and sanitizes full news articles for the detail page.
-import { load, type Cheerio, type Element } from "cheerio";
+import { load } from "cheerio";
+import type { Element } from "domhandler";
 import { ACS_BASE_URL } from "./constants";
 import { logWarnOnce } from "./logger";
 import { absoluteUrl, cleanText, extractIdFromSlug, fetchWithRetry } from "./utils";
 import { NewsDetail } from "@/types/news";
 
 type CheerioRoot = ReturnType<typeof load>;
+type CheerioSelection = ReturnType<CheerioRoot>;
 
 const BODY_CONTAINER_SELECTORS = [
   "#ctl00_cphMain_lblBody",
@@ -291,7 +293,7 @@ function pickBodyContainer($: CheerioRoot) {
   return null;
 }
 
-function isInExcludedContainer(node: Cheerio<Element>) {
+function isInExcludedContainer(node: CheerioSelection) {
   const selector = EXCLUDED_CONTAINER_SELECTORS.join(", ");
   return node.closest(selector).length > 0;
 }
@@ -324,7 +326,7 @@ function hasExcludedTokens(src: string) {
   return IMAGE_FILENAME_HINTS.some((token) => normalized.includes(token));
 }
 
-function findFeaturedImageInFigures(local: CheerioRoot, root: Cheerio<Element>) {
+function findFeaturedImageInFigures(local: CheerioRoot, root: CheerioSelection) {
   const figures = root.find("figure img");
   for (const element of figures.toArray()) {
     if (element.type !== "tag") continue;
@@ -339,7 +341,7 @@ function findFeaturedImageInFigures(local: CheerioRoot, root: Cheerio<Element>) 
   return null;
 }
 
-function findFeaturedImageAfterLead(local: CheerioRoot, root: Cheerio<Element>) {
+function findFeaturedImageAfterLead(local: CheerioRoot, root: CheerioSelection) {
   const leadNode = root.find(".lead, .Lead, p").first();
   if (!leadNode.length) return null;
   const leadElement = leadNode.get(0);
@@ -369,7 +371,7 @@ function findFeaturedImageAfterLead(local: CheerioRoot, root: Cheerio<Element>) 
   return null;
 }
 
-function buildFeaturedCandidate(node: Cheerio<Element>, element: Element) {
+function buildFeaturedCandidate(node: CheerioSelection, element: Element) {
   if (isInExcludedContainer(node)) return null;
   const src = (node.attr("src") ?? "").trim();
   const normalized = normalizeSrc(src);
