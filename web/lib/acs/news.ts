@@ -1,13 +1,14 @@
 // This module fetches and sanitizes full news articles for the detail page.
 import { load } from "cheerio";
-import type { Element } from "domhandler";
+import type { Cheerio, CheerioAPI } from "cheerio";
+import type { Element as DomElement } from "domhandler";
 import { ACS_BASE_URL } from "./constants";
 import { logWarnOnce } from "./logger";
 import { absoluteUrl, cleanText, extractIdFromSlug, fetchWithRetry } from "./utils";
 import { NewsDetail } from "@/types/news";
 
-type CheerioRoot = ReturnType<typeof load>;
-type CheerioSelection = ReturnType<CheerioRoot>;
+type CheerioRoot = CheerioAPI;
+type CheerioSelection = Cheerio<DomElement>;
 
 const BODY_CONTAINER_SELECTORS = [
   "#ctl00_cphMain_lblBody",
@@ -303,7 +304,7 @@ function isExcludedImageHost(src: string) {
   return Boolean(host && EXCLUDED_IMAGE_HOSTS.has(host));
 }
 
-function isLikelyIconOrBadge(src: string, element: Element) {
+function isLikelyIconOrBadge(src: string, element: DomElement) {
   const filename = src.split("?")[0]?.split("#")[0]?.split("/").pop() ?? "";
   const hint = `${filename} ${(element.attribs?.class ?? "").toLowerCase()} ${(element.attribs?.id ?? "").toLowerCase()}`.toLowerCase();
   if (IMAGE_FILENAME_HINTS.some((token) => hint.includes(token))) {
@@ -371,7 +372,7 @@ function findFeaturedImageAfterLead(local: CheerioRoot, root: CheerioSelection) 
   return null;
 }
 
-function buildFeaturedCandidate(node: CheerioSelection, element: Element) {
+function buildFeaturedCandidate(node: CheerioSelection, element: DomElement) {
   if (isInExcludedContainer(node)) return null;
   const src = (node.attr("src") ?? "").trim();
   const normalized = normalizeSrc(src);
