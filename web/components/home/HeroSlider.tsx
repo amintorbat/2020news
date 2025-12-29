@@ -42,7 +42,7 @@ export function HeroSlider({ slides }: HeroSliderProps) {
 
   return (
     <section className="container">
-      <div className="relative min-h-[520px] overflow-hidden rounded-[32px] border border-[var(--border)] bg-white shadow-card md:h-[420px] md:min-h-0">
+      <div className="relative min-h-[420px] overflow-hidden rounded-[32px] border border-[var(--border)] bg-white shadow-card sm:min-h-[480px] md:h-[420px] md:min-h-0">
         <Swiper
           modules={[Autoplay, Pagination, Keyboard]}
           slidesPerView={1}
@@ -80,7 +80,7 @@ function SlideItem({ slide, priority }: SlideItemProps) {
   return (
     <article className={`flex min-w-full flex-col ${hasImage ? "md:h-full md:flex-row" : "md:h-full"}`} dir="rtl">
       {hasImage ? (
-        <div className="relative order-1 h-64 w-full overflow-hidden md:order-2 md:h-full md:flex-1">
+        <div className="relative order-1 h-56 w-full overflow-hidden sm:h-64 md:order-2 md:h-full md:flex-1">
           <Image
             src={slide.imageUrl as string}
             alt={slide.title}
@@ -89,7 +89,7 @@ function SlideItem({ slide, priority }: SlideItemProps) {
             sizes="(min-width: 768px) 55vw, 100vw"
             priority={priority}
           />
-          <div className="absolute inset-0 bg-gradient-to-l from-black/10 via-transparent to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-l from-black/55 via-transparent to-transparent" />
         </div>
       ) : null}
       <div
@@ -100,13 +100,13 @@ function SlideItem({ slide, priority }: SlideItemProps) {
         }
         dir="rtl"
       >
-        <div className="flex flex-wrap items-center gap-3 text-xs font-semibold text-gray-500">
+        <div className="flex flex-wrap items-center gap-3 text-xs font-semibold text-slate-500">
           <span className="rounded-full bg-brand/10 px-4 py-1 text-brand">{slide.category}</span>
-          {formattedDate && <span className="text-gray-500">{formattedDate}</span>}
+          {formattedDate && <span className="text-slate-500">{formattedDate}</span>}
         </div>
         <div className="space-y-3">
-          <h1 className="text-2xl font-black leading-tight text-slate-900 dark:text-white md:text-3xl">{slide.title}</h1>
-          {slide.excerpt && <p className="text-sm text-gray-600">{slide.excerpt}</p>}
+          <h1 className="text-2xl font-black leading-tight text-white md:text-3xl">{slide.title}</h1>
+          {slide.excerpt && <p className="text-sm text-white">{slide.excerpt}</p>}
         </div>
         <Link
           href={slide.href}

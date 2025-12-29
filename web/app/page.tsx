@@ -147,7 +147,7 @@ export default async function HomePage() {
     beach: mapStandings(beachStandings),
   };
   return (
-    <div className="space-y-16 lg:space-y-12">
+    <div className="space-y-16 overflow-x-hidden lg:space-y-12">
       {heroSlides.length >= 3 && <HeroSlider slides={heroSlides} />}
       <div className="container">
         <div className="grid gap-10 lg:grid-cols-[1fr_320px] lg:items-start lg:gap-8">
