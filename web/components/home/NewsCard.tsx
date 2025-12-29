@@ -34,7 +34,10 @@ export function NewsCard({ article, compact = false }: { article: CardArticle; c
           <span className="rounded-full bg-brand/10 px-3 py-1 font-semibold text-brand">{article.category}</span>
           {meta && <span>{meta}</span>}
         </div>
-        <Link href={href} className={cn("text-lg font-bold leading-snug text-slate-900", compact && "lg:text-base")}>
+        <Link
+          href={href}
+          className={cn("text-lg font-bold leading-snug text-slate-900 dark:text-white", compact && "lg:text-base")}
+        >
           {article.title}
         </Link>
         {description && (

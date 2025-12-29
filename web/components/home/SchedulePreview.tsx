@@ -1,85 +1,119 @@
 "use client";
 
-import Image from "next/image";
-import Link from "next/link";
+import { useState } from "react";
+import type { LeagueKey, WeeklyMatch } from "@/lib/data";
+import { leagueOptions, weeklyMatches } from "@/lib/data";
 import { cn } from "@/lib/cn";
 
-type KioskItem = {
-  id: number;
-  title: string;
-  category: "فوتبال ساحلی" | "فوتسال";
-  imageUrl: string;
-  href: string;
+const fallbackSchedule: Record<LeagueKey, WeeklyMatch[]> = {
+  futsal: [
+    {
+      id: "fs-mock-1",
+      opponent: "گیتی‌پسند - مس سونگون",
+      venue: "سالن پیروزی",
+      date: "جمعه ۲۵ اسفند",
+      time: "۱۹:۳۰",
+      league: "futsal",
+    },
+    {
+      id: "fs-mock-2",
+      opponent: "سن‌ایچ ساوه - پالایش نفت شازند",
+      venue: "سالن انقلاب",
+      date: "شنبه ۲۶ اسفند",
+      time: "۲۰:۴۵",
+      league: "futsal",
+    },
+    {
+      id: "fs-mock-3",
+      opponent: "فرش‌آرا - کراپ الوند",
+      venue: "سالن شهید بهشتی",
+      date: "یکشنبه ۲۷ اسفند",
+      time: "۱۸:۰۰",
+      league: "futsal",
+    },
+  ],
+  beach: [
+    {
+      id: "bc-mock-1",
+      opponent: "پارس جنوبی - ملوان",
+      venue: "ساحل نقره‌ای",
+      date: "جمعه ۲۵ اسفند",
+      time: "۱۶:۰۰",
+      league: "beach",
+    },
+    {
+      id: "bc-mock-2",
+      opponent: "ایفا - شاهین خزر",
+      venue: "ساحل خزر",
+      date: "شنبه ۲۶ اسفند",
+      time: "۱۷:۱۵",
+      league: "beach",
+    },
+    {
+      id: "bc-mock-3",
+      opponent: "شهرداری بندرعباس - آریا بوشهر",
+      venue: "ساحل مرجان",
+      date: "یکشنبه ۲۷ اسفند",
+      time: "۱۸:۳۰",
+      league: "beach",
+    },
+  ],
 };
 
-const kioskItems: KioskItem[] = [
-  {
-    id: 1,
-    title: "ویژه‌نامه قهرمانی فوتسال",
-    category: "فوتسال",
-    imageUrl: "https://picsum.photos/seed/kiosk-grid-1/700/980",
-    href: "/news/futsal-special-edition",
-  },
-  {
-    id: 2,
-    title: "گزارش ساحلی امروز",
-    category: "فوتبال ساحلی",
-    imageUrl: "https://picsum.photos/seed/kiosk-grid-2/700/980",
-    href: "/news/beach-daily-report",
-  },
-  {
-    id: 3,
-    title: "هفته‌نامه فوتسال",
-    category: "فوتسال",
-    imageUrl: "https://picsum.photos/seed/kiosk-grid-3/700/980",
-    href: "/news/futsal-weekly",
-  },
-  {
-    id: 4,
-    title: "روزنامه ورزش ساحلی",
-    category: "فوتبال ساحلی",
-    imageUrl: "https://picsum.photos/seed/kiosk-grid-4/700/980",
-    href: "/news/beach-sports-frontpage",
-  },
-];
-
 type SchedulePreviewProps = {
+  schedule?: Record<LeagueKey, WeeklyMatch[]>;
   container?: boolean;
   className?: string;
 };
 
-export function SchedulePreview({ container = true, className }: SchedulePreviewProps) {
+export function SchedulePreview({ schedule = weeklyMatches, container = true, className }: SchedulePreviewProps) {
+  const [active, setActive] = useState<LeagueKey>("futsal");
+  const matches = schedule[active] ?? [];
+  const displayMatches = matches.length ? matches : fallbackSchedule[active] ?? [];
+
   return (
-    <section className={cn(container && "container", "space-y-4 lg:space-y-3", className)} dir="rtl">
+    <section className={cn(container && "container", "space-y-5 lg:space-y-3", className)} dir="rtl">
       <div className="flex items-center justify-between">
-        <h2 className="text-lg font-bold text-gray-900 lg:text-base">کیوسک روزنامه</h2>
-        <span className="text-xs text-gray-500">ویژه‌نامه‌ها</span>
+        <h2 className="text-lg font-bold text-[var(--foreground)] lg:text-base">برنامه این هفته</h2>
+        <span className="text-xs text-[var(--muted)]">فصل جاری</span>
       </div>
-      <div className="flex snap-x snap-mandatory gap-4 overflow-x-auto pb-2 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden lg:grid lg:grid-cols-4 lg:gap-5 lg:overflow-visible">
-        {kioskItems.map((item) => (
-          <Link
-            key={item.id}
-            href={item.href}
-            className="group relative min-w-[200px] snap-start overflow-hidden rounded-3xl border border-[var(--border)] bg-white shadow-card transition hover:shadow-lg lg:min-w-0"
+      <div className="flex gap-3 lg:gap-2">
+        {leagueOptions.map((option) => (
+          <button
+            key={option.id}
+            type="button"
+            onClick={() => setActive(option.id)}
+            className={cn(
+              "rounded-full px-4 py-1.5 text-sm font-semibold transition lg:px-3 lg:py-1 lg:text-xs",
+              active === option.id ? "bg-brand text-white shadow" : "bg-slate-100 text-[var(--muted)] hover:text-brand"
+            )}
           >
-            <div className="relative aspect-[3/4] w-full bg-slate-100">
-              <Image
-                src={item.imageUrl}
-                alt={item.title}
-                fill
-                sizes="(min-width: 1024px) 220px, 60vw"
-                className="object-cover transition-transform duration-500 group-hover:scale-[1.03]"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent" />
-            </div>
-            <div className="absolute inset-x-0 bottom-0 space-y-1 p-3 text-right">
-              <span className="inline-flex rounded-full bg-white/90 px-2.5 py-1 text-[11px] font-semibold text-gray-900">
-                {item.category}
-              </span>
-              <h3 className="line-clamp-2 text-sm font-semibold text-white sm:text-base">{item.title}</h3>
-            </div>
-          </Link>
+            {option.label}
+          </button>
         ))}
+      </div>
+      {displayMatches.length ? (
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-1 lg:gap-3">
+          {displayMatches.map((match) => (
+            <article key={match.id} className="rounded-3xl border border-[var(--border)] bg-white p-4 shadow-card lg:p-3">
+              <div className="flex items-center justify-between text-xs text-[var(--muted)]">
+                <span>{match.date}</span>
+                <span>{match.time}</span>
+              </div>
+              <div className="mt-3 text-right text-[var(--foreground)]">
+                <p className="text-lg font-bold lg:text-base">{match.opponent}</p>
+                <p className="text-xs text-[var(--muted)] lg:text-[11px]">{match.venue}</p>
+              </div>
+            </article>
+          ))}
+        </div>
+      ) : (
+        <p className="rounded-3xl border border-dashed border-[var(--border)] p-6 text-center text-sm text-[var(--muted)]">
+          برنامه‌ای برای این هفته ثبت نشده است.
+        </p>
+      )}
+      <div className="flex justify-start text-sm font-semibold text-brand lg:text-xs">
+        <a href={`/matches?league=${active}`}>مشاهده برنامه کامل</a>
       </div>
     </section>
   );

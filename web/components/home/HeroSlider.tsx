@@ -105,7 +105,7 @@ function SlideItem({ slide, priority }: SlideItemProps) {
           {formattedDate && <span className="text-gray-500">{formattedDate}</span>}
         </div>
         <div className="space-y-3">
-          <h1 className="text-2xl font-black leading-tight text-slate-900 md:text-3xl">{slide.title}</h1>
+          <h1 className="text-2xl font-black leading-tight text-slate-900 dark:text-white md:text-3xl">{slide.title}</h1>
           {slide.excerpt && <p className="text-sm text-gray-600">{slide.excerpt}</p>}
         </div>
         <Link

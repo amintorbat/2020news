@@ -1,10 +1,12 @@
 import Link from "next/link";
 
+export type Category = "فوتبال ساحلی" | "فوتسال" | "گزارش" | "یادداشت" | "اخبار استان‌ها";
+
 export type SectionItem = {
   id: number;
   title: string;
   excerpt: string;
-  category: "فوتسال" | "فوتبال ساحلی" | "گزارش" | "یادداشت" | "اخبار استان‌ها";
+  category: Category;
   publishedAt: string;
   imageUrl: string;
   href: string;
@@ -35,7 +37,7 @@ export function ContentSection({ title, items }: ContentSectionProps) {
                 </span>
                 <span>{item.publishedAt}</span>
               </div>
-              <h3 className="line-clamp-2 text-sm font-bold leading-6 text-slate-900 sm:text-base">
+              <h3 className="line-clamp-2 text-sm font-bold leading-6 text-slate-900 dark:text-white sm:text-base">
                 {item.title}
               </h3>
               <p className="line-clamp-2 text-xs text-gray-600 sm:text-sm">{item.excerpt}</p>

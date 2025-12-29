@@ -55,7 +55,7 @@ const reports = [
     imageUrl: "https://picsum.photos/seed/report-4/800/500",
     href: "/news/beach-stadium-prep",
   },
-];
+] satisfies SectionItem[];
 
 const editorials = [
   {
@@ -94,7 +94,7 @@ const editorials = [
     imageUrl: "https://picsum.photos/seed/editorial-4/800/500",
     href: "/news/editorial-beach-fans",
   },
-];
+] satisfies SectionItem[];
 
 const provincialNews = [
   {
@@ -133,7 +133,7 @@ const provincialNews = [
     imageUrl: "https://picsum.photos/seed/province-4/800/500",
     href: "/news/province-gilan-beach",
   },
-];
+] satisfies SectionItem[];
 
 const reportsAndEditorials: SectionItem[] = [...reports, ...editorials];
 
