@@ -56,6 +56,15 @@ a:hover {
   font-size: 0.9rem;
 }
 
+.news-title {
+  color: #0f172a;
+  font-weight: 700;
+}
+
+.news-excerpt {
+  color: #475569;
+}
+
 .card {
   background-color: var(--card);
   border: 1px solid var(--border);
@@ -68,4 +77,31 @@ input:focus-visible,
 textarea:focus-visible {
   outline: 2px solid var(--brand);
   outline-offset: 2px;
+}
+
+/* FORCE FIX: News titles visibility */
+.news-title,
+.latest-news-title,
+.content-section-title {
+  color: #0f172a !important; /* slate-900 */
+}
+
+.news-excerpt,
+.latest-news-excerpt {
+  color: #475569 !important; /* slate-600 */
+}
+
+/* Newspaper kiosk slider controls */
+.newspaper-swiper .swiper-button-next,
+.newspaper-swiper .swiper-button-prev {
+  color: #0f172a;
+  opacity: 0.7;
+}
+
+.newspaper-swiper .swiper-pagination-bullet {
+  background: #cbd5f5;
+}
+
+.newspaper-swiper .swiper-pagination-bullet-active {
+  background: #2563eb;
 }

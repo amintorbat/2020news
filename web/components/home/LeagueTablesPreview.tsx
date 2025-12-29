@@ -46,7 +46,9 @@ export function LeagueTablesPreview({ standings, container = true, className }: 
             onClick={() => setActiveLeague(league.id)}
             className={cn(
               "rounded-full px-5 py-2 text-sm font-semibold lg:px-4 lg:py-1.5 lg:text-xs",
-              activeLeague === league.id ? "bg-brand text-white shadow-md" : "bg-slate-100 text-[var(--muted)]"
+              activeLeague === league.id
+                ? "bg-brand text-white shadow-md"
+                : "bg-slate-100 text-[var(--muted)] hover:bg-brand hover:text-white"
             )}
           >
             {league.label}
@@ -56,8 +58,8 @@ export function LeagueTablesPreview({ standings, container = true, className }: 
 
       <div className="rounded-3xl border border-[var(--border)] bg-white p-5 shadow-card lg:p-4" dir="rtl">
         <div className="flex items-center justify-between">
-          <h3 className="text-lg font-semibold text-[var(--foreground)] lg:text-base">{heading}</h3>
-          <span className="text-xs text-[var(--muted)]">به‌روزرسانی امروز</span>
+          <h3 className="text-lg font-semibold text-slate-900 lg:text-base">{heading}</h3>
+          <span className="text-xs text-slate-400">به‌روزرسانی امروز</span>
         </div>
         <div className="mt-4 lg:mt-3">
           {rows.length ? (

@@ -18,8 +18,8 @@ export function TopScorersPreview({ scorers, container = true, className }: TopS
   return (
     <section className={cn(container && "container", "space-y-5 lg:space-y-3", className)} dir="rtl">
       <div className="flex items-center justify-between">
-        <h2 className="text-lg font-bold text-[var(--foreground)] lg:text-base">جدول گلزنان</h2>
-        <span className="text-xs text-[var(--muted)]">به‌روزرسانی: امروز</span>
+        <h2 className="text-lg font-bold text-slate-900 lg:text-base">جدول گلزنان</h2>
+        <span className="text-xs text-slate-400">به‌روزرسانی: امروز</span>
       </div>
       <div className="flex gap-3 lg:gap-2">
         {leagueOptions.map((option) => (
@@ -39,7 +39,7 @@ export function TopScorersPreview({ scorers, container = true, className }: TopS
       <div className="overflow-hidden rounded-3xl border border-[var(--border)] bg-white shadow-card">
         {rows.length ? (
           <table className="w-full text-sm text-right lg:text-xs">
-            <thead className="bg-[#f7f8fa] text-xs text-[var(--muted)] lg:text-[11px]">
+            <thead className="bg-[#f7f8fa] text-xs text-slate-400 lg:text-[11px]">
               <tr>
                 <th className="py-3 text-center lg:py-2">رتبه</th>
                 <th className="py-3 text-right lg:py-2">بازیکن</th>
@@ -49,17 +49,17 @@ export function TopScorersPreview({ scorers, container = true, className }: TopS
             </thead>
             <tbody>
               {rows.slice(0, 5).map((player) => (
-                <tr key={player.rank} className="text-[var(--foreground)]">
+                <tr key={player.rank} className="text-slate-900">
                   <td className="py-3 text-center font-bold lg:py-2">{player.rank}</td>
                   <td className="py-3 text-right font-semibold lg:py-2">{player.player}</td>
-                  <td className="py-3 text-right text-[var(--muted)] lg:py-2">{player.team}</td>
+                  <td className="py-3 text-right text-slate-600 lg:py-2">{player.team}</td>
                   <td className="py-3 text-center font-black text-brand lg:py-2">{player.goals}</td>
                 </tr>
               ))}
             </tbody>
           </table>
         ) : (
-          <p className="p-6 text-center text-sm text-[var(--muted)]">اطلاعات گلزنان برای این لیگ موجود نیست.</p>
+          <p className="p-6 text-center text-sm text-slate-600">اطلاعات گلزنان برای این لیگ موجود نیست.</p>
         )}
       </div>
       <div className="flex justify-start text-sm font-semibold text-brand lg:text-xs">

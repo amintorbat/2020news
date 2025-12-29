@@ -30,7 +30,7 @@ export function NewsCard({ article, compact = false }: { article: CardArticle; c
         <Image src={imageSrc} alt={article.title} fill sizes="(min-width: 640px) 300px, 90vw" className="object-cover" />
       </div>
       <div className={cn("flex flex-1 flex-col justify-center gap-3 sm:pr-6", compact && "lg:gap-2 lg:pr-4")}>
-        <div className={cn("flex flex-wrap items-center gap-2 text-xs text-slate-500", compact && "lg:gap-1.5 lg:text-[11px]")}>
+        <div className={cn("flex flex-wrap items-center gap-2 text-xs text-slate-400", compact && "lg:gap-1.5 lg:text-[11px]")}>
           <span className="rounded-full bg-brand/10 px-3 py-1 font-semibold text-brand">{article.category}</span>
           {meta && <span>{meta}</span>}
         </div>

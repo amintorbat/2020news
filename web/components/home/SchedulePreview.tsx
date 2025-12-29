@@ -74,8 +74,8 @@ export function SchedulePreview({ schedule = weeklyMatches, container = true, cl
   return (
     <section className={cn(container && "container", "space-y-5 lg:space-y-3", className)} dir="rtl">
       <div className="flex items-center justify-between">
-        <h2 className="text-lg font-bold text-[var(--foreground)] lg:text-base">برنامه این هفته</h2>
-        <span className="text-xs text-[var(--muted)]">فصل جاری</span>
+        <h2 className="text-lg font-bold text-slate-900 lg:text-base">برنامه این هفته</h2>
+        <span className="text-xs text-slate-400">فصل جاری</span>
       </div>
       <div className="flex gap-3 lg:gap-2">
         {leagueOptions.map((option) => (
@@ -96,13 +96,13 @@ export function SchedulePreview({ schedule = weeklyMatches, container = true, cl
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-1 lg:gap-3">
           {displayMatches.map((match) => (
             <article key={match.id} className="rounded-3xl border border-[var(--border)] bg-white p-4 shadow-card lg:p-3">
-              <div className="flex items-center justify-between text-xs text-[var(--muted)]">
+              <div className="flex items-center justify-between text-xs text-slate-400">
                 <span>{match.date}</span>
                 <span>{match.time}</span>
               </div>
-              <div className="mt-3 text-right text-[var(--foreground)]">
+              <div className="mt-3 text-right text-slate-900">
                 <p className="text-lg font-bold lg:text-base">{match.opponent}</p>
-                <p className="text-xs text-[var(--muted)] lg:text-[11px]">{match.venue}</p>
+                <p className="text-xs text-slate-600 lg:text-[11px]">{match.venue}</p>
               </div>
             </article>
           ))}

@@ -3,7 +3,10 @@ import { latestNews } from "@/lib/mock/home";
 
 export function LatestNews() {
   return (
-    <section className="rounded-3xl border border-[var(--border)] bg-white shadow-card" dir="rtl">
+    <section
+      className="rounded-3xl border border-[var(--border)] bg-white shadow-card"
+      dir="rtl"
+    >
       <div className="divide-y divide-[var(--border)]">
         {latestNews.map((item) => (
           <Link
@@ -12,19 +15,24 @@ export function LatestNews() {
             className="group flex flex-row-reverse items-center gap-4 p-4 text-gray-900 transition hover:bg-slate-50 sm:gap-6"
           >
             <div className="min-w-0 flex-1 space-y-2 text-right">
-              <div className="flex flex-wrap items-center gap-2 text-xs text-slate-500">
+              <div className="flex flex-wrap items-center gap-2 text-xs text-slate-400">
                 <span className="rounded-full bg-gray-100 px-3 py-1 font-semibold text-slate-600">
                   {item.category}
                 </span>
                 <span>{item.publishedAt}</span>
               </div>
-              <h3 className="line-clamp-2 text-sm font-bold leading-6 text-slate-900 sm:text-base">
+              <h3 className="news-title text-base leading-7">
                 {item.title}
               </h3>
-              <p className="line-clamp-2 text-xs text-slate-600 sm:text-sm">{item.excerpt}</p>
+              <p className="news-excerpt text-sm leading-6">{item.excerpt}</p>
             </div>
             <div className="h-20 w-28 flex-shrink-0 overflow-hidden rounded-2xl bg-slate-100 sm:h-24 sm:w-36">
-              <img src={item.imageUrl} alt={item.title} className="h-full w-full object-cover" loading="lazy" />
+              <img
+                src={item.imageUrl}
+                alt={item.title}
+                className="h-full w-full object-cover"
+                loading="lazy"
+              />
             </div>
           </Link>
         ))}

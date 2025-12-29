@@ -89,7 +89,7 @@ function SlideItem({ slide, priority }: SlideItemProps) {
             sizes="(min-width: 768px) 55vw, 100vw"
             priority={priority}
           />
-          <div className="absolute inset-0 bg-gradient-to-l from-black/55 via-transparent to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-l from-black/25 via-transparent to-transparent" />
         </div>
       ) : null}
       <div
@@ -105,12 +105,12 @@ function SlideItem({ slide, priority }: SlideItemProps) {
           {formattedDate && <span className="text-slate-500">{formattedDate}</span>}
         </div>
         <div className="space-y-3">
-          <h1 className="text-2xl font-black leading-tight text-white md:text-3xl">{slide.title}</h1>
-          {slide.excerpt && <p className="text-sm text-white">{slide.excerpt}</p>}
+          <h1 className="text-2xl font-black leading-tight text-slate-900 md:text-3xl">{slide.title}</h1>
+          {slide.excerpt && <p className="text-sm text-slate-600">{slide.excerpt}</p>}
         </div>
         <Link
           href={slide.href}
-          className="mt-auto inline-flex w-fit items-center rounded-full bg-brand px-5 py-3 text-sm font-semibold text-white shadow-lg transition hover:bg-brand/90"
+          className="mt-auto inline-flex w-fit items-center rounded-full border border-brand/20 bg-brand/10 px-5 py-3 text-sm font-semibold text-brand transition hover:bg-brand/20"
         >
           مشاهده خبر کامل
         </Link>
