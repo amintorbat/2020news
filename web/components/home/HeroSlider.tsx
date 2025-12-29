@@ -2,9 +2,12 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { useEffect, useMemo, useState } from "react";
+import { useMemo } from "react";
+import { Swiper, SwiperSlide } from "swiper/react";
+import { Autoplay, Keyboard, Pagination } from "swiper/modules";
 import { heroSlides, type HomeHeroSlide } from "@/lib/mock/home";
-import { cn } from "@/lib/cn";
+import "swiper/css";
+import "swiper/css/pagination";
 
 const AUTO_INTERVAL = 7000;
 
@@ -27,28 +30,11 @@ function normalizeSlides(items: HomeHeroSlide[]) {
 }
 
 export function HeroSlider({ slides }: HeroSliderProps) {
-  const [active, setActive] = useState(0);
   const validSlides = useMemo(() => {
     const source = slides && slides.length >= 5 ? slides : heroSlides;
     return normalizeSlides(source);
   }, [slides]);
   const slideCount = validSlides.length;
-
-  useEffect(() => {
-    if (slideCount <= 1) {
-      setActive(0);
-      return;
-    }
-    const timer = setInterval(() => {
-      setActive((prev) => (prev + 1) % slideCount);
-    }, AUTO_INTERVAL);
-    return () => clearInterval(timer);
-  }, [slideCount]);
-
-  const goTo = (index: number) => {
-    if (!slideCount) return;
-    setActive((index + slideCount) % slideCount);
-  };
 
   if (!slideCount) {
     return null;
@@ -57,39 +43,26 @@ export function HeroSlider({ slides }: HeroSliderProps) {
   return (
     <section className="container">
       <div className="relative min-h-[520px] overflow-hidden rounded-[32px] border border-[var(--border)] bg-white shadow-card md:h-[420px] md:min-h-0">
-        {slideCount < 2 ? (
-          <div className="h-full">
-            <SlideItem slide={validSlides[0]} priority />
-          </div>
-        ) : (
-          <>
-            <div
-              className="flex h-full transition-transform duration-500 ease-in-out"
-              style={{ transform: `translateX(-${active * 100}%)` }}
-            >
-              {validSlides.map((slide, index) => (
-                <SlideItem key={`${slide.id}-${index}`} slide={slide} priority={index === 0} />
-              ))}
-            </div>
-            <div className="absolute inset-x-0 bottom-5 z-10 flex justify-center">
-              <div className="flex items-center gap-2 rounded-full bg-white/80 px-4 py-2 shadow backdrop-blur">
-                {validSlides.map((item, index) => (
-                  <button
-                    key={`${item.id}-${index}`}
-                    type="button"
-                    aria-label={`اسلاید ${index + 1}`}
-                    aria-current={active === index}
-                    onClick={() => goTo(index)}
-                    className={cn(
-                      "h-2 rounded-full transition-all duration-300",
-                      active === index ? "w-10 bg-brand" : "w-4 bg-slate-200"
-                    )}
-                  />
-                ))}
-              </div>
-            </div>
-          </>
-        )}
+        <Swiper
+          modules={[Autoplay, Pagination, Keyboard]}
+          slidesPerView={1}
+          loop={slideCount > 1}
+          autoplay={{ delay: AUTO_INTERVAL, disableOnInteraction: false }}
+          pagination={{
+            clickable: true,
+            renderBullet: (index, className) =>
+              `<span class="${className}" aria-label="اسلاید ${index + 1}"></span>`,
+          }}
+          keyboard={{ enabled: true }}
+          className="h-full w-full [&_.swiper-pagination]:bottom-5 [&_.swiper-pagination]:text-center [&_.swiper-pagination-bullet]:h-2 [&_.swiper-pagination-bullet]:w-2 [&_.swiper-pagination-bullet]:rounded-full [&_.swiper-pagination-bullet]:bg-slate-300 [&_.swiper-pagination-bullet-active]:w-6 [&_.swiper-pagination-bullet-active]:bg-brand"
+          dir="rtl"
+        >
+          {validSlides.map((slide, index) => (
+            <SwiperSlide key={`${slide.id}-${index}`} className="h-full">
+              <SlideItem slide={slide} priority={index === 0} />
+            </SwiperSlide>
+          ))}
+        </Swiper>
       </div>
     </section>
   );
@@ -105,9 +78,9 @@ function SlideItem({ slide, priority }: SlideItemProps) {
   const formattedDate = slide.publishedAt;
 
   return (
-    <article className={`flex min-w-full flex-col ${hasImage ? "md:h-full md:flex-row-reverse" : "md:h-full"}`} dir="rtl">
+    <article className={`flex min-w-full flex-col ${hasImage ? "md:h-full md:flex-row" : "md:h-full"}`} dir="rtl">
       {hasImage ? (
-        <div className="relative h-64 w-full overflow-hidden md:h-full md:flex-1">
+        <div className="relative order-1 h-64 w-full overflow-hidden md:order-2 md:h-full md:flex-1">
           <Image
             src={slide.imageUrl as string}
             alt={slide.title}
@@ -122,33 +95,24 @@ function SlideItem({ slide, priority }: SlideItemProps) {
       <div
         className={
           hasImage
-            ? "flex w-full flex-col gap-4 border-t border-[var(--border)] bg-gradient-to-r from-[#0f172a]/5 via-white to-white px-6 py-8 text-right md:w-[38%] md:border-t-0 md:border-l"
+            ? "order-2 flex w-full flex-col gap-4 border-t border-[var(--border)] bg-gradient-to-r from-[#0f172a]/5 via-white to-white px-6 py-8 text-right md:order-1 md:w-[38%] md:border-t-0 md:border-l"
             : "flex h-full w-full flex-col justify-center gap-4 px-6 py-10 text-right md:px-14"
         }
         dir="rtl"
       >
-        <div className="flex flex-wrap items-center gap-3 text-xs font-semibold text-[var(--muted)]">
+        <div className="flex flex-wrap items-center gap-3 text-xs font-semibold text-gray-500">
           <span className="rounded-full bg-brand/10 px-4 py-1 text-brand">{slide.category}</span>
-          {formattedDate && <span>{formattedDate}</span>}
+          {formattedDate && <span className="text-gray-500">{formattedDate}</span>}
         </div>
-        <div className="space-y-3 text-[var(--foreground)]">
-          <h1
-            className="text-2xl font-black leading-tight md:text-3xl"
-            style={{ textShadow: "0 2px 8px rgba(0,0,0,0.25)" }}
-          >
-            {slide.title}
-          </h1>
-          {slide.excerpt && (
-            <p className="text-sm text-[var(--muted)]" style={{ textShadow: "0 1px 4px rgba(0,0,0,0.15)" }}>
-              {slide.excerpt}
-            </p>
-          )}
+        <div className="space-y-3">
+          <h1 className="text-2xl font-black leading-tight text-gray-900 md:text-3xl">{slide.title}</h1>
+          {slide.excerpt && <p className="text-sm text-gray-600">{slide.excerpt}</p>}
         </div>
         <Link
           href={slide.href}
           className="mt-auto inline-flex w-fit items-center rounded-full bg-brand px-5 py-3 text-sm font-semibold text-white shadow-lg transition hover:bg-brand/90"
         >
-          Read full news
+          مشاهده خبر کامل
         </Link>
       </div>
     </article>

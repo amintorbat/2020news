@@ -23,7 +23,7 @@ const reports = [
     id: 1,
     title: "گزارش ویژه از تمرینات تیم ملی فوتسال پیش از تورنمنت",
     excerpt: "بدنسازی و تاکتیک‌های فشرده، محور برنامه این هفته بود.",
-    category: "فوتسال",
+    category: "گزارش",
     publishedAt: "۱ ساعت پیش",
     imageUrl: "https://picsum.photos/seed/report-1/800/500",
     href: "/news/futsal-camp-report",
@@ -32,7 +32,7 @@ const reports = [
     id: 2,
     title: "تحلیل فنی بازی دوستانه ساحلی ایران و عمان",
     excerpt: "تعویض‌های هوشمندانه در وقت سوم نتیجه را تغییر داد.",
-    category: "فوتبال ساحلی",
+    category: "گزارش",
     publishedAt: "۲ ساعت پیش",
     imageUrl: "https://picsum.photos/seed/report-2/800/500",
     href: "/news/beach-soccer-oman-friendly",
@@ -41,7 +41,7 @@ const reports = [
     id: 3,
     title: "گزارش میدانی از اردوی آمادگی تیم امید فوتسال",
     excerpt: "تمرکز کادر فنی روی بازی‌سازی در میانه زمین بود.",
-    category: "فوتسال",
+    category: "گزارش",
     publishedAt: "۳ ساعت پیش",
     imageUrl: "https://picsum.photos/seed/report-3/800/500",
     href: "/news/futsal-youth-camp",
@@ -50,7 +50,7 @@ const reports = [
     id: 4,
     title: "پشت صحنه آماده‌سازی زمین ساحلی برای لیگ جدید",
     excerpt: "بهبود زیرساخت‌ها و نورپردازی ورزشگاه ساحلی تکمیل شد.",
-    category: "فوتبال ساحلی",
+    category: "گزارش",
     publishedAt: "۴ ساعت پیش",
     imageUrl: "https://picsum.photos/seed/report-4/800/500",
     href: "/news/beach-stadium-prep",
@@ -62,7 +62,7 @@ const editorials = [
     id: 11,
     title: "یادداشت سردبیری: نسل تازه فوتسال به چه چیزی نیاز دارد؟",
     excerpt: "نگاه بلندمدت به آکادمی‌ها، کلید موفقیت بین‌المللی است.",
-    category: "فوتسال",
+    category: "یادداشت",
     publishedAt: "۳۰ دقیقه پیش",
     imageUrl: "https://picsum.photos/seed/editorial-1/800/500",
     href: "/news/editorial-futsal-youth",
@@ -71,7 +71,7 @@ const editorials = [
     id: 12,
     title: "یادداشت: فوتبال ساحلی و فرصت‌های پنهان برای قهرمانی",
     excerpt: "با سرمایه‌گذاری هوشمندانه می‌توان فاصله‌ها را کم کرد.",
-    category: "فوتبال ساحلی",
+    category: "یادداشت",
     publishedAt: "۱ ساعت پیش",
     imageUrl: "https://picsum.photos/seed/editorial-2/800/500",
     href: "/news/editorial-beach-growth",
@@ -80,7 +80,7 @@ const editorials = [
     id: 13,
     title: "چرا ثبات کادر فنی در فوتسال اهمیت دارد؟",
     excerpt: "تغییرات پی‌درپی فرصت ساختارمند شدن را از تیم می‌گیرد.",
-    category: "فوتسال",
+    category: "یادداشت",
     publishedAt: "۲ ساعت پیش",
     imageUrl: "https://picsum.photos/seed/editorial-3/800/500",
     href: "/news/editorial-futsal-stability",
@@ -89,7 +89,7 @@ const editorials = [
     id: 14,
     title: "یادداشت: نقش هواداران در موفقیت تیم‌های ساحلی",
     excerpt: "حضور پررنگ تماشاگران، انرژی بازی‌ها را دوچندان می‌کند.",
-    category: "فوتبال ساحلی",
+    category: "یادداشت",
     publishedAt: "۳ ساعت پیش",
     imageUrl: "https://picsum.photos/seed/editorial-4/800/500",
     href: "/news/editorial-beach-fans",
@@ -101,7 +101,7 @@ const provincialNews = [
     id: 21,
     title: "فوتسال خراسان با دو برد پیاپی صدرنشین شد",
     excerpt: "تیم مشهد با نمایش هجومی هفته را به پایان رساند.",
-    category: "فوتسال",
+    category: "اخبار استان‌ها",
     publishedAt: "۱ ساعت پیش",
     imageUrl: "https://picsum.photos/seed/province-1/800/500",
     href: "/news/province-khorasan-futsal",
@@ -110,7 +110,7 @@ const provincialNews = [
     id: 22,
     title: "لیگ ساحلی بوشهر با حضور نسل جدید آغاز شد",
     excerpt: "دو تیم تازه‌وارد در هفته اول شگفتی‌ساز شدند.",
-    category: "فوتبال ساحلی",
+    category: "اخبار استان‌ها",
     publishedAt: "۲ ساعت پیش",
     imageUrl: "https://picsum.photos/seed/province-2/800/500",
     href: "/news/province-bushehr-beach",
@@ -119,7 +119,7 @@ const provincialNews = [
     id: 23,
     title: "برگزاری اردوی استعدادیابی فوتسال در اصفهان",
     excerpt: "بیش از ۲۰۰ بازیکن نوجوان در تست‌ها شرکت کردند.",
-    category: "فوتسال",
+    category: "اخبار استان‌ها",
     publishedAt: "۳ ساعت پیش",
     imageUrl: "https://picsum.photos/seed/province-3/800/500",
     href: "/news/province-isfahan-futsal",
@@ -128,7 +128,7 @@ const provincialNews = [
     id: 24,
     title: "ساحلی‌بازان گیلان به فینال لیگ منطقه‌ای رسیدند",
     excerpt: "گل دقیقه آخر صعود تیم میزبان را قطعی کرد.",
-    category: "فوتبال ساحلی",
+    category: "اخبار استان‌ها",
     publishedAt: "۴ ساعت پیش",
     imageUrl: "https://picsum.photos/seed/province-4/800/500",
     href: "/news/province-gilan-beach",
@@ -145,11 +145,11 @@ export default async function HomePage() {
     beach: mapStandings(beachStandings),
   };
   return (
-    <div className="space-y-16 lg:space-y-10">
+    <div className="space-y-16 lg:space-y-12">
       {heroSlides.length >= 3 && <HeroSlider slides={heroSlides} />}
       <div className="container">
-        <div className="grid gap-10 lg:grid-cols-[1fr_320px] lg:items-start lg:gap-6">
-          <div className="min-w-0 flex-1 space-y-16 lg:space-y-6">
+        <div className="grid gap-10 lg:grid-cols-[1fr_320px] lg:items-start lg:gap-8">
+          <div className="min-w-0 flex-1 space-y-12 lg:space-y-8">
             <section className="space-y-6" dir="rtl">
               <div className="flex items-center justify-between">
                 <h2 className="text-lg font-bold text-gray-900">آخرین اخبار</h2>
@@ -157,20 +157,18 @@ export default async function HomePage() {
               <LatestNews />
             </section>
           </div>
-          <aside className="space-y-10 lg:space-y-6">
+          <aside className="space-y-8 lg:space-y-6">
             <LeagueTablesPreview standings={standingsByLeague} container={false} />
-            <TopScorersPreview scorers={topScorers} container={false} />
             <SchedulePreview schedule={weeklyMatches} container={false} />
+            <NewspaperKiosk />
+            <TopScorersPreview scorers={topScorers} container={false} />
           </aside>
         </div>
       </div>
-      <div className="container space-y-12 lg:space-y-8">
+      <div className="container space-y-12 lg:space-y-10">
         <ContentSection title="گزارش‌ها" items={reports} />
         <ContentSection title="یادداشت‌ها" items={editorials} />
         <ContentSection title="اخبار استان‌ها" items={provincialNews} />
-      </div>
-      <div className="container">
-        <NewspaperKiosk />
       </div>
       <Footer />
     </div>
