@@ -3,13 +3,13 @@
 import Link from "next/link";
 import Image from "next/image";
 import { useEffect, useMemo, useState } from "react";
-import type { HomeHeroSlide } from "@/lib/mock/home";
+import { heroSlides, type HomeHeroSlide } from "@/lib/mock/home";
 import { cn } from "@/lib/cn";
 
 const AUTO_INTERVAL = 7000;
 
 type HeroSliderProps = {
-  slides: HomeHeroSlide[];
+  slides?: HomeHeroSlide[];
 };
 
 function filterValidSlides(items: HomeHeroSlide[]) {
@@ -28,7 +28,10 @@ function normalizeSlides(items: HomeHeroSlide[]) {
 
 export function HeroSlider({ slides }: HeroSliderProps) {
   const [active, setActive] = useState(0);
-  const validSlides = useMemo(() => normalizeSlides(slides), [slides]);
+  const validSlides = useMemo(() => {
+    const source = slides && slides.length >= 5 ? slides : heroSlides;
+    return normalizeSlides(source);
+  }, [slides]);
   const slideCount = validSlides.length;
 
   useEffect(() => {
@@ -99,17 +102,10 @@ type SlideItemProps = {
 
 function SlideItem({ slide, priority }: SlideItemProps) {
   const hasImage = Boolean(slide.imageUrl?.trim());
-  const formattedDate = useMemo(() => {
-    if (!slide.publishedAt) return "";
-    try {
-      return new Intl.DateTimeFormat("fa-IR", { dateStyle: "medium", timeStyle: "short" }).format(new Date(slide.publishedAt));
-    } catch {
-      return slide.publishedAt;
-    }
-  }, [slide.publishedAt]);
+  const formattedDate = slide.publishedAt;
 
   return (
-    <article className={`flex min-w-full flex-col ${hasImage ? "md:h-full md:flex-row" : "md:h-full"}`} dir="rtl">
+    <article className={`flex min-w-full flex-col ${hasImage ? "md:h-full md:flex-row-reverse" : "md:h-full"}`} dir="rtl">
       {hasImage ? (
         <div className="relative h-64 w-full overflow-hidden md:h-full md:flex-1">
           <Image
@@ -152,7 +148,7 @@ function SlideItem({ slide, priority }: SlideItemProps) {
           href={slide.href}
           className="mt-auto inline-flex w-fit items-center rounded-full bg-brand px-5 py-3 text-sm font-semibold text-white shadow-lg transition hover:bg-brand/90"
         >
-          مشاهده خبر کامل
+          Read full news
         </Link>
       </div>
     </article>

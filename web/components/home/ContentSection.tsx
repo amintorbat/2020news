@@ -1,15 +1,32 @@
 import Link from "next/link";
-import { latestNews } from "@/lib/mock/home";
 
-export function LatestNews() {
+type SectionItem = {
+  id: number;
+  title: string;
+  excerpt: string;
+  category: "فوتسال" | "فوتبال ساحلی";
+  publishedAt: string;
+  imageUrl: string;
+  href: string;
+};
+
+type ContentSectionProps = {
+  title: string;
+  items: SectionItem[];
+};
+
+export function ContentSection({ title, items }: ContentSectionProps) {
   return (
-    <section className="rounded-3xl border border-[var(--border)] bg-white shadow-card" dir="rtl">
-      <div className="divide-y divide-[var(--border)]">
-        {latestNews.map((item) => (
+    <section className="space-y-6" dir="rtl">
+      <div className="flex items-center justify-between">
+        <h2 className="text-lg font-bold text-gray-900">{title}</h2>
+      </div>
+      <div className="grid gap-6 md:grid-cols-2">
+        {items.map((item) => (
           <Link
             key={item.id}
             href={item.href}
-            className="group flex flex-row-reverse items-center gap-4 p-4 text-gray-900 transition hover:bg-slate-50 sm:gap-6"
+            className="group flex flex-row-reverse items-center gap-4 rounded-3xl border border-[var(--border)] bg-white p-4 shadow-card transition hover:bg-slate-50"
           >
             <div className="min-w-0 flex-1 space-y-2 text-right">
               <div className="flex flex-wrap items-center gap-2 text-xs text-gray-500">

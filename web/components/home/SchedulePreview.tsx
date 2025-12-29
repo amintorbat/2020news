@@ -5,6 +5,61 @@ import type { LeagueKey, WeeklyMatch } from "@/lib/data";
 import { leagueOptions, weeklyMatches } from "@/lib/data";
 import { cn } from "@/lib/cn";
 
+const fallbackSchedule: Record<LeagueKey, WeeklyMatch[]> = {
+  futsal: [
+    {
+      id: "fs-mock-1",
+      opponent: "گیتی‌پسند - مس سونگون",
+      venue: "سالن پیروزی",
+      date: "جمعه ۲۵ اسفند",
+      time: "۱۹:۳۰",
+      league: "futsal",
+    },
+    {
+      id: "fs-mock-2",
+      opponent: "سن‌ایچ ساوه - پالایش نفت شازند",
+      venue: "سالن انقلاب",
+      date: "شنبه ۲۶ اسفند",
+      time: "۲۰:۴۵",
+      league: "futsal",
+    },
+    {
+      id: "fs-mock-3",
+      opponent: "فرش‌آرا - کراپ الوند",
+      venue: "سالن شهید بهشتی",
+      date: "یکشنبه ۲۷ اسفند",
+      time: "۱۸:۰۰",
+      league: "futsal",
+    },
+  ],
+  beach: [
+    {
+      id: "bc-mock-1",
+      opponent: "پارس جنوبی - ملوان",
+      venue: "ساحل نقره‌ای",
+      date: "جمعه ۲۵ اسفند",
+      time: "۱۶:۰۰",
+      league: "beach",
+    },
+    {
+      id: "bc-mock-2",
+      opponent: "ایفا - شاهین خزر",
+      venue: "ساحل خزر",
+      date: "شنبه ۲۶ اسفند",
+      time: "۱۷:۱۵",
+      league: "beach",
+    },
+    {
+      id: "bc-mock-3",
+      opponent: "شهرداری بندرعباس - آریا بوشهر",
+      venue: "ساحل مرجان",
+      date: "یکشنبه ۲۷ اسفند",
+      time: "۱۸:۳۰",
+      league: "beach",
+    },
+  ],
+};
+
 type SchedulePreviewProps = {
   schedule?: Record<LeagueKey, WeeklyMatch[]>;
   container?: boolean;
@@ -14,6 +69,7 @@ type SchedulePreviewProps = {
 export function SchedulePreview({ schedule = weeklyMatches, container = true, className }: SchedulePreviewProps) {
   const [active, setActive] = useState<LeagueKey>("futsal");
   const matches = schedule[active] ?? [];
+  const displayMatches = matches.length ? matches : fallbackSchedule[active] ?? [];
 
   return (
     <section className={cn(container && "container", "space-y-5 lg:space-y-3", className)} dir="rtl">
@@ -36,9 +92,9 @@ export function SchedulePreview({ schedule = weeklyMatches, container = true, cl
           </button>
         ))}
       </div>
-      {matches.length ? (
+      {displayMatches.length ? (
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-1 lg:gap-3">
-          {matches.map((match) => (
+          {displayMatches.map((match) => (
             <article key={match.id} className="rounded-3xl border border-[var(--border)] bg-white p-4 shadow-card lg:p-3">
               <div className="flex items-center justify-between text-xs text-[var(--muted)]">
                 <span>{match.date}</span>
