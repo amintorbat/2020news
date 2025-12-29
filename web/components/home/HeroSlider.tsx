@@ -3,18 +3,16 @@
 import Link from "next/link";
 import Image from "next/image";
 import { useEffect, useMemo, useState } from "react";
-import type { Article } from "@/lib/acs/types";
+import type { HomeHeroSlide } from "@/lib/mock/home";
 import { cn } from "@/lib/cn";
 
 const AUTO_INTERVAL = 7000;
-const HERO_CACHE_KEY = "2020news.heroSlides";
 
 type HeroSliderProps = {
-  slides: Article[];
-  fallbackSlides?: Article[];
+  slides: HomeHeroSlide[];
 };
 
-function filterValidSlides(items: Article[]) {
+function filterValidSlides(items: HomeHeroSlide[]) {
   return items.filter(
     (slide) =>
       Boolean(slide?.title?.trim()) &&
@@ -24,56 +22,14 @@ function filterValidSlides(items: Article[]) {
   );
 }
 
-function normalizeSlides(items: Article[]) {
+function normalizeSlides(items: HomeHeroSlide[]) {
   return filterValidSlides(items);
 }
 
-export function HeroSlider({ slides, fallbackSlides }: HeroSliderProps) {
-  void fallbackSlides;
+export function HeroSlider({ slides }: HeroSliderProps) {
   const [active, setActive] = useState(0);
-  const [heroItems, setHeroItems] = useState<Article[]>(() => normalizeSlides(slides));
-  const validSlides = useMemo(() => normalizeSlides(heroItems), [heroItems]);
+  const validSlides = useMemo(() => normalizeSlides(slides), [slides]);
   const slideCount = validSlides.length;
-
-  useEffect(() => {
-    setHeroItems(normalizeSlides(slides));
-  }, [slides]);
-
-  useEffect(() => {
-    let cancelled = false;
-    const load = async () => {
-      try {
-        const response = await fetch("/api/acs/home");
-        if (!response.ok) return;
-        const data = (await response.json()) as { heroSlides?: Article[] };
-        const next = normalizeSlides(data.heroSlides ?? []);
-        if (!cancelled && next.length) {
-          setHeroItems(next);
-          try {
-            window.localStorage.setItem(HERO_CACHE_KEY, JSON.stringify(next));
-          } catch {
-            // ignore cache errors
-          }
-        }
-      } catch {
-        try {
-          const cached = window.localStorage.getItem(HERO_CACHE_KEY);
-          if (cached) {
-            const parsed = normalizeSlides(JSON.parse(cached) as Article[]);
-            if (!cancelled && parsed.length) {
-              setHeroItems(parsed);
-            }
-          }
-        } catch {
-          // ignore cache errors
-        }
-      }
-    };
-    load();
-    return () => {
-      cancelled = true;
-    };
-  }, []);
 
   useEffect(() => {
     if (slideCount <= 1) {
@@ -137,7 +93,7 @@ export function HeroSlider({ slides, fallbackSlides }: HeroSliderProps) {
 }
 
 type SlideItemProps = {
-  slide: Article;
+  slide: HomeHeroSlide;
   priority?: boolean;
 };
 
@@ -192,7 +148,10 @@ function SlideItem({ slide, priority }: SlideItemProps) {
             </p>
           )}
         </div>
-        <Link href={`/news/${slide.slug}`} className="mt-auto inline-flex w-fit items-center rounded-full bg-brand px-5 py-3 text-sm font-semibold text-white shadow-lg transition hover:bg-brand/90">
+        <Link
+          href={slide.href}
+          className="mt-auto inline-flex w-fit items-center rounded-full bg-brand px-5 py-3 text-sm font-semibold text-white shadow-lg transition hover:bg-brand/90"
+        >
           مشاهده خبر کامل
         </Link>
       </div>

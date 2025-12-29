@@ -19,12 +19,22 @@ const nextConfig = {
       },
       {
         protocol: "https",
+        hostname: "source.unsplash.com",
+        pathname: "/**",
+      },
+      {
+        protocol: "https",
         hostname: "2020news.ir",
         pathname: "/**",
       },
       {
         protocol: "https",
         hostname: "trustseal.e-rasaneh.ir",
+        pathname: "/**",
+      },
+      {
+        protocol: "https",
+        hostname: "picsum.photos",
         pathname: "/**",
       },
     ],

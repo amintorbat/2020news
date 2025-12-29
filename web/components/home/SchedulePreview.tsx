@@ -29,7 +29,7 @@ export function SchedulePreview({ schedule = weeklyMatches, container = true, cl
             onClick={() => setActive(option.id)}
             className={cn(
               "rounded-full px-4 py-1.5 text-sm font-semibold transition lg:px-3 lg:py-1 lg:text-xs",
-              active === option.id ? "bg-amber-500 text-white shadow" : "bg-slate-100 text-[var(--muted)] hover:text-brand"
+              active === option.id ? "bg-brand text-white shadow" : "bg-slate-100 text-[var(--muted)] hover:text-brand"
             )}
           >
             {option.label}

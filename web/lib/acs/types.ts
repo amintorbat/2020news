@@ -10,6 +10,7 @@ export type Article = {
   sport: SportType;
   sourceUrl?: string;
   imageUrl: string;
+  isFeatured?: boolean;
 };
 
 export type LiveEvent = {
