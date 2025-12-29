@@ -50,16 +50,14 @@ export const kioskItems: KioskItem[] = [
 export function NewspaperKiosk({ items = kioskItems }: { items?: KioskItem[] }) {
   return (
     <section className="space-y-6" dir="rtl">
-      <div className="flex items-center justify-between">
-        <h2 className="text-lg font-bold text-gray-900">کیوسک روزنامه</h2>
-      </div>
+      <h2 className="text-lg font-bold text-gray-900">کیوسک روزنامه</h2>
       <div className="relative">
         <div className="flex snap-x snap-mandatory gap-4 overflow-x-auto pb-2 pr-1 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
           {items.map((item) => (
             <Link
               key={item.id}
               href={item.href}
-              className="group relative min-w-[220px] flex-1 snap-start overflow-hidden rounded-3xl border border-[var(--border)] bg-white shadow-card transition hover:shadow-lg sm:min-w-[240px]"
+              className="group min-w-[220px] flex-1 snap-start overflow-hidden rounded-3xl border border-[var(--border)] bg-white shadow-card transition hover:shadow-lg sm:min-w-[240px]"
             >
               <div className="relative aspect-[3/4] w-full bg-slate-100">
                 <Image
@@ -69,11 +67,10 @@ export function NewspaperKiosk({ items = kioskItems }: { items?: KioskItem[] }) 
                   sizes="(min-width: 1024px) 220px, (min-width: 640px) 240px, 70vw"
                   className="object-cover transition-transform duration-500 group-hover:scale-[1.03]"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent" />
               </div>
-              <div className="absolute inset-x-0 bottom-0 space-y-1 p-4 text-right">
-                <h3 className="line-clamp-2 text-sm font-semibold text-white sm:text-base">{item.title}</h3>
-                <p className="line-clamp-2 text-xs text-slate-200 sm:text-sm">{item.caption}</p>
+              <div className="space-y-1 p-3 text-right">
+                <h3 className="line-clamp-2 text-sm font-semibold text-slate-900 sm:text-base">{item.title}</h3>
+                <p className="line-clamp-2 text-xs text-gray-600 sm:text-sm">{item.caption}</p>
               </div>
             </Link>
           ))}

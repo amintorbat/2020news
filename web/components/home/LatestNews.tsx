@@ -18,7 +18,7 @@ export function LatestNews() {
                 </span>
                 <span>{item.publishedAt}</span>
               </div>
-              <h3 className="line-clamp-2 text-sm font-semibold leading-6 text-gray-900 sm:text-base">
+              <h3 className="line-clamp-2 text-sm font-bold leading-6 text-slate-900 sm:text-base">
                 {item.title}
               </h3>
               <p className="line-clamp-2 text-xs text-gray-600 sm:text-sm">{item.excerpt}</p>

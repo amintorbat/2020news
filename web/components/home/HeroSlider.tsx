@@ -36,7 +36,7 @@ export function HeroSlider({ slides }: HeroSliderProps) {
   }, [slides]);
   const slideCount = validSlides.length;
 
-  if (!slideCount) {
+  if (slideCount < 3) {
     return null;
   }
 
@@ -46,7 +46,7 @@ export function HeroSlider({ slides }: HeroSliderProps) {
         <Swiper
           modules={[Autoplay, Pagination, Keyboard]}
           slidesPerView={1}
-          loop={slideCount > 1}
+          loop={true}
           autoplay={{ delay: AUTO_INTERVAL, disableOnInteraction: false }}
           pagination={{
             clickable: true,
@@ -105,7 +105,7 @@ function SlideItem({ slide, priority }: SlideItemProps) {
           {formattedDate && <span className="text-gray-500">{formattedDate}</span>}
         </div>
         <div className="space-y-3">
-          <h1 className="text-2xl font-black leading-tight text-gray-900 md:text-3xl">{slide.title}</h1>
+          <h1 className="text-2xl font-black leading-tight text-slate-900 md:text-3xl">{slide.title}</h1>
           {slide.excerpt && <p className="text-sm text-gray-600">{slide.excerpt}</p>}
         </div>
         <Link

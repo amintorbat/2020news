@@ -2,7 +2,7 @@ export const dynamic = "force-dynamic";
 
 import { HeroSlider } from "@/components/home/HeroSlider";
 import { LatestNews } from "@/components/home/LatestNews";
-import { ContentSection } from "@/components/home/ContentSection";
+import { ContentSection, type SectionItem } from "@/components/home/ContentSection";
 import { NewspaperKiosk } from "@/components/home/NewspaperKiosk";
 import { LeagueTablesPreview } from "@/components/home/LeagueTablesPreview";
 import { TopScorersPreview } from "@/components/home/TopScorersPreview";
@@ -135,6 +135,8 @@ const provincialNews = [
   },
 ];
 
+const reportsAndEditorials: SectionItem[] = [...reports, ...editorials];
+
 export default async function HomePage() {
   const futsalStandingsPromise = getStandingsContent("futsal").catch(() => getFallbackStandingsPayload("futsal"));
   const beachStandingsPromise = getStandingsContent("beach").catch(() => getFallbackStandingsPayload("beach"));
@@ -166,8 +168,7 @@ export default async function HomePage() {
         </div>
       </div>
       <div className="container space-y-12 lg:space-y-10">
-        <ContentSection title="گزارش‌ها" items={reports} />
-        <ContentSection title="یادداشت‌ها" items={editorials} />
+        <ContentSection title="گزارش‌ها و یادداشت‌ها" items={reportsAndEditorials} />
         <ContentSection title="اخبار استان‌ها" items={provincialNews} />
       </div>
       <Footer />
