@@ -23,11 +23,11 @@ export function NewsCard({ article, compact = false }: { article: CardArticle; c
     >
       <div
         className={cn(
-          "relative h-44 w-full overflow-hidden rounded-2xl sm:h-auto sm:w-60 lg:w-72",
+          "relative h-44 w-full overflow-hidden sm:h-auto sm:w-60 lg:w-72",
           compact && "lg:h-28 lg:w-52"
         )}
       >
-        <Image src={imageSrc} alt={article.title} fill sizes="(min-width: 640px) 300px, 90vw" className="object-cover" />
+        <Image src={imageSrc} alt={article.title} fill sizes="(min-width: 640px) 300px, 90vw" className="object-cover" style={{ borderRadius: 0 }} />
       </div>
       <div className={cn("flex flex-1 flex-col justify-center gap-3 sm:pr-6", compact && "lg:gap-2 lg:pr-4")}>
         <div className={cn("flex flex-wrap items-center gap-2 text-xs text-slate-400", compact && "lg:gap-1.5 lg:text-[11px]")}>

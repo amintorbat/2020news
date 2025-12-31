@@ -61,7 +61,7 @@ export function Header() {
 
         <button
           type="button"
-          className="ml-auto rounded-full border border-[var(--border)] bg-white p-2 text-[var(--foreground)] md:hidden"
+          className="ml-auto rounded-full border border-[var(--border)] bg-white p-2 text-slate-900 md:hidden"
           aria-label="باز کردن منو"
           onClick={() => setMobileOpen(true)}
         >

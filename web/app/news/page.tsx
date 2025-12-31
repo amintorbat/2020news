@@ -42,7 +42,7 @@ export default async function NewsIndexPage({ searchParams }: NewsPageProps) {
               name="q"
               defaultValue={query ?? ""}
               placeholder="جستجوی سریع..."
-              className="w-48 rounded-full border border-white/40 bg-white/10 px-4 py-2 text-sm text-white placeholder:text-white/60 focus:border-white focus:outline-none"
+              className="w-48 rounded-full border border-slate-300 bg-white px-4 py-2 text-sm text-slate-900 placeholder:text-slate-500 focus:border-brand focus:outline-none"
             />
             <button type="submit" className="rounded-full bg-white/90 px-4 py-2 text-xs font-semibold text-slate-900">
               جستجو
@@ -52,7 +52,7 @@ export default async function NewsIndexPage({ searchParams }: NewsPageProps) {
       />
 
       <section className="container space-y-4" dir="rtl">
-        <h2 className="text-lg font-bold text-[var(--foreground)]">خبرهای مهم امروز</h2>
+        <h2 className="text-lg font-bold text-slate-900">خبرهای مهم امروز</h2>
         <div className="space-y-4">
           {highlighted.map((article) => (
             <NewsCard key={article.id} article={article} />
@@ -68,7 +68,7 @@ export default async function NewsIndexPage({ searchParams }: NewsPageProps) {
               href={`/news?category=${tab.id}${query ? `&q=${encodeURIComponent(query)}` : ""}`}
               className={cn(
                 "rounded-full px-5 py-2 text-sm font-semibold",
-                category === tab.id ? "bg-brand text-white shadow" : "bg-[#f5f6f8] text-[var(--muted)] hover:text-brand"
+                category === tab.id ? "bg-brand text-white shadow" : "bg-[#f5f6f8] text-slate-700 hover:text-brand"
               )}
             >
               {tab.label}
@@ -82,7 +82,7 @@ export default async function NewsIndexPage({ searchParams }: NewsPageProps) {
             ))}
           </div>
         ) : (
-          <p className="rounded-3xl border border-dashed border-[var(--border)] bg-white p-6 text-center text-sm text-[var(--muted)]">
+          <p className="rounded-3xl border border-dashed border-[var(--border)] bg-white p-6 text-center text-sm text-slate-600">
             برای این دسته خبری مطابق جستجو پیدا نشد.
           </p>
         )}

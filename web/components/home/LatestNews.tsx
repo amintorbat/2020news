@@ -26,7 +26,7 @@ export function LatestNews() {
               </h3>
               <p className="news-excerpt text-sm leading-6">{item.excerpt}</p>
             </div>
-            <div className="h-20 w-28 flex-shrink-0 overflow-hidden rounded-2xl bg-slate-100 sm:h-24 sm:w-36">
+            <div className="h-20 w-28 flex-shrink-0 overflow-hidden bg-slate-100 sm:h-24 sm:w-36">
               <img
                 src={item.imageUrl}
                 alt={item.title}

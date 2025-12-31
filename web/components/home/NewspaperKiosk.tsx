@@ -75,7 +75,7 @@ export function NewspaperKiosk({ items = kioskItems }: { items?: KioskItem[] }) 
             <SwiperSlide key={item.id} className="!w-[220px] sm:!w-[240px] lg:!w-[240px]">
               <Link
                 href={item.href}
-                className="group relative flex overflow-hidden rounded-3xl border border-[var(--border)] bg-white shadow-sm transition hover:shadow-md"
+                className="group relative flex overflow-hidden border border-[var(--border)] bg-white shadow-sm transition hover:shadow-md"
               >
                 <div className="relative aspect-[3/4] w-full bg-slate-100">
                   <Image
@@ -84,6 +84,7 @@ export function NewspaperKiosk({ items = kioskItems }: { items?: KioskItem[] }) 
                     fill
                     sizes="(min-width: 1024px) 220px, (min-width: 640px) 240px, 80vw"
                     className="object-cover transition-transform duration-500 group-hover:scale-[1.02]"
+                    style={{ borderRadius: 0 }}
                   />
                   <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-white/90 via-white/70 to-transparent p-3 text-right">
                     <h3 className="news-title line-clamp-2 text-sm sm:text-base">{item.title}</h3>

@@ -12,18 +12,18 @@ export function MatchCard({ match }: { match: MatchBase }) {
 
   return (
     <article className="rounded-3xl border border-[var(--border)] bg-white p-5 shadow-card" dir="rtl">
-      <div className="flex items-center justify-between text-xs text-[var(--muted)]">
+      <div className="flex items-center justify-between text-xs text-slate-600">
         <span>{match.venue}</span>
         <span className={cn("rounded-full px-3 py-1 text-xs font-bold", statusClasses[match.status])}>{statusLabel}</span>
       </div>
-      <h3 className="mt-4 text-lg font-bold text-[var(--foreground)]">{match.opponent}</h3>
-      <div className="mt-3 flex items-center justify-between text-sm text-[var(--muted)]">
+      <h3 className="mt-4 text-lg font-bold text-slate-900">{match.opponent}</h3>
+      <div className="mt-3 flex items-center justify-between text-sm text-slate-600">
         <span>فصل {match.season}</span>
         <span>هفته {match.week}</span>
       </div>
-      <div className="mt-4 flex items-center justify-between text-sm text-[var(--muted)]">
+      <div className="mt-4 flex items-center justify-between text-sm text-slate-600">
         <span>{match.date}</span>
-        {match.score ? <p className="text-3xl font-black text-[var(--foreground)]">{match.score}</p> : <span className="text-xs text-brand">گزارش ویژه ۲۰۲۰نیوز</span>}
+        {match.score ? <p className="text-3xl font-black text-slate-900">{match.score}</p> : <span className="text-xs text-brand">گزارش ویژه ۲۰۲۰نیوز</span>}
       </div>
     </article>
   );

@@ -24,25 +24,25 @@ function LeagueTable({ title, rows }: TableProps) {
   return (
     <div className="rounded-3xl border border-[var(--border)] bg-white p-5 shadow-card" dir="rtl">
       <div className="flex items-center justify-between">
-        <h3 className="text-lg font-semibold text-[var(--foreground)]">{title}</h3>
-        <span className="text-xs text-[var(--muted)]">به‌روزرسانی امروز</span>
+        <h3 className="text-lg font-semibold text-slate-900">{title}</h3>
+        <span className="text-xs text-slate-600">به‌روزرسانی امروز</span>
       </div>
-      <div className="mt-4 overflow-hidden rounded-2xl border border-[var(--border)]">
+      <div className="mt-4 overflow-hidden border border-[var(--border)]">
         <table className="w-full text-sm">
-          <thead className="bg-[#f7f8fa] text-xs text-[var(--muted)]">
+          <thead className="bg-[#f7f8fa] text-xs">
             <tr>
-              <th className="py-2">رتبه</th>
-              <th className="py-2">تیم</th>
-              <th className="py-2">بازی</th>
-              <th className="py-2">امتیاز</th>
+              <th className="py-2 font-semibold text-slate-900">رتبه</th>
+              <th className="py-2 font-semibold text-slate-900">تیم</th>
+              <th className="py-2 font-semibold text-slate-900">بازی</th>
+              <th className="py-2 font-semibold text-slate-900">امتیاز</th>
             </tr>
           </thead>
           <tbody>
             {rows.map((row) => (
-              <tr key={row.team} className="text-center text-[var(--foreground)]">
-                <td className="py-3 font-semibold">{row.rank}</td>
-                <td className="py-3 text-right font-semibold">{row.team}</td>
-                <td className="py-3 text-[var(--muted)]">{row.played}</td>
+              <tr key={row.team} className="text-center border-t border-[var(--border)]">
+                <td className="py-3 font-semibold text-slate-900">{row.rank}</td>
+                <td className="py-3 text-right font-semibold text-slate-900">{row.team}</td>
+                <td className="py-3 text-slate-700">{row.played}</td>
                 <td className="py-3 font-bold text-brand">{row.points}</td>
               </tr>
             ))}

@@ -1,6 +1,6 @@
 import Link from "next/link";
 
-export type Category = "فوتبال ساحلی" | "فوتسال" | "گزارش" | "یادداشت" | "اخبار استان‌ها";
+export type Category = "فوتبال ساحلی" | "فوتسال" | "گزارش" | "یادداشت";
 
 export type SectionItem = {
   id: number;
@@ -42,7 +42,7 @@ export function ContentSection({ title, items }: ContentSectionProps) {
               </h3>
               <p className="news-excerpt line-clamp-2 text-xs sm:text-sm">{item.excerpt}</p>
             </div>
-            <div className="h-20 w-28 flex-shrink-0 overflow-hidden rounded-2xl bg-slate-100 sm:h-24 sm:w-36">
+            <div className="h-20 w-28 flex-shrink-0 overflow-hidden bg-slate-100 sm:h-24 sm:w-36">
               <img src={item.imageUrl} alt={item.title} className="h-full w-full object-cover" loading="lazy" />
             </div>
           </Link>

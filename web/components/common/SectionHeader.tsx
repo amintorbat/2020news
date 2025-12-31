@@ -4,8 +4,8 @@ export function SectionHeader({ title, subtitle, action }: { title: string; subt
   return (
     <header className="flex flex-wrap items-center justify-between gap-4" dir="rtl">
       <div className="space-y-1 text-right">
-        {subtitle && <p className="text-xs font-semibold text-[var(--muted)]">{subtitle}</p>}
-        <h2 className="section-title">{title}</h2>
+        {subtitle && <p className="text-xs font-semibold text-slate-600">{subtitle}</p>}
+        <h2 className="section-title text-slate-900">{title}</h2>
       </div>
       {action}
     </header>

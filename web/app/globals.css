@@ -9,6 +9,8 @@
   --border: #e4e7ec;
   --card: #fdfdfd;
   --brand: #0b6efd;
+  --header-height: 7rem; /* 112px - mobile navbar + potential ticker height */
+  --header-height-desktop: 4.5rem; /* 72px - desktop navbar height */
 }
 
 * {
@@ -34,6 +36,18 @@ body {
 img {
   max-width: 100%;
   height: auto;
+  border-radius: 0 !important;
+}
+
+img[class*="rounded"],
+img[class*="rounded-"] {
+  border-radius: 0 !important;
+}
+
+/* Remove border-radius from Next.js Image components */
+.next-image-wrapper img,
+[class*="next-image"] img {
+  border-radius: 0 !important;
 }
 
 a {
@@ -48,7 +62,7 @@ a:hover {
 .section-title {
   font-size: clamp(1.5rem, 2vw, 2rem);
   font-weight: 800;
-  color: var(--foreground);
+  color: #0f172a !important; /* slate-900 */
 }
 
 .section-subtitle {
@@ -104,4 +118,10 @@ textarea:focus-visible {
 
 .newspaper-swiper .swiper-pagination-bullet-active {
   background: #2563eb;
+}
+
+/* Force remove border-radius from all image containers */
+[class*="rounded"] img,
+[class*="rounded-"] img {
+  border-radius: 0 !important;
 }

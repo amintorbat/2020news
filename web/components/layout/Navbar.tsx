@@ -49,12 +49,13 @@ export function Navbar() {
       ref={navRef}
       dir="rtl"
     >
-      <div className="container grid grid-cols-[auto,1fr,auto] items-center gap-4 py-3">
+      {/* Desktop Header */}
+      <div className="hidden container md:grid md:grid-cols-[auto,1fr,auto] md:items-center md:gap-4 md:py-3">
         <Link href="/" className="justify-self-end" aria-label="۲۰۲۰نیوز">
           <Image src="/images/logo.png" alt="لوگوی ۲۰۲۰نیوز" width={140} height={36} priority className="h-9 w-auto object-contain" />
         </Link>
 
-        <nav className="hidden justify-center md:flex" aria-label="منوی اصلی">
+        <nav className="justify-center md:flex" aria-label="منوی اصلی">
           <ul className="flex items-center gap-6 text-sm font-semibold text-[var(--foreground)]">
             {navigationMenu.map((item) => (
               <DesktopNavItem
@@ -75,24 +76,44 @@ export function Navbar() {
           <button
             type="button"
             aria-label="جستجو"
-            className="rounded-full border border-[var(--border)] bg-white p-2 text-[var(--foreground)] transition hover:text-brand"
+            className="rounded-full border border-[var(--border)] bg-white p-2 text-slate-900 transition hover:text-brand"
           >
             <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round">
               <circle cx="11" cy="11" r="7" />
               <path d="m16.5 16.5 3.5 3.5" />
             </svg>
           </button>
-          <button
-            type="button"
-            className="rounded-full border border-[var(--border)] bg-white p-2 text-[var(--foreground)] md:hidden"
-            aria-label="باز کردن منو"
-            onClick={() => setMobileOpen(true)}
-          >
-            <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round">
-              <path d="M4 7h16M4 12h16M4 17h16" />
-            </svg>
-          </button>
         </div>
+      </div>
+
+      {/* Mobile Header */}
+      <div className="container flex items-center justify-between gap-2 py-2.5 md:hidden" dir="rtl">
+        {/* Logo - Right */}
+        <Link href="/" className="flex-shrink-0" aria-label="۲۰۲۰نیوز">
+          <Image src="/images/logo.png" alt="لوگوی ۲۰۲۰نیوز" width={120} height={30} priority className="h-8 w-auto object-contain" />
+        </Link>
+
+        {/* Search - Center */}
+        <div className="flex-1 min-w-0">
+          <input
+            type="search"
+            placeholder="جستجو..."
+            className="w-full rounded-lg border border-[var(--border)] bg-white px-3 py-1.5 text-sm text-slate-900 placeholder:text-slate-400 focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/20"
+            dir="rtl"
+          />
+        </div>
+
+        {/* Hamburger - Left */}
+        <button
+          type="button"
+          className="flex-shrink-0 rounded-lg border border-[var(--border)] bg-white p-2 text-[var(--foreground)] transition hover:bg-slate-50"
+          aria-label="باز کردن منو"
+          onClick={() => setMobileOpen(true)}
+        >
+          <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round">
+            <path d="M4 7h16M4 12h16M4 17h16" />
+          </svg>
+        </button>
       </div>
 
       <MobileMenu open={mobileOpen} onClose={() => setMobileOpen(false)} />

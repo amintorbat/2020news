@@ -18,8 +18,8 @@ export function TopScorersPreview({ scorers, container = true, className }: TopS
   return (
     <section className={cn(container && "container", "space-y-5 lg:space-y-3", className)} dir="rtl">
       <div className="flex items-center justify-between">
-        <h2 className="text-lg font-bold text-slate-900 lg:text-base">جدول گلزنان</h2>
-        <span className="text-xs text-slate-400">به‌روزرسانی: امروز</span>
+        <h2 className="text-lg font-bold text-slate-900 lg:text-base" style={{ color: '#0f172a' }}>جدول گلزنان</h2>
+        <span className="text-xs text-slate-600">به‌روزرسانی: امروز</span>
       </div>
       <div className="flex gap-3 lg:gap-2">
         {leagueOptions.map((option) => (
@@ -29,7 +29,7 @@ export function TopScorersPreview({ scorers, container = true, className }: TopS
             onClick={() => setActive(option.id)}
             className={cn(
               "rounded-full px-4 py-1.5 text-sm font-semibold transition lg:px-3 lg:py-1 lg:text-xs",
-              active === option.id ? "bg-brand text-white shadow" : "bg-slate-100 text-[var(--muted)] hover:text-brand"
+              active === option.id ? "bg-brand text-white shadow" : "bg-slate-100 text-slate-700 hover:text-brand"
             )}
           >
             {option.label}
@@ -39,12 +39,12 @@ export function TopScorersPreview({ scorers, container = true, className }: TopS
       <div className="overflow-hidden rounded-3xl border border-[var(--border)] bg-white shadow-card">
         {rows.length ? (
           <table className="w-full text-sm text-right lg:text-xs">
-            <thead className="bg-[#f7f8fa] text-xs text-slate-400 lg:text-[11px]">
+            <thead className="bg-[#f7f8fa] text-xs lg:text-[11px]">
               <tr>
-                <th className="py-3 text-center lg:py-2">رتبه</th>
-                <th className="py-3 text-right lg:py-2">بازیکن</th>
-                <th className="py-3 text-right lg:py-2">تیم</th>
-                <th className="py-3 text-center lg:py-2">گل</th>
+                <th className="py-3 text-center font-semibold text-slate-900 lg:py-2">رتبه</th>
+                <th className="py-3 text-right font-semibold text-slate-900 lg:py-2">بازیکن</th>
+                <th className="py-3 text-right font-semibold text-slate-900 lg:py-2">تیم</th>
+                <th className="py-3 text-center font-semibold text-slate-900 lg:py-2">گل</th>
               </tr>
             </thead>
             <tbody>

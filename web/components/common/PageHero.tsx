@@ -7,8 +7,8 @@ export function PageHero({ title, subtitle, eyebrow, action }: { title: string; 
         {eyebrow && <p className="text-xs font-semibold text-brand">{eyebrow}</p>}
         <div className="flex flex-wrap items-center justify-between gap-4">
           <div className="space-y-3">
-            <h1 className="text-3xl font-extrabold text-[var(--foreground)]">{title}</h1>
-            <p className="max-w-2xl text-sm text-[var(--muted)]">{subtitle}</p>
+            <h1 className="text-3xl font-extrabold text-slate-900">{title}</h1>
+            <p className="max-w-2xl text-sm text-slate-700">{subtitle}</p>
           </div>
           {action}
         </div>

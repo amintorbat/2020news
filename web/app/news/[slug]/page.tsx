@@ -51,7 +51,7 @@ export default async function NewsDetailsPage({ params }: PageProps) {
         title={title}
         subtitle={lead}
         action={
-          <Link href="/news" className="rounded-full border border-[var(--border)] px-5 py-2 text-sm text-[var(--muted)] hover:text-brand">
+          <Link href="/news" className="rounded-full border border-[var(--border)] px-5 py-2 text-sm text-slate-700 hover:text-brand">
             بازگشت به اخبار
           </Link>
         }
@@ -63,12 +63,12 @@ export default async function NewsDetailsPage({ params }: PageProps) {
         {imageUrl ? <meta itemProp="image" content={imageUrl} /> : null}
 
         <div className="space-y-4 rounded-3xl border border-[var(--border)] bg-white p-6">
-          <div className="flex flex-wrap items-center gap-4 text-xs text-[var(--muted)]">
+          <div className="flex flex-wrap items-center gap-4 text-xs text-slate-600">
             <span>منتشر شده: {publishedAt}</span>
             <span className="h-1 w-1 rounded-full bg-[var(--border)]" aria-hidden="true" />
             <span>منبع: 2020news.ir</span>
           </div>
-          {lead ? <p className="text-sm leading-7 text-[var(--foreground)]">{lead}</p> : null}
+          {lead ? <p className="text-sm leading-7 text-slate-900">{lead}</p> : null}
         </div>
 
         {imageUrl ? (
@@ -78,7 +78,7 @@ export default async function NewsDetailsPage({ params }: PageProps) {
         ) : null}
 
         <div
-          className="space-y-6 rounded-3xl border border-[var(--border)] bg-white p-6 text-base leading-8 text-[var(--foreground)]"
+          className="space-y-6 rounded-3xl border border-[var(--border)] bg-white p-6 text-base leading-8 text-slate-900"
           itemProp="articleBody"
           dangerouslySetInnerHTML={{ __html: bodyHtml }}
         />
@@ -87,10 +87,10 @@ export default async function NewsDetailsPage({ params }: PageProps) {
           <section className="grid gap-6 rounded-3xl border border-[var(--border)] bg-white p-6 md:grid-cols-2">
             {tags.length > 0 && (
               <div className="space-y-2">
-                <h3 className="text-sm font-semibold text-[var(--foreground)]">برچسب‌ها</h3>
+                <h3 className="text-sm font-semibold text-slate-900">برچسب‌ها</h3>
                 <div className="flex flex-wrap gap-2">
                   {tags.map((tag) => (
-                    <span key={tag} className="rounded-full border border-[var(--border)] px-3 py-1 text-xs text-[var(--muted)]">
+                    <span key={tag} className="rounded-full border border-[var(--border)] px-3 py-1 text-xs text-slate-700">
                       {tag}
                     </span>
                   ))}
@@ -99,10 +99,10 @@ export default async function NewsDetailsPage({ params }: PageProps) {
             )}
             {teams.length > 0 && (
               <div className="space-y-2">
-                <h3 className="text-sm font-semibold text-[var(--foreground)]">تیم‌های مرتبط</h3>
+                <h3 className="text-sm font-semibold text-slate-900">تیم‌های مرتبط</h3>
                 <div className="flex flex-wrap gap-2">
                   {teams.map((team) => (
-                    <span key={team} className="rounded-full border border-[var(--border)] px-3 py-1 text-xs text-[var(--muted)]">
+                    <span key={team} className="rounded-full border border-[var(--border)] px-3 py-1 text-xs text-slate-700">
                       {team}
                     </span>
                   ))}
@@ -117,7 +117,7 @@ export default async function NewsDetailsPage({ params }: PageProps) {
         </section>
         {related.length > 0 && (
           <section className="space-y-3">
-            <h3 className="text-base font-semibold text-[var(--foreground)]">اخبار مرتبط</h3>
+            <h3 className="text-base font-semibold text-slate-900">اخبار مرتبط</h3>
             <div className="space-y-4">
               {related.map((article) => (
                 <NewsCard key={article.id} article={article} />
@@ -133,7 +133,7 @@ export default async function NewsDetailsPage({ params }: PageProps) {
 }
 
 function toParagraphHtml(value: string) {
-  return `<p class="text-[var(--muted)] leading-8">${escapeHtml(value)}</p>`;
+  return `<p class="text-slate-700 leading-8">${escapeHtml(value)}</p>`;
 }
 
 function escapeHtml(value: string) {
