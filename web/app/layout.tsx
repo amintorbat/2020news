@@ -20,7 +20,7 @@ export default function RootLayout({
       <body className="min-h-screen bg-[var(--background)] text-[var(--foreground)] antialiased font-sans">
         <LiveTicker />
         <Navbar />
-        <main className="pt-28 pb-16">{children}</main>
+        <main className="pb-16">{children}</main>
       </body>
     </html>
   );

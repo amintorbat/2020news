@@ -108,14 +108,18 @@ export default async function HomePage() {
   };
   return (
     <div className="overflow-x-hidden">
-      {heroSlides.length >= 3 && <HeroSlider slides={heroSlides} />}
-      <div className="space-y-16 lg:space-y-12">
+      {heroSlides.length >= 3 && (
+        <div className="-mt-28 sm:-mt-[4.5rem]">
+          <HeroSlider slides={heroSlides} />
+        </div>
+      )}
+      <div className={`space-y-16 lg:space-y-12 ${heroSlides.length >= 3 ? "pt-12 lg:pt-16" : ""}`}>
         <div className="container">
           <div className="grid gap-10 lg:grid-cols-[1fr_320px] lg:items-start lg:gap-8">
             <div className="min-w-0 flex-1 space-y-12 lg:space-y-8">
               <section className="space-y-6" dir="rtl">
                 <div className="flex items-center justify-between">
-                  <h2 className="text-lg font-bold text-gray-900">آخرین اخبار</h2>
+                  <h2 className="text-lg lg:text-3xl font-extrabold text-gray-900">آخرین اخبار</h2>
                 </div>
                 <LatestNews />
               </section>

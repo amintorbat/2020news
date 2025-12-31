@@ -1,11 +1,10 @@
 import { ReactNode } from "react";
 
-export function SectionHeader({ title, subtitle, action }: { title: string; subtitle?: string; action?: ReactNode }) {
+export function SectionHeader({ title, action }: { title: string; subtitle?: string; action?: ReactNode }) {
   return (
     <header className="flex flex-wrap items-center justify-between gap-4" dir="rtl">
-      <div className="space-y-1 text-right">
-        {subtitle && <p className="text-xs font-semibold text-slate-600">{subtitle}</p>}
-        <h2 className="section-title text-slate-900">{title}</h2>
+      <div className=" text-right">
+        <h3 className="section-title text-slate-900">{title}</h3>
       </div>
       {action}
     </header>
