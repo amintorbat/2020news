@@ -2,6 +2,8 @@ import type { LeagueKey } from "../data";
 
 export type MatchStatus = "live" | "finished" | "upcoming";
 
+export type MatchStatusFilter = "all" | "live" | "finished" | "upcoming";
+
 export type MatchItem = {
   id: string;
   sport: LeagueKey;

@@ -2,11 +2,11 @@
 
 import { useRouter } from "next/navigation";
 import { leagueOptions, type LeagueKey } from "@/lib/data";
-import { statusOptions } from "@/lib/data/matches";
+import { statusOptions, type MatchStatusFilter } from "@/lib/data/matches";
 
 type MatchFiltersProps = {
   currentLeague: LeagueKey;
-  currentStatus: "all" | "live" | "finished" | "upcoming";
+  currentStatus: MatchStatusFilter;
   currentSeason: string;
   currentWeek: string;
 };

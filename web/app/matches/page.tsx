@@ -2,9 +2,7 @@ import { PageHero } from "@/components/common/PageHero";
 import { Footer } from "@/components/layout/Footer";
 import { MatchFilters } from "@/components/matches/MatchFilters";
 import { leagueOptions, matchSeasons, matchStatuses, matchWeeks, type LeagueKey } from "@/lib/data";
-import { mockMatches, timeRangeOptions, type MatchItem, type TimeRange } from "@/lib/data/matches";
-
-type MatchStatus = (typeof matchStatuses)[number]["id"];
+import { mockMatches, timeRangeOptions, type MatchItem, type MatchStatusFilter, type TimeRange } from "@/lib/data/matches";
 
 type MatchesPageProps = {
   searchParams?: { league?: string; season?: string; week?: string; status?: string; timeRange?: string };
@@ -14,7 +12,7 @@ type Filters = {
   league: LeagueKey;
   season: string;
   week: string;
-  status: MatchStatus | "all";
+  status: MatchStatusFilter;
   timeRange?: TimeRange;
 };
 
@@ -224,11 +222,15 @@ function resolveFilters(searchParams?: MatchesPageProps["searchParams"]): Filter
   const league = leagueOptions.some((option) => option.id === searchParams?.league) ? (searchParams?.league as LeagueKey) : leagueOptions[0].id;
   const season = matchSeasons.some((season) => season.id === searchParams?.season) ? (searchParams?.season as string) : matchSeasons[0].id;
   const week = matchWeeks.some((week) => week.id === searchParams?.week) ? (searchParams?.week as string) : matchWeeks[0].id;
-  const status = searchParams?.status === "all" 
-    ? "all"
-    : matchStatuses.some((status) => status.id === searchParams?.status)
-    ? (searchParams?.status as MatchStatus)
-    : "all";
+  
+  const statusValue = searchParams?.status;
+  let status: MatchStatusFilter = "all";
+  if (statusValue === "all" || statusValue === "live" || statusValue === "finished" || statusValue === "upcoming") {
+    status = statusValue;
+  } else if (matchStatuses.some((s) => s.id === statusValue)) {
+    status = statusValue as "live" | "finished" | "upcoming";
+  }
+  
   const timeRange = timeRangeOptions.some((tr) => tr.id === searchParams?.timeRange)
     ? (searchParams?.timeRange as TimeRange)
     : undefined;
