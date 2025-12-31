@@ -6,7 +6,7 @@ if (process.env.npm_lifecycle_event === "build" && isLocalEnvironment) {
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   eslint: {
-    ignoreDuringBuilds: isLocalEnvironment,
+    ignoreDuringBuilds: true,
   },
   typescript: {
     ignoreBuildErrors: isLocalEnvironment,

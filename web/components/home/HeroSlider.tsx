@@ -41,7 +41,7 @@ export function HeroSlider({ slides }: HeroSliderProps) {
   }
 
   return (
-    <section className="w-full -mt-28" dir="rtl">
+    <section className="w-full -mt-28 mt-0 pt-0" dir="rtl">
       <div className="relative h-[calc(100vh-var(--header-height))] h-[calc(100svh-var(--header-height))] overflow-hidden bg-slate-900 sm:h-[calc(100vh-var(--header-height-desktop))] sm:h-[calc(100svh-var(--header-height-desktop))]">
         <Swiper
           modules={[Autoplay, Pagination, Keyboard]}

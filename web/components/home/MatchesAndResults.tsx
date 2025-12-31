@@ -71,13 +71,13 @@ export function MatchesAndResults({ container = true, className }: MatchesAndRes
       </div>
 
       {/* Filters - Horizontal Row */}
-      <div className="flex flex-row items-center gap-3 flex-wrap">
-        <label className="flex-shrink-0 text-xs font-semibold text-slate-900 sm:text-sm">
-          <span className="mr-1.5">رشته:</span>
+      <div className="flex flex-row flex-nowrap items-center justify-start gap-3 overflow-x-auto sm:flex-wrap sm:overflow-visible">
+        <label className="flex flex-shrink-0 items-center gap-2 text-xs font-semibold text-slate-900 sm:text-sm">
+          <span>رشته:</span>
           <select
             value={selectedLeague}
             onChange={(e) => setSelectedLeague(e.target.value as LeagueKey)}
-            className="rounded-lg border border-[var(--border)] bg-white px-2.5 py-1.5 text-xs text-slate-900 focus:border-brand focus:outline-none sm:px-3 sm:py-2 sm:text-sm"
+            className="w-[10.5rem] max-w-full rounded-lg border border-[var(--border)] bg-white px-2.5 py-1.5 text-xs text-slate-900 focus:border-brand focus:outline-none sm:px-3 sm:py-2 sm:text-sm"
           >
             {leagueOptions.map((option) => (
               <option key={option.id} value={option.id}>
@@ -87,12 +87,12 @@ export function MatchesAndResults({ container = true, className }: MatchesAndRes
           </select>
         </label>
 
-        <label className="flex-shrink-0 text-xs font-semibold text-slate-900 sm:text-sm">
-          <span className="mr-1.5">بازه زمانی:</span>
+        <label className="flex flex-shrink-0 items-center gap-2 text-xs font-semibold text-slate-900 sm:text-sm">
+          <span>بازه زمانی:</span>
           <select
             value={selectedTimeRange}
             onChange={(e) => setSelectedTimeRange(e.target.value as TimeRange)}
-            className="rounded-lg border border-[var(--border)] bg-white px-2.5 py-1.5 text-xs text-slate-900 focus:border-brand focus:outline-none sm:px-3 sm:py-2 sm:text-sm"
+            className="w-[10.5rem] max-w-full rounded-lg border border-[var(--border)] bg-white px-2.5 py-1.5 text-xs text-slate-900 focus:border-brand focus:outline-none sm:px-3 sm:py-2 sm:text-sm"
           >
             {timeRangeOptions.map((option) => (
               <option key={option.id} value={option.id}>
@@ -102,12 +102,12 @@ export function MatchesAndResults({ container = true, className }: MatchesAndRes
           </select>
         </label>
 
-        <label className="flex-shrink-0 text-xs font-semibold text-slate-900 sm:text-sm">
-          <span className="mr-1.5">وضعیت:</span>
+        <label className="flex flex-shrink-0 items-center gap-2 text-xs font-semibold text-slate-900 sm:text-sm">
+          <span>وضعیت:</span>
           <select
             value={selectedStatus}
             onChange={(e) => setSelectedStatus(e.target.value as typeof selectedStatus)}
-            className="rounded-lg border border-[var(--border)] bg-white px-2.5 py-1.5 text-xs text-slate-900 focus:border-brand focus:outline-none sm:px-3 sm:py-2 sm:text-sm"
+            className="w-[10.5rem] max-w-full rounded-lg border border-[var(--border)] bg-white px-2.5 py-1.5 text-xs text-slate-900 focus:border-brand focus:outline-none sm:px-3 sm:py-2 sm:text-sm"
           >
             {statusOptions.map((option) => (
               <option key={option.id} value={option.id}>
@@ -135,7 +135,7 @@ export function MatchesAndResults({ container = true, className }: MatchesAndRes
       <div className="flex justify-start pt-1">
         <Link
           href={`/matches?league=${selectedLeague}&timeRange=${selectedTimeRange}&status=${selectedStatus}`}
-          className="text-sm font-semibold text-brand sm:text-base"
+          className="text-sm font-semibold text-blue-600 hover:text-blue-600 sm:text-base"
         >
           مشاهده برنامه کامل
         </Link>
@@ -212,4 +212,3 @@ function MatchItemCard({ match }: { match: MatchItem }) {
     </article>
   );
 }
-

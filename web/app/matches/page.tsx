@@ -1,11 +1,8 @@
-import Link from "next/link";
 import { PageHero } from "@/components/common/PageHero";
 import { Footer } from "@/components/layout/Footer";
-import { MatchCard } from "@/components/matches/MatchCard";
 import { MatchFilters } from "@/components/matches/MatchFilters";
-import { leagueOptions, matchSeasons, matchStatuses, matchWeeks, matchesCollection, type LeagueKey } from "@/lib/data";
-import { mockMatches, timeRangeOptions, statusOptions, type MatchItem, type TimeRange } from "@/lib/data/matches";
-import { cn } from "@/lib/cn";
+import { leagueOptions, matchSeasons, matchStatuses, matchWeeks, type LeagueKey } from "@/lib/data";
+import { mockMatches, timeRangeOptions, type MatchItem, type TimeRange } from "@/lib/data/matches";
 
 type MatchStatus = (typeof matchStatuses)[number]["id"];
 

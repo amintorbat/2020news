@@ -114,7 +114,9 @@ export function SchedulePreview({ schedule = weeklyMatches, container = true, cl
         </p>
       )}
       <div className="flex justify-start text-sm font-semibold text-brand lg:text-xs">
-        <a href={`/matches?league=${active}`}>مشاهده برنامه کامل</a>
+        <a href={`/matches?league=${active}`} className="text-blue-600 hover:text-blue-600">
+          مشاهده برنامه کامل
+        </a>
       </div>
     </section>
   );

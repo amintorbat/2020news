@@ -10,7 +10,7 @@ import { Footer } from "@/components/layout/Footer";
 import { getFallbackStandingsPayload } from "@/lib/acs/fallback";
 import { heroSlides } from "@/lib/mock/home";
 import type { StandingsRow } from "@/lib/acs/types";
-import { topScorers, weeklyMatches, standings, type LeagueKey } from "@/lib/data";
+import { topScorers, type LeagueKey } from "@/lib/data";
 
 function mapStandings(payload: Awaited<ReturnType<typeof getFallbackStandingsPayload>>): StandingsRow[] {
   return payload.rows.slice(0, 6);
@@ -97,7 +97,6 @@ const editorials = [
 const reportsAndEditorials: SectionItem[] = [...reports, ...editorials];
 
 export default async function HomePage() {
-  // فقط از fallback استفاده می‌کنیم - بدون ACS
   const [futsalStandings, beachStandings] = await Promise.all([
     getFallbackStandingsPayload("futsal"),
     getFallbackStandingsPayload("beach"),
