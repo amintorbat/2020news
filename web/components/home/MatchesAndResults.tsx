@@ -4,7 +4,7 @@ import { useState, useMemo } from "react";
 import Link from "next/link";
 import type { LeagueKey } from "@/lib/data";
 import { leagueOptions } from "@/lib/data";
-import { mockMatches, timeRangeOptions, statusOptions, type MatchItem, type TimeRange } from "@/lib/data/matches";
+import { mockMatches, timeRangeOptions, statusOptions, type MatchItem, type MatchStatusFilter, type TimeRange } from "@/lib/data/matches";
 import { cn } from "@/lib/cn";
 
 type MatchesAndResultsProps = {
@@ -15,7 +15,7 @@ type MatchesAndResultsProps = {
 export function MatchesAndResults({ container = true, className }: MatchesAndResultsProps) {
   const [selectedLeague, setSelectedLeague] = useState<LeagueKey>("futsal");
   const [selectedTimeRange, setSelectedTimeRange] = useState<TimeRange>("this-week");
-  const [selectedStatus, setSelectedStatus] = useState<"all" | "live" | "finished" | "upcoming">("all");
+  const [selectedStatus, setSelectedStatus] = useState<MatchStatusFilter>("all");
 
   const filteredMatches = useMemo(() => {
     let matches = mockMatches.filter((match) => match.sport === selectedLeague);
@@ -180,7 +180,7 @@ function MatchItemCard({ match }: { match: MatchItem }) {
             {match.status === "live" && match.liveMinute && (
               <>
                 <span className="text-slate-400">•</span>
-                <span className="font-semibold text-red-600">{match.liveMinute}'</span>
+                <span className="font-semibold text-red-600">{match.liveMinute}&apos;</span>
               </>
             )}
           </div>
