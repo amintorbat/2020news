@@ -63,13 +63,17 @@ export type MatchFull = MatchBase & {
 
 export type LeagueRow = {
   rank: number;
+  previousRank?: number;
   team: string;
   played: number;
   wins: number;
   draws: number;
   losses: number;
   goalDifference: number;
+  goalsFor?: number;
+  goalsAgainst?: number;
   points: number;
+  form?: ("W" | "D" | "L")[];
 };
 
 export type TopScorer = {
@@ -262,18 +266,18 @@ export const matchesCollection: MatchFull[] = [
 
 export const standings: Record<LeagueKey, LeagueRow[]> = {
   futsal: [
-    { rank: 1, team: "گیتی‌پسند", played: 18, wins: 14, draws: 2, losses: 2, goalDifference: 25, points: 44 },
-    { rank: 2, team: "مس سونگون", played: 18, wins: 13, draws: 3, losses: 2, goalDifference: 21, points: 42 },
-    { rank: 3, team: "پالایش نفت شازند", played: 18, wins: 11, draws: 3, losses: 4, goalDifference: 12, points: 36 },
-    { rank: 4, team: "سن‌ایچ ساوه", played: 18, wins: 10, draws: 5, losses: 3, goalDifference: 10, points: 35 },
-    { rank: 5, team: "فرش آرا", played: 18, wins: 8, draws: 5, losses: 5, goalDifference: 3, points: 29 },
+    { rank: 1, previousRank: 1, team: "گیتی‌پسند", played: 18, wins: 14, draws: 2, losses: 2, goalDifference: 25, goalsFor: 46, goalsAgainst: 21, points: 44, form: ["W", "W", "D", "W", "W"] },
+    { rank: 2, previousRank: 2, team: "مس سونگون", played: 18, wins: 13, draws: 3, losses: 2, goalDifference: 21, goalsFor: 42, goalsAgainst: 21, points: 42, form: ["W", "D", "W", "W", "W"] },
+    { rank: 3, previousRank: 4, team: "پالایش نفت شازند", played: 18, wins: 11, draws: 3, losses: 4, goalDifference: 12, goalsFor: 33, goalsAgainst: 21, points: 36, form: ["W", "W", "L", "W", "D"] },
+    { rank: 4, previousRank: 3, team: "سن‌ایچ ساوه", played: 18, wins: 10, draws: 5, losses: 3, goalDifference: 10, goalsFor: 31, goalsAgainst: 21, points: 35, form: ["D", "W", "W", "L", "W"] },
+    { rank: 5, previousRank: 5, team: "فرش آرا", played: 18, wins: 8, draws: 5, losses: 5, goalDifference: 3, goalsFor: 24, goalsAgainst: 21, points: 29, form: ["L", "D", "W", "D", "L"] },
   ],
   beach: [
-    { rank: 1, team: "پارس جنوبی", played: 16, wins: 12, draws: 1, losses: 3, goalDifference: 19, points: 37 },
-    { rank: 2, team: "ملوان بوشهر", played: 16, wins: 11, draws: 2, losses: 3, goalDifference: 15, points: 35 },
-    { rank: 3, team: "ایفا اردکان", played: 16, wins: 10, draws: 1, losses: 5, goalDifference: 7, points: 31 },
-    { rank: 4, team: "گلساپوش", played: 16, wins: 8, draws: 3, losses: 5, goalDifference: 4, points: 27 },
-    { rank: 5, team: "شاهین خزر", played: 16, wins: 7, draws: 2, losses: 7, goalDifference: -3, points: 23 },
+    { rank: 1, previousRank: 1, team: "پارس جنوبی", played: 16, wins: 12, draws: 1, losses: 3, goalDifference: 19, goalsFor: 38, goalsAgainst: 19, points: 37, form: ["W", "W", "W", "D", "W"] },
+    { rank: 2, previousRank: 2, team: "ملوان بوشهر", played: 16, wins: 11, draws: 2, losses: 3, goalDifference: 15, goalsFor: 34, goalsAgainst: 19, points: 35, form: ["W", "W", "L", "W", "W"] },
+    { rank: 3, previousRank: 3, team: "ایفا اردکان", played: 16, wins: 10, draws: 1, losses: 5, goalDifference: 7, goalsFor: 26, goalsAgainst: 19, points: 31, form: ["L", "W", "W", "L", "W"] },
+    { rank: 4, previousRank: 4, team: "گلساپوش", played: 16, wins: 8, draws: 3, losses: 5, goalDifference: 4, goalsFor: 23, goalsAgainst: 19, points: 27, form: ["D", "L", "W", "D", "W"] },
+    { rank: 5, previousRank: 5, team: "شاهین خزر", played: 16, wins: 7, draws: 2, losses: 7, goalDifference: -3, goalsFor: 16, goalsAgainst: 19, points: 23, form: ["L", "L", "D", "W", "L"] },
   ],
 };
 

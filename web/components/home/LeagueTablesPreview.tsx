@@ -19,6 +19,15 @@ const standingsCta: Record<LeagueKey, string> = {
   beach: "/standings?league=beach",
 };
 
+function buildStandingsUrl(league: LeagueKey, season: string, week: string): string {
+  const params = new URLSearchParams({
+    league,
+    season,
+    week,
+  });
+  return `/standings?${params.toString()}`;
+}
+
 type LeagueTablesPreviewProps = {
   standings: Record<LeagueKey, StandingsRow[]>;
   container?: boolean;
@@ -175,7 +184,7 @@ export function LeagueTablesPreview({ standings, container = true, className }: 
 
         <div className="flex justify-end">
           <Link 
-            href={`${standingsCta[activeLeague]}?season=${selectedSeason}&week=${selectedWeek}`}
+            href={buildStandingsUrl(activeLeague, selectedSeason, selectedWeek)}
             className="inline-flex text-sm font-semibold text-brand hover:text-brand lg:text-xs"
           >
             مشاهده جدول کامل
