@@ -6,10 +6,12 @@ import { useEffect, useRef, useState } from "react";
 import { navigationMenu, type NavItem } from "@/lib/data";
 import { cn } from "@/lib/cn";
 import { MobileMenu } from "./MobileMenu";
+import { SearchOverlay } from "@/components/search/SearchOverlay";
 
 export function Navbar() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [openItem, setOpenItem] = useState<string | null>(null);
+  const [searchOpen, setSearchOpen] = useState(false);
   const closeTimer = useRef<NodeJS.Timeout | null>(null);
   const navRef = useRef<HTMLDivElement>(null);
 
@@ -37,11 +39,24 @@ export function Navbar() {
   }, [openItem]);
 
   useEffect(() => {
-    document.body.style.overflow = mobileOpen ? "hidden" : "";
+    document.body.style.overflow = mobileOpen || searchOpen ? "hidden" : "";
     return () => {
       document.body.style.overflow = "";
     };
-  }, [mobileOpen]);
+  }, [mobileOpen, searchOpen]);
+
+  // Keyboard shortcut: Cmd+K / Ctrl+K
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === "k") {
+        e.preventDefault();
+        setSearchOpen(true);
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, []);
 
   return (
     <header
@@ -75,6 +90,7 @@ export function Navbar() {
         <div className="flex items-center gap-3 justify-self-start" dir="ltr">
           <button
             type="button"
+            onClick={() => setSearchOpen(true)}
             aria-label="جستجو"
             className="rounded-full border border-[var(--border)] bg-white p-2 text-slate-900 transition hover:text-brand"
           >
@@ -95,12 +111,14 @@ export function Navbar() {
 
         {/* Search - Center */}
         <div className="flex-1 min-w-0">
-          <input
-            type="search"
-            placeholder="جستجو..."
-            className="w-full rounded-lg border border-[var(--border)] bg-white px-3 py-1.5 text-sm text-slate-900 placeholder:text-slate-400 focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/20"
+          <button
+            type="button"
+            onClick={() => setSearchOpen(true)}
+            className="w-full rounded-lg border border-[var(--border)] bg-white px-3 py-1.5 text-right text-sm text-slate-900 placeholder:text-slate-400 focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/20"
             dir="rtl"
-          />
+          >
+            <span className="text-slate-400">جستجو...</span>
+          </button>
         </div>
 
         {/* Hamburger - Left */}
@@ -117,6 +135,7 @@ export function Navbar() {
       </div>
 
       <MobileMenu open={mobileOpen} onClose={() => setMobileOpen(false)} />
+      <SearchOverlay isOpen={searchOpen} onClose={() => setSearchOpen(false)} />
     </header>
   );
 }
