@@ -73,9 +73,9 @@ export function MatchesAndResults({ container = true, className }: MatchesAndRes
         className
       )}
     >
-      <div className="bg-white  rounded-2xl p-3 sm:p-4 space-y-4">
+      <div className="card p-3 sm:p-4 space-y-4">
         <div className="flex items-center justify-between">
-          <h2 className="text-lg font-bold text-slate-900 !text-slate-900 lg:text-base">بازی‌ها و نتایج</h2>
+          <h2 className="text-lg font-bold text-slate-900 lg:text-base">بازی‌ها و نتایج</h2>
         </div>
 
         {/* Filters - Horizontal Row (RTL order: رشته, بازه زمانی, وضعیت) */}
@@ -143,7 +143,7 @@ export function MatchesAndResults({ container = true, className }: MatchesAndRes
         <div className="flex justify-end">
           <Link
             href={`/matches?league=${selectedLeague}&timeRange=${selectedTimeRange}&status=${selectedStatus}`}
-            className="inline-flex text-sm font-semibold text-blue-600 hover:text-blue-600 lg:text-xs"
+            className="!text-brand inline-flex text-sm font-semibold text-brand hover:!text-brand lg:text-xs"
           >
             مشاهده برنامه کامل
           </Link>

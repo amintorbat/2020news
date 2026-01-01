@@ -127,10 +127,10 @@ export default async function HomePage() {
             <aside className="space-y-8 lg:space-y-6">
               <LeagueTablesPreview standings={standingsByLeague} container={false} />
               <MatchesAndResults container={false} />
+              <TopScorersPreview scorers={topScorers} container={false} />
               <section className="space-y-6" dir="rtl">
                 <h2 className="text-lg font-bold text-slate-900" style={{ color: '#0f172a' }}>کیوسک روزنامه</h2>
               </section>
-              <TopScorersPreview scorers={topScorers} container={false} />
             </aside>
           </div>
         </div>
