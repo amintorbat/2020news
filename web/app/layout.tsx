@@ -8,6 +8,11 @@ export const metadata: Metadata = {
   title: "2020news | رسانه تخصصی فوتسال و فوتبال ساحلی",
   description:
     "پوشش تخصصی اخبار، نتایج زنده، جدول و گلزنان فوتسال و فوتبال ساحلی",
+  icons: {
+    icon: "/images/logoicon.png",
+    shortcut: "/images/logoicon.png",
+    apple: "/images/logoicon.png",
+  },
 };
 
 export default function RootLayout({
