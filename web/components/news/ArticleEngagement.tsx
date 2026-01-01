@@ -77,19 +77,19 @@ export function ArticleEngagement({ slug }: { slug: string }) {
 
   return (
     <section className="space-y-4 rounded-3xl border border-[var(--border)] bg-white p-6" dir="rtl">
-      <div className="flex flex-wrap items-center gap-4 text-sm text-[var(--muted)]">
+      <div className="flex flex-wrap items-center gap-4 text-sm text-slate-600">
         <span>بازدید: {views.toLocaleString("fa-IR")}</span>
         <button
           type="button"
           onClick={toggleLike}
-          className={`inline-flex items-center gap-2 rounded-full px-4 py-1 text-sm font-semibold ${liked ? "bg-brand text-white" : "bg-slate-100 text-[var(--muted)]"}`}
+          className={`inline-flex items-center gap-2 rounded-full px-4 py-1 text-sm font-semibold ${liked ? "bg-brand text-white" : "bg-slate-100 text-slate-600"}`}
         >
           {liked ? "لغو پسند" : "پسندیدن"}
         </button>
       </div>
 
       <div className="space-y-2">
-        <label className="text-sm font-semibold text-[var(--foreground)]" htmlFor="comment-input">
+        <label className="text-sm font-semibold text-slate-900" htmlFor="comment-input">
           دیدگاه خود را بنویسید
         </label>
         <textarea
@@ -97,7 +97,7 @@ export function ArticleEngagement({ slug }: { slug: string }) {
           value={draft}
           onChange={(event) => setDraft(event.target.value)}
           placeholder="نظر شما..."
-          className="min-h-[100px] w-full rounded-2xl border border-[var(--border)] bg-[#f7f8fa] px-4 py-3 text-sm text-[var(--foreground)] focus:border-brand focus:outline-none"
+          className="min-h-[100px] w-full rounded-2xl border border-[var(--border)] bg-[#f7f8fa] px-4 py-3 text-sm text-slate-900 focus:border-brand focus:outline-none"
         />
         <button type="button" onClick={addComment} className="rounded-2xl bg-brand px-4 py-2 text-sm font-semibold text-white shadow-lg">
           ارسال دیدگاه
@@ -105,19 +105,19 @@ export function ArticleEngagement({ slug }: { slug: string }) {
       </div>
 
       <div className="space-y-3">
-        <p className="text-sm font-semibold text-[var(--foreground)]">دیدگاه‌ها</p>
+        <p className="text-sm font-semibold text-slate-900">دیدگاه‌ها</p>
         {comments.length ? (
           <ul className="space-y-3">
             {comments.map((comment) => (
-              <li key={comment.id} className="rounded-2xl border border-[var(--border)] bg-[#f7f8fa] p-3 text-sm text-[var(--muted)]">
-                <p className="font-medium text-[var(--foreground)]">کاربر میهمان</p>
-                <p>{comment.text}</p>
-                <span className="text-xs">{new Intl.DateTimeFormat("fa-IR", { dateStyle: "medium", timeStyle: "short" }).format(new Date(comment.createdAt))}</span>
+              <li key={comment.id} className="rounded-2xl border border-[var(--border)] bg-[#f7f8fa] p-3 text-sm text-slate-600">
+                <p className="font-medium text-slate-900">کاربر میهمان</p>
+                <p className="text-slate-800">{comment.text}</p>
+                <span className="text-xs text-slate-500">{new Intl.DateTimeFormat("fa-IR", { dateStyle: "medium", timeStyle: "short" }).format(new Date(comment.createdAt))}</span>
               </li>
             ))}
           </ul>
         ) : (
-          <p className="text-xs text-[var(--muted)]">هنوز نظری ثبت نشده است.</p>
+          <p className="text-xs text-slate-600">هنوز نظری ثبت نشده است.</p>
         )}
       </div>
     </section>
