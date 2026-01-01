@@ -65,7 +65,14 @@ export function MatchesAndResults({ container = true, className }: MatchesAndRes
   const displayMatches = filteredMatches.slice(0, 6);
 
   return (
-    <section dir="rtl" className={cn(container && "container","relative isolate w-full overflow-x-hidden", className)}>
+    <section
+      dir="rtl"
+      className={cn(
+        container && "container",
+        "relative isolate w-full overflow-x-hidden text-slate-900 [&_*]:text-slate-900",
+        className
+      )}
+    >
       <div className="bg-white  rounded-2xl p-3 sm:p-4 space-y-4">
         <div className="flex items-center justify-between">
           <h2 className="text-lg font-bold text-slate-900 !text-slate-900 lg:text-base">بازی‌ها و نتایج</h2>
@@ -133,10 +140,10 @@ export function MatchesAndResults({ container = true, className }: MatchesAndRes
         )}
 
         {/* CTA - Bottom corner */}
-        <div className="flex justify-start pt-1">
+        <div className="flex justify-end">
           <Link
             href={`/matches?league=${selectedLeague}&timeRange=${selectedTimeRange}&status=${selectedStatus}`}
-            className="text-sm font-medium text-blue-600 !text-blue-600 hover:text-blue-600 sm:text-base"
+            className="inline-flex text-sm font-semibold text-blue-600 hover:text-blue-600 lg:text-xs"
           >
             مشاهده برنامه کامل
           </Link>
@@ -188,20 +195,26 @@ function MatchItemCard({ match }: { match: MatchItem }) {
           </div>
 
           {/* Teams */}
-          <div className="bg-white text-slate-900 !text-slate-900 rounded-2xl p-3 sm:p-4 space-y-4">
-            <span className="truncate">{match.homeTeam.name}</span>
+          <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-2 text-sm font-semibold sm:text-base">
+            <span className="truncate  text-right">
+              {match.homeTeam.name}
+            </span>
+
             {match.status === "finished" && match.score ? (
-              <span className="flex-shrink-0 font-bold text-brand">
-                 {match.score.home}  -  {match.score.away} 
+              <span className="font-bold text-brand px-1">
+                {match.score.home} - {match.score.away}
               </span>
             ) : match.status === "live" && match.score ? (
-              <span className="flex-shrink-0 font-bold text-red-600">
-                 {match.score.home}  -  {match.score.away} 
+              <span className="font-bold text-red-600 px-1">
+                {match.score.home} - {match.score.away}
               </span>
             ) : (
-              <span className="flex-shrink-0 text-slate-400">vs</span>
+              <span className="text-slate-400 px-1">vs</span>
             )}
-            <span className="truncate">{match.awayTeam.name}</span>
+
+            <span className="truncate text-left">
+              {match.awayTeam.name}
+            </span>
           </div>
 
           {/* Venue */}
