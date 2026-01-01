@@ -54,7 +54,7 @@ export function HeroSlider({ slides }: HeroSliderProps) {
               `<span class="${className}" aria-label="اسلاید ${index + 1}"></span>`,
           }}
           keyboard={{ enabled: true }}
-          className="h-full w-full [&_.swiper-pagination]:bottom-6 [&_.swiper-pagination]:z-20 [&_.swiper-pagination]:text-center [&_.swiper-pagination-bullet]:h-2.5 [&_.swiper-pagination-bullet]:w-2.5 [&_.swiper-pagination-bullet]:rounded-full [&_.swiper-pagination-bullet]:bg-white/40 [&_.swiper-pagination-bullet]:transition-all [&_.swiper-pagination-bullet-active]:w-8 [&_.swiper-pagination-bullet-active]:bg-white"
+          className="h-full w-full [&_.swiper-pagination]:bottom-3 [&_.swiper-pagination]:z-20 [&_.swiper-pagination]:text-center [&_.swiper-pagination-bullet]:h-2.5 [&_.swiper-pagination-bullet]:w-2.5 [&_.swiper-pagination-bullet]:rounded-full [&_.swiper-pagination-bullet]:bg-white/40 [&_.swiper-pagination-bullet]:transition-all [&_.swiper-pagination-bullet-active]:w-8 [&_.swiper-pagination-bullet-active]:bg-white sm:[&_.swiper-pagination]:bottom-4"
           dir="rtl"
         >
           {validSlides.map((slide, index) => (
@@ -97,37 +97,30 @@ function SlideItem({ slide, priority }: SlideItemProps) {
       )}
 
       {/* Text Content Layer */}
-      <div className="relative z-10 flex h-full flex-col justify-end bg-gradient-to-t from-black/70 via-black/40 to-transparent px-4 pb-12 text-white sm:px-8 sm:pb-16 md:px-12 md:pb-20">
+      <div className="relative z-10 flex h-full flex-col justify-end bg-gradient-to-t from-black/70 via-black/40 to-transparent px-4 pb-20 text-white sm:px-8 sm:pb-24 md:px-12 md:pb-28">
         <div className="container mx-auto max-w-4xl">
           <div className="space-y-4 sm:space-y-5">
             {/* Category and Date */}
-            <div className="flex flex-wrap items-center gap-3 text-xs font-semibold sm:text-sm">
-              <span className="rounded-full bg-brand/90 px-4 py-1.5 text-white backdrop-blur-sm">
+            <div className="flex flex-wrap items-center gap-2.5 text-xs font-semibold sm:text-sm">
+              <span className="rounded-full bg-brand/90 px-3 py-1 text-white backdrop-blur-sm sm:px-4 sm:py-1.5">
                 {slide.category}
               </span>
               {formattedDate && <span className="text-white/90">{formattedDate}</span>}
             </div>
 
             {/* Title */}
-            <h1 className="text-3xl font-black leading-tight text-white sm:text-4xl md:text-5xl lg:text-6xl">
+            <h1 className="line-clamp-2 text-2xl font-black leading-tight text-white sm:text-3xl md:text-4xl lg:text-5xl">
               {slide.title}
             </h1>
 
-            {/* Excerpt */}
-            {slide.excerpt && (
-              <p className="max-w-2xl text-base leading-relaxed text-white/95 sm:text-lg md:text-xl">
-                {slide.excerpt}
-              </p>
-            )}
-
             {/* CTA Button */}
-            <div className="pt-2">
+            <div className="pt-2 sm:pt-3">
               <Link
                 href={slide.href}
-                className="inline-flex items-center gap-2 rounded-full bg-brand px-6 py-3 text-sm font-semibold text-white shadow-lg transition hover:bg-brand/90 hover:shadow-xl sm:px-8 sm:py-3.5 sm:text-base"
+                className="inline-flex items-center gap-2 rounded-full bg-brand px-5 py-2.5 text-xs font-semibold text-white shadow-lg transition hover:bg-brand/90 hover:shadow-xl sm:px-6 sm:py-3 sm:text-sm md:px-8 md:py-3.5 md:text-base"
               >
                 مشاهده خبر کامل
-                <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="h-3.5 w-3.5 sm:h-4 sm:w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
                 </svg>
               </Link>
