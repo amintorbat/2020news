@@ -46,7 +46,7 @@ export async function getMockHomeContent(): Promise<HomeAcsPayload> {
     latestNews: allArticles,
     liveEvents: [],
     fetchedAt: new Date().toISOString(),
-    source: "mock",
+    source: "fallback",
   };
 }
 
