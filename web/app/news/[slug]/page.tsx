@@ -5,11 +5,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { Footer } from "@/components/layout/Footer";
-import { getFallbackHomePayload } from "@/lib/acs/fallback";
-import { getHomeContent } from "@/lib/acs/home";
 import { ArticleEngagement } from "@/components/news/ArticleEngagement";
-import { NewsCard } from "@/components/home/NewsCard";
-import { getNewsDetail } from "@/lib/acs/news";
 import { Breadcrumb } from "@/components/common/Breadcrumb";
 import { ArticleShareSidebar } from "@/components/news/ArticleShareSidebar";
 import { RelatedArticlesSidebar } from "@/components/news/RelatedArticlesSidebar";
@@ -18,82 +14,72 @@ import { TableOfContents } from "@/components/news/TableOfContents";
 import { MobileTOC } from "@/components/news/MobileTOC";
 import { ArticleNavigation } from "@/components/news/ArticleNavigation";
 import { calculateReadingTime, addHeadingIds } from "@/lib/utils/article";
-import { formatDateTime } from "@/lib/utils/date";
-import type { Article } from "@/lib/acs/types";
+import { formatDateTimeCombined } from "@/lib/utils/date";
+import { generateNewsCode } from "@/lib/utils/newsCode";
+import { NewsCode } from "@/components/news/NewsCode";
+import { RelatedArticlesGrid } from "@/components/news/RelatedArticlesGrid";
+import { NewsletterBox } from "@/components/news/NewsletterBox";
+import { getMockNewsDetail, getMockAllArticles } from "@/lib/mock/newsService";
 
 type PageProps = {
   params: { slug: string };
 };
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
-  const [liveFeed, detail] = await Promise.all([
-    getHomeContent().catch(() => null),
-    getNewsDetail(params.slug).catch(() => null),
-  ]);
-
-  const fallbackArticle =
-    liveFeed?.latestNews.find((article) => article.slug === params.slug) ??
-    getFallbackHomePayload().latestNews.find((article) => article.slug === params.slug);
-
-  if (!detail && !fallbackArticle) {
+  try {
+    const detail = await getMockNewsDetail(params.slug);
+    return {
+      title: `${detail.title} | 2020news`,
+      description: detail.lead,
+      openGraph: {
+        title: detail.title,
+        description: detail.lead,
+        images: detail.imageUrl ? [detail.imageUrl] : [],
+        type: "article",
+      },
+      twitter: {
+        card: "summary_large_image",
+        title: detail.title,
+        description: detail.lead,
+        images: detail.imageUrl ? [detail.imageUrl] : [],
+      },
+    };
+  } catch {
     return {
       title: "مقاله پیدا نشد | 2020news",
     };
   }
-
-  const title = detail?.title ?? fallbackArticle?.title ?? "گزارش خبری";
-  const description = detail?.lead ?? fallbackArticle?.excerpt ?? "";
-  const imageUrl = detail?.imageUrl ?? fallbackArticle?.imageUrl ?? "";
-
-  return {
-    title: `${title} | 2020news`,
-    description,
-    openGraph: {
-      title,
-      description,
-      images: imageUrl ? [imageUrl] : [],
-      type: "article",
-    },
-    twitter: {
-      card: "summary_large_image",
-      title,
-      description,
-      images: imageUrl ? [imageUrl] : [],
-    },
-  };
 }
 
 export default async function NewsDetailsPage({ params }: PageProps) {
-  const [liveFeed, detail] = await Promise.all([
-    getHomeContent().catch(() => null),
-    getNewsDetail(params.slug).catch(() => null),
-  ]);
-
-  const fallbackArticle =
-    liveFeed?.latestNews.find((article) => article.slug === params.slug) ??
-    getFallbackHomePayload().latestNews.find((article) => article.slug === params.slug);
-
-  if (!detail && !fallbackArticle) {
+  let detail;
+  try {
+    detail = await getMockNewsDetail(params.slug);
+  } catch {
     notFound();
   }
 
-  const title = detail?.title ?? fallbackArticle?.title ?? "گزارش خبری";
-  const category = detail?.category ?? fallbackArticle?.category ?? "اخبار";
-  const publishedAt = detail?.publishedAt ?? fallbackArticle?.publishedAt ?? new Date().toISOString();
-  const imageUrl = detail?.imageUrl ?? fallbackArticle?.imageUrl ?? "";
-  const lead = detail?.lead ?? fallbackArticle?.excerpt ?? "";
-  const bodyHtmlRaw = detail?.bodyHtml ?? (fallbackArticle?.excerpt ? toParagraphHtml(fallbackArticle.excerpt) : "<p>متن کامل در دسترس نیست.</p>");
+  const title = detail.title;
+  const category = detail.category;
+  const publishedAt = detail.publishedAt;
+  const imageUrl = detail.imageUrl;
+  const lead = detail.lead;
+  const bodyHtmlRaw = detail.bodyHtml;
   const bodyHtml = addHeadingIds(bodyHtmlRaw);
-  const tags = detail?.tags ?? [];
-  const teams = detail?.teams ?? [];
+  const tags = detail.tags;
+  const teams = detail.teams;
   const readingTime = calculateReadingTime(bodyHtml);
-  const { date: formattedDate, time: formattedTime } = formatDateTime(publishedAt);
+  const formattedDateTime = formatDateTimeCombined(publishedAt);
+  const newsCode = generateNewsCode(publishedAt, params.slug, params.slug);
+  
+  // Mock: Check if user is authenticated (for now, always false - UI only)
+  const isAuthenticated = false;
 
-  const sportType = (fallbackArticle as Article)?.sport === "beach" ? "beach" : "futsal";
+  const sportType = detail.sport;
   const sportLabel = sportType === "beach" ? "فوتبال ساحلی" : "فوتسال";
 
   // Get related articles
-  const allArticles = liveFeed?.latestNews ?? getFallbackHomePayload().latestNews;
+  const allArticles = getMockAllArticles();
   const related = allArticles
     .filter((article) => article.slug !== params.slug && (article.sport === sportType || article.category === category))
     .slice(0, 3);
@@ -144,13 +130,9 @@ export default async function NewsDetailsPage({ params }: PageProps) {
 
               {/* Meta Information */}
               <div className="flex flex-wrap items-center gap-3 border-t border-[var(--border)] pt-4 text-sm text-slate-600">
-                <span>منتشر شده: {formattedDate}</span>
-                {formattedTime && (
-                  <>
-                    <span className="h-1 w-1 rounded-full bg-slate-400" aria-hidden="true" />
-                    <span>{formattedTime}</span>
-                  </>
-                )}
+                <span className="text-slate-600">{formattedDateTime}</span>
+                <span className="h-1 w-1 rounded-full bg-slate-400" aria-hidden="true" />
+                <NewsCode code={newsCode} />
                 <span className="h-1 w-1 rounded-full bg-slate-400" aria-hidden="true" />
                 <span>زمان مطالعه: {readingTime} دقیقه</span>
                 <span className="h-1 w-1 rounded-full bg-slate-400" aria-hidden="true" />
@@ -224,9 +206,14 @@ export default async function NewsDetailsPage({ params }: PageProps) {
               </section>
             )}
 
+            {/* Newsletter */}
+            <section aria-label="خبرنامه">
+              <NewsletterBox />
+            </section>
+
             {/* Engagement */}
             <section aria-label="تعاملات">
-              <ArticleEngagement slug={params.slug} />
+              <ArticleEngagement slug={params.slug} isAuthenticated={isAuthenticated} />
             </section>
 
             {/* Previous/Next Navigation */}
@@ -236,11 +223,7 @@ export default async function NewsDetailsPage({ params }: PageProps) {
             {related.length > 0 && (
               <section className="space-y-4">
                 <h2 className="text-xl font-bold text-slate-900">مطالب مرتبط</h2>
-                <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                  {related.map((article) => (
-                    <NewsCard key={article.id} article={article} compact />
-                  ))}
-                </div>
+                <RelatedArticlesGrid articles={related} />
               </section>
             )}
           </div>
@@ -250,6 +233,9 @@ export default async function NewsDetailsPage({ params }: PageProps) {
             <div className="sticky top-24 space-y-6">
               <div className="rounded-xl border border-[var(--border)] bg-white p-6">
                 <ArticleShareSidebar url={`/news/${params.slug}`} title={title} description={lead} />
+              </div>
+              <div className="rounded-xl border border-[var(--border)] bg-white p-6">
+                <TableOfContents html={bodyHtml} />
               </div>
               {related.length > 0 && (
                 <div className="rounded-xl border border-[var(--border)] bg-white p-6">
@@ -261,9 +247,7 @@ export default async function NewsDetailsPage({ params }: PageProps) {
                   <ArticleTagsSidebar tags={tags} />
                 </div>
               )}
-              <div className="rounded-xl border border-[var(--border)] bg-white p-6">
-                <TableOfContents html={bodyHtml} />
-              </div>
+              <NewsletterBox variant="compact" />
             </div>
           </aside>
         </article>
@@ -274,15 +258,3 @@ export default async function NewsDetailsPage({ params }: PageProps) {
   );
 }
 
-function toParagraphHtml(value: string) {
-  return `<p class="text-slate-800 leading-8">${escapeHtml(value)}</p>`;
-}
-
-function escapeHtml(value: string) {
-  return value
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;")
-    .replace(/'/g, "&#39;");
-}

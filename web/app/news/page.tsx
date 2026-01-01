@@ -3,8 +3,7 @@ export const dynamic = "force-dynamic";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Footer } from "@/components/layout/Footer";
-import { getHomeContent } from "@/lib/acs/home";
-import { getFallbackHomePayload } from "@/lib/acs/fallback";
+import { getMockAllArticles } from "@/lib/mock/newsService";
 import type { SportType } from "@/lib/acs/types";
 import { Breadcrumb } from "@/components/common/Breadcrumb";
 import { FeaturedNewsSection } from "@/components/news/FeaturedNewsSection";
@@ -12,7 +11,6 @@ import { NewsListingCard } from "@/components/news/NewsListingCard";
 import { NewsListingFilters } from "@/components/news/NewsListingFilters";
 import { NewsSidebar } from "@/components/news/NewsSidebar";
 import { CategoryChips } from "@/components/news/CategoryChips";
-import type { Article } from "@/lib/acs/types";
 
 export async function generateMetadata(): Promise<Metadata> {
   return {
@@ -34,15 +32,7 @@ type NewsPageProps = {
 const ARTICLES_PER_PAGE = 12;
 
 export default async function NewsIndexPage({ searchParams }: NewsPageProps) {
-  let latestNews: Article[];
-  
-  try {
-    const content = await getHomeContent();
-    latestNews = content.latestNews;
-  } catch {
-    const fallback = getFallbackHomePayload();
-    latestNews = fallback.latestNews;
-  }
+  const latestNews = getMockAllArticles();
 
   const sport = searchParams?.sport === "futsal" || searchParams?.sport === "beach"
     ? (searchParams.sport as SportType)

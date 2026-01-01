@@ -37,6 +37,14 @@ export function LatestNews() {
           </Link>
         ))}
       </div>
+      <div className="border-t border-[var(--border)] p-4">
+        <Link
+          href="/news"
+          className="flex items-center justify-center rounded-lg border border-[var(--border)] bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 transition hover:border-brand hover:bg-brand/5 hover:text-brand"
+        >
+          مشاهده همه اخبار
+        </Link>
+      </div>
     </section>
   );
 }

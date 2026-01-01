@@ -91,23 +91,26 @@ export function TableOfContents({ html }: TableOfContentsProps) {
   };
 
   return (
-    <nav className="space-y-2" dir="rtl">
-      <h3 className="text-sm font-semibold text-slate-900">فهرست مطالب</h3>
-      <ul className="space-y-1 text-sm">
+    <nav className="space-y-3" dir="rtl">
+      <h3 className="mb-3 text-sm font-bold text-slate-900">فهرست مطالب</h3>
+      <ul className="space-y-0.5 text-sm">
         {headings.map((heading) => (
-          <li key={heading.id}>
+          <li key={heading.id} className="relative">
             <button
               type="button"
               onClick={() => scrollToHeading(heading.id)}
-              className={`block w-full text-right transition hover:text-brand ${
-                heading.level === 3 ? "mr-4" : ""
+              className={`block w-full rounded-md px-2 py-1.5 text-right transition-all hover:bg-slate-50 hover:text-blue-600 ${
+                heading.level === 3 ? "mr-6 text-xs" : "text-sm"
               } ${
                 activeId === heading.id
-                  ? "font-semibold text-brand"
-                  : "text-slate-600"
+                  ? "bg-blue-50 font-semibold text-blue-600"
+                  : "text-slate-700"
               }`}
             >
-              {heading.text}
+              {heading.level === 3 && (
+                <span className="mr-1 inline-block h-1 w-1 rounded-full bg-slate-400 align-middle" />
+              )}
+              <span className="align-middle">{heading.text}</span>
             </button>
           </li>
         ))}

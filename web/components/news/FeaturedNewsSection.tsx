@@ -31,16 +31,16 @@ export function FeaturedNewsSection({ articles }: FeaturedNewsSectionProps) {
               style={{ borderRadius: 0 }}
             />
           )}
-          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent" />
-          <div className="relative flex h-full flex-col justify-end p-6 text-white">
-            <span className="mb-2 inline-block rounded-full bg-brand/90 px-3 py-1 text-xs font-semibold backdrop-blur-sm">
+          <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/70 to-black/30" />
+          <div className="relative flex h-full flex-col justify-end p-6">
+            <span className="mb-3 inline-block w-fit rounded-full bg-brand px-2.5 py-1 text-[10px] font-semibold text-white">
               {mainArticle.category}
             </span>
-            <h3 className="text-xl font-bold leading-tight sm:text-2xl lg:text-3xl">
+            <h3 className="text-xl font-bold leading-tight sm:text-2xl lg:text-3xl" style={{ color: '#ffffff' }}>
               {mainArticle.title}
             </h3>
             {mainArticle.excerpt && (
-              <p className="mt-2 line-clamp-2 text-sm text-white/90 sm:text-base">
+              <p className="mt-2.5 line-clamp-2 text-sm font-medium sm:text-base" style={{ color: 'rgba(255, 255, 255, 0.95)' }}>
                 {mainArticle.excerpt}
               </p>
             )}
@@ -73,10 +73,10 @@ export function FeaturedNewsSection({ articles }: FeaturedNewsSectionProps) {
                 <span className="mb-1 inline-block rounded-full bg-brand/10 px-2 py-0.5 text-[10px] font-semibold text-brand">
                   {article.category}
                 </span>
-                <h4 className="line-clamp-2 text-sm font-bold leading-snug text-slate-900 sm:text-base">
+                <h4 className="line-clamp-2 text-sm font-bold leading-snug sm:text-base" style={{ color: '#0f172a' }}>
                   {article.title}
                 </h4>
-                <p className="mt-1 line-clamp-2 text-xs text-slate-600 sm:text-sm">
+                <p className="mt-1 line-clamp-2 text-xs sm:text-sm" style={{ color: '#475569' }}>
                   {article.excerpt}
                 </p>
               </div>
