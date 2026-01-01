@@ -64,6 +64,7 @@ export async function getMockNewsDetail(slug: string) {
     slug: mockArticle.slug,
     title: mockArticle.title,
     category: mockArticle.category,
+    sport: mockArticle.sport,
     publishedAt: mockArticle.publishedAt,
     imageUrl: mockArticle.imageUrl,
     lead: mockArticle.lead,
