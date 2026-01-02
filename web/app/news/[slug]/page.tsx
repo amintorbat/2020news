@@ -105,7 +105,7 @@ export default async function NewsDetailsPage({ params }: PageProps) {
           <Breadcrumb items={breadcrumbItems} />
         </div>
 
-        <article className="lg:grid lg:grid-cols-[1fr_320px] lg:gap-8" itemScope itemType="https://schema.org/NewsArticle">
+        <article className="md:grid md:grid-cols-[1fr_280px] lg:grid-cols-[1fr_320px] lg:gap-8" itemScope itemType="https://schema.org/NewsArticle">
           <meta itemProp="headline" content={title} />
           <meta itemProp="datePublished" content={publishedAt} />
           {imageUrl ? <meta itemProp="image" content={imageUrl} /> : null}
@@ -227,8 +227,8 @@ export default async function NewsDetailsPage({ params }: PageProps) {
             </section>
           </div>
 
-          {/* Sidebar - Desktop Only */}
-          <aside className="hidden lg:block">
+          {/* Sidebar - Tablet & Desktop */}
+          <aside className="hidden md:block">
             <div className="sticky top-24 space-y-6">
               <div className="rounded-xl border border-[var(--border)] bg-white p-6">
                 <ArticleShareSidebar url={`/news/${params.slug}`} title={title} description={lead} />

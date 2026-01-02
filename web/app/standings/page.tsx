@@ -35,7 +35,7 @@ export default function StandingsPage({ searchParams }: StandingsPageProps) {
           </div>
 
           <div className="space-y-4">
-            <form className="grid gap-4 grid-cols-2 lg:grid-cols-6" action="/standings">
+            <form className="grid gap-4 grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6" action="/standings">
               <div className="flex flex-col gap-1.5">
                 <label htmlFor="league-filter" className="text-xs font-semibold text-slate-700 sm:text-sm">
                   لیگ

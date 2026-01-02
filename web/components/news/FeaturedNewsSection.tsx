@@ -78,12 +78,12 @@ export function FeaturedNewsSection({ articles }: FeaturedNewsSectionProps) {
   return (
     <section className="space-y-4" dir="rtl">
       <h2 className="text-xl font-bold text-slate-900 sm:text-2xl">خبرهای برجسته</h2>
-      <div className="grid gap-4 lg:grid-cols-5">
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-5">
         {/* Main Featured Article */}
         <Link
           ref={mainRef}
           href={`/news/${mainArticle.slug}`}
-          className="group relative aspect-[4/3] overflow-hidden bg-slate-900 lg:col-span-3 lg:aspect-auto"
+          className="group relative aspect-[4/3] overflow-hidden bg-slate-900 md:col-span-2 lg:col-span-3 lg:aspect-auto"
         >
           {mainArticle.imageUrl && (
             <Image
@@ -112,7 +112,7 @@ export function FeaturedNewsSection({ articles }: FeaturedNewsSectionProps) {
         </Link>
 
         {/* Side Articles */}
-        <div ref={sideContainerRef} className="space-y-4 lg:col-span-2">
+        <div ref={sideContainerRef} className="space-y-4 md:col-span-2 lg:col-span-2">
           {sideArticles.map((article) => (
             <Link
               key={article.id}

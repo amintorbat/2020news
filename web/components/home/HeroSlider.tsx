@@ -42,7 +42,7 @@ export function HeroSlider({ slides }: HeroSliderProps) {
 
   return (
     <section className="w-full relative pt-0 mb-12 lg:mb-16" dir="rtl">
-      <div className="relative h-[calc(100vh-var(--header-height))] h-[calc(100svh-var(--header-height))] overflow-hidden bg-slate-900 sm:h-[calc(100vh-var(--header-height-desktop))] sm:h-[calc(100svh-var(--header-height-desktop))]">
+      <div className="relative h-[calc(100vh-var(--header-height))] h-[calc(100svh-var(--header-height))] overflow-hidden bg-slate-900 sm:h-[60vh] sm:min-h-[400px] md:h-[calc(100vh-var(--header-height-desktop))] md:h-[calc(100svh-var(--header-height-desktop))]">
         <Swiper
           modules={[Autoplay, Pagination, Keyboard]}
           slidesPerView={1}
@@ -96,19 +96,19 @@ function SlideItem({ slide, priority }: SlideItemProps) {
       )}
 
       {/* Text Content Layer */}
-      <div className="relative z-10 flex h-full flex-col justify-end bg-gradient-to-t from-black/70 via-black/40 to-transparent px-4 pb-20 text-white sm:px-8 sm:pb-24 md:px-12 md:pb-28">
+      <div className="relative z-10 flex h-full flex-col justify-end bg-gradient-to-t from-black/70 via-black/40 to-transparent px-4 pb-12 text-white sm:px-6 sm:pb-20 sm:justify-end md:px-12 md:pb-28 md:justify-end">
         <div className="container mx-auto max-w-4xl">
-          <div className="flex flex-col items-center text-center space-y-4 sm:space-y-5">
+          <div className="flex flex-col items-center text-center space-y-3 sm:space-y-4 md:space-y-5">
             {/* Title */}
-            <h1 className="line-clamp-2 text-2xl font-black leading-relaxed text-white drop-shadow-lg sm:text-3xl sm:leading-relaxed md:text-3xl md:leading-relaxed lg:text-4xl lg:leading-relaxed">
+            <h1 className="line-clamp-2 text-xl font-black leading-relaxed text-white drop-shadow-lg sm:text-2xl sm:leading-relaxed md:text-3xl md:leading-relaxed lg:text-4xl lg:leading-relaxed">
               {slide.title}
             </h1>
 
             {/* CTA Button */}
-            <div className="pt-2 sm:pt-3">
+            <div className="pt-1 sm:pt-2 md:pt-3">
               <Link
                 href={slide.href}
-                className="group inline-flex items-center gap-2 rounded-full bg-brand px-5 py-2.5 text-xs font-semibold text-white shadow-lg transition hover:bg-brand/90 hover:shadow-xl sm:px-6 sm:py-3 sm:text-sm md:px-8 md:py-3.5 md:text-base"
+                className="group inline-flex items-center gap-2 rounded-full bg-brand px-4 py-2 text-xs font-semibold text-white shadow-lg transition hover:bg-brand/90 hover:shadow-xl sm:px-5 sm:py-2.5 sm:text-xs md:px-8 md:py-3.5 md:text-base"
               >
                 مشاهده خبر کامل
                 <svg className="h-3.5 w-3.5 sm:h-4 sm:w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">

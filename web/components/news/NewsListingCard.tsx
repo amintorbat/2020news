@@ -14,7 +14,7 @@ export function NewsListingCard({ article }: NewsListingCardProps) {
       className="flex gap-4 rounded-xl border border-[var(--border)] bg-white p-4 shadow-sm transition hover:border-brand hover:shadow-md sm:items-center"
       dir="rtl"
     >
-      <div className="relative h-44 w-44 flex-shrink-0 overflow-hidden sm:h-24 sm:w-24 lg:h-28 lg:w-28">
+      <div className="relative h-44 w-44 flex-shrink-0 overflow-hidden sm:h-24 sm:w-24 md:h-28 md:w-28 lg:h-32 lg:w-32">
         <Image
           src={imageUrl}
           alt={article.title}

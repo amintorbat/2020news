@@ -143,7 +143,7 @@ export default async function NewsIndexPage({ searchParams }: NewsPageProps) {
 
         {/* Main Content + Sidebar */}
         <section className="container" dir="rtl">
-          <div className="grid gap-8 lg:grid-cols-[1fr_320px]">
+          <div className="grid gap-8 md:grid-cols-[1fr_280px] lg:grid-cols-[1fr_320px]">
             {/* Main List */}
             <div className="space-y-6">
               {paginatedArticles.length > 0 ? (
@@ -235,7 +235,7 @@ export default async function NewsIndexPage({ searchParams }: NewsPageProps) {
             </div>
 
             {/* Sidebar */}
-            <aside className="hidden lg:block">
+            <aside className="hidden md:block">
               <NewsSidebar popularArticles={popularArticles} />
             </aside>
           </div>

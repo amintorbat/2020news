@@ -115,16 +115,16 @@ export default async function HomePage() {
       )}
       <div className={`space-y-16 lg:space-y-12 ${heroSlides.length >= 3 ? "pt-12 lg:pt-16" : ""}`}>
         <div className="container">
-          <div className="grid gap-10 lg:grid-cols-[1fr_320px] lg:items-start lg:gap-8">
+          <div className="grid gap-10 md:grid-cols-[1fr_280px] lg:grid-cols-[1fr_320px] lg:items-start lg:gap-8">
             <div className="min-w-0 flex-1 space-y-12 lg:space-y-8">
               <section className="space-y-6" dir="rtl">
                 <div className="flex items-center justify-between">
-                  <h2 className="text-lg lg:text-3xl font-extrabold text-gray-900">آخرین اخبار</h2>
+                  <h2 className="text-lg md:text-2xl lg:text-3xl font-extrabold text-gray-900">آخرین اخبار</h2>
                 </div>
                 <LatestNews />
               </section>
             </div>
-            <aside className="space-y-8 lg:space-y-6">
+            <aside className="hidden md:block space-y-8 lg:space-y-6">
               <LeagueTablesPreview standings={standingsByLeague} container={false} />
               <MatchesAndResults container={false} />
               <TopScorersPreview scorers={topScorers} container={false} />
