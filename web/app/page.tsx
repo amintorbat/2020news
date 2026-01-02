@@ -123,6 +123,12 @@ export default async function HomePage() {
                 </div>
                 <LatestNews />
               </section>
+              {/* Mobile-only sections */}
+              <div className="space-y-8 md:hidden">
+                <LeagueTablesPreview standings={standingsByLeague} container={false} />
+                <MatchesAndResults container={false} />
+                <TopScorersPreview scorers={topScorers} container={false} />
+              </div>
             </div>
             <aside className="hidden md:block space-y-8 lg:space-y-6">
               <LeagueTablesPreview standings={standingsByLeague} container={false} />
