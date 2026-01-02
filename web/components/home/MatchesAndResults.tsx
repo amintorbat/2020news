@@ -5,6 +5,7 @@ import Link from "next/link";
 import type { LeagueKey } from "@/lib/data";
 import { leagueOptions } from "@/lib/data";
 import { mockMatches, timeRangeOptions, statusOptions, type MatchItem, type MatchStatusFilter, type TimeRange } from "@/lib/data/matches";
+import { type CompetitionType } from "@/components/filters/CompetitionTypeFilter";
 import { cn } from "@/lib/cn";
 
 type MatchesAndResultsProps = {
@@ -16,9 +17,18 @@ export function MatchesAndResults({ container = true, className }: MatchesAndRes
   const [selectedLeague, setSelectedLeague] = useState<LeagueKey>("futsal");
   const [selectedTimeRange, setSelectedTimeRange] = useState<TimeRange>("this-week");
   const [selectedStatus, setSelectedStatus] = useState<MatchStatusFilter>("all");
+  const [selectedCompetitionType, setSelectedCompetitionType] = useState<CompetitionType>("all");
 
   const filteredMatches = useMemo(() => {
     let matches = mockMatches.filter((match) => match.sport === selectedLeague);
+
+    // Filter by competition type
+    if (selectedCompetitionType !== "all") {
+      matches = matches.filter((match) => {
+        const matchType = match.competitionType || "league";
+        return matchType === selectedCompetitionType;
+      });
+    }
 
     // Filter by time range
     const today = new Date();
@@ -59,7 +69,7 @@ export function MatchesAndResults({ container = true, className }: MatchesAndRes
       if (a.status !== "live" && b.status === "live") return 1;
       return new Date(a.dateISO).getTime() - new Date(b.dateISO).getTime();
     });
-  }, [selectedLeague, selectedTimeRange, selectedStatus]);
+  }, [selectedLeague, selectedTimeRange, selectedStatus, selectedCompetitionType]);
 
   // For homepage, show weekly summary (this-week filter)
   const displayMatches = filteredMatches.slice(0, 6);
@@ -78,14 +88,14 @@ export function MatchesAndResults({ container = true, className }: MatchesAndRes
           <h2 className="text-lg font-bold text-slate-900 lg:text-base">بازی‌ها و نتایج</h2>
         </div>
 
-        {/* Filters - Horizontal Row (RTL order: رشته, بازه زمانی, وضعیت) */}
-        <div className="grid grid-cols-1 gap-3 sm:grid-cols-3 w-full">
+        {/* Filters - 2 rows layout (RTL order: رشته, بازه زمانی / وضعیت, نوع مسابقه) */}
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-2 lg:grid-cols-4 w-full items-end">
           <label className="flex flex-col gap-1 text-xs font-semibold text-slate-900 sm:text-sm">
-            <span>رشته:</span>
+            <span className="h-5 flex items-center whitespace-nowrap">رشته:</span>
             <select
               value={selectedLeague}
               onChange={(e) => setSelectedLeague(e.target.value as LeagueKey)}
-              className="w-full rounded-lg border border-[var(--border)] bg-white px-2.5 py-1.5 text-xs text-slate-900 focus:border-brand focus:outline-none sm:px-3 sm:py-2 sm:text-sm"
+              className="w-full rounded-lg border border-[var(--border)] bg-white px-2.5 py-1.5 text-xs text-slate-900 focus:border-brand focus:outline-none sm:px-3 sm:py-2 sm:text-sm h-[38px] sm:h-[42px]"
             >
               {leagueOptions.map((option) => (
                 <option key={option.id} value={option.id}>
@@ -96,11 +106,11 @@ export function MatchesAndResults({ container = true, className }: MatchesAndRes
           </label>
 
           <label className="flex flex-col gap-1 text-xs font-semibold text-slate-900 sm:text-sm">
-            <span>بازه زمانی:</span>
+            <span className="h-5 flex items-center whitespace-nowrap">بازه زمانی:</span>
             <select
               value={selectedTimeRange}
               onChange={(e) => setSelectedTimeRange(e.target.value as TimeRange)}
-              className="w-full rounded-lg border border-[var(--border)] bg-white px-2.5 py-1.5 text-xs text-slate-900 focus:border-brand focus:outline-none sm:px-3 sm:py-2 sm:text-sm"
+              className="w-full rounded-lg border border-[var(--border)] bg-white px-2.5 py-1.5 text-xs text-slate-900 focus:border-brand focus:outline-none sm:px-3 sm:py-2 sm:text-sm h-[38px] sm:h-[42px]"
             >
               {timeRangeOptions.map((option) => (
                 <option key={option.id} value={option.id}>
@@ -111,17 +121,33 @@ export function MatchesAndResults({ container = true, className }: MatchesAndRes
           </label>
 
           <label className="flex flex-col gap-1 text-xs font-semibold text-slate-900 sm:text-sm">
-            <span>وضعیت:</span>
+            <span className="h-5 flex items-center whitespace-nowrap">وضعیت:</span>
             <select
               value={selectedStatus}
               onChange={(e) => setSelectedStatus(e.target.value as typeof selectedStatus)}
-              className="w-full rounded-lg border border-[var(--border)] bg-white px-2.5 py-1.5 text-xs text-slate-900 focus:border-brand focus:outline-none sm:px-3 sm:py-2 sm:text-sm"
+              className="w-full rounded-lg border border-[var(--border)] bg-white px-2.5 py-1.5 text-xs text-slate-900 focus:border-brand focus:outline-none sm:px-3 sm:py-2 sm:text-sm h-[38px] sm:h-[42px]"
             >
               {statusOptions.map((option) => (
                 <option key={option.id} value={option.id}>
                   {option.label}
                 </option>
               ))}
+            </select>
+          </label>
+
+          <label className="flex flex-col gap-1 text-xs font-semibold text-slate-900 sm:text-sm">
+            <span className="h-5 flex items-center whitespace-nowrap">نوع مسابقه:</span>
+            <select
+              value={selectedCompetitionType}
+              onChange={(e) => setSelectedCompetitionType(e.target.value as CompetitionType)}
+              className="w-full rounded-lg border border-[var(--border)] bg-white px-2.5 py-1.5 text-xs text-slate-900 focus:border-brand focus:outline-none sm:px-3 sm:py-2 sm:text-sm h-[38px] sm:h-[42px]"
+            >
+              <option value="all">همه</option>
+              <option value="league">لیگ</option>
+              <option value="womens-league">لیگ بانوان</option>
+              <option value="cup">جام</option>
+              <option value="world-cup">جام جهانی</option>
+              <option value="friendly">دوستانه</option>
             </select>
           </label>
         </div>
@@ -142,7 +168,7 @@ export function MatchesAndResults({ container = true, className }: MatchesAndRes
         {/* CTA - Bottom corner */}
         <div className="flex justify-end">
           <Link
-            href={`/matches?league=${selectedLeague}&timeRange=${selectedTimeRange}&status=${selectedStatus}`}
+            href={`/matches?league=${selectedLeague}&timeRange=${selectedTimeRange}&status=${selectedStatus}&competitionType=${selectedCompetitionType}`}
             className="!text-brand inline-flex text-sm font-semibold text-brand hover:!text-brand lg:text-xs"
           >
             مشاهده برنامه کامل

@@ -4,6 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import type { LeagueKey, TopScorer } from "@/lib/data";
 import { leagueOptions } from "@/lib/data";
+import { CompetitionTypeFilter, type CompetitionType } from "@/components/filters/CompetitionTypeFilter";
 import { cn } from "@/lib/cn";
 
 type TopScorersPreviewProps = {
@@ -14,6 +15,7 @@ type TopScorersPreviewProps = {
 
 export function TopScorersPreview({ scorers, container = true, className }: TopScorersPreviewProps) {
   const [active, setActive] = useState<LeagueKey>("futsal");
+  const [selectedCompetitionType, setSelectedCompetitionType] = useState<CompetitionType>("all");
   const rows = scorers[active] ?? [];
 
   return (
@@ -23,13 +25,13 @@ export function TopScorersPreview({ scorers, container = true, className }: TopS
           <h2 className="!text-slate-900 text-lg font-bold text-slate-900 lg:text-base">جدول گلزنان</h2>
         </div>
 
-        <div className="flex items-center gap-3">
-          <label className="text-sm font-semibold text-slate-900 lg:text-xs">
-            رشته:
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+          <label className="flex flex-col gap-1 text-xs font-semibold text-slate-900 sm:text-sm">
+            <span>رشته:</span>
             <select
               value={active}
               onChange={(e) => setActive(e.target.value as LeagueKey)}
-              className="mr-2 mt-1 rounded-xl border border-[var(--border)] bg-white px-3 py-1.5 text-sm text-slate-900 focus:border-brand focus:outline-none lg:px-2 lg:py-1 lg:text-xs"
+              className="w-full rounded-lg border border-[var(--border)] bg-white px-2.5 py-1.5 text-xs text-slate-900 focus:border-brand focus:outline-none sm:px-3 sm:py-2 sm:text-sm"
             >
               {leagueOptions.map((option) => (
                 <option key={option.id} value={option.id}>
@@ -38,6 +40,11 @@ export function TopScorersPreview({ scorers, container = true, className }: TopS
               ))}
             </select>
           </label>
+          <CompetitionTypeFilter
+            value={selectedCompetitionType}
+            onChange={setSelectedCompetitionType}
+            size="sm"
+          />
         </div>
 
         <div>

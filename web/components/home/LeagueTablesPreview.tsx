@@ -5,7 +5,7 @@ import Link from "next/link";
 import { StandingsTable } from "@/components/standings/StandingsTable";
 import type { StandingsRow } from "@/lib/acs/types";
 import { leagueOptions, standingsSeasons, standingsWeeks, type LeagueKey, type LeagueRow } from "@/lib/data";
-import { sortOptions, type SortField } from "@/components/standings/StandingsTableWithSort";
+import { type CompetitionType } from "@/components/filters/CompetitionTypeFilter";
 import { cn } from "@/lib/cn";
 
 const leagueHeadings: Record<LeagueKey, string> = {
@@ -38,61 +38,21 @@ export function LeagueTablesPreview({ standings, container = true, className }: 
   const [activeLeague, setActiveLeague] = useState<LeagueKey>("futsal");
   const [selectedSeason, setSelectedSeason] = useState<string>(standingsSeasons[0]?.id ?? "1403");
   const [selectedWeek, setSelectedWeek] = useState<string>(standingsWeeks[0]?.id ?? "1");
-  const [sortBy, setSortBy] = useState<SortField>("points");
+  const [selectedCompetitionType, setSelectedCompetitionType] = useState<CompetitionType>("all");
 
   const orderedLeagues = leagueTabOrder
     .map((key) => leagueOptions.find((option) => option.id === key))
     .filter((option): option is (typeof leagueOptions)[number] => Boolean(option));
 
-  // Convert StandingsRow to LeagueRow and apply sorting
+  // Convert StandingsRow to LeagueRow (sorted by points by default)
   const sortedRows = useMemo(() => {
     const rawRows = standings[activeLeague] ?? [];
     const leagueRows = rawRows.map(toLeagueRow);
     
-    // Apply sorting
+    // Sort by points (descending) as default
     const rowsCopy = [...leagueRows];
-    return rowsCopy.sort((a, b) => {
-      let aValue: number;
-      let bValue: number;
-
-      switch (sortBy) {
-        case "points":
-          aValue = a.points;
-          bValue = b.points;
-          break;
-        case "wins":
-          aValue = a.wins;
-          bValue = b.wins;
-          break;
-        case "draws":
-          aValue = a.draws;
-          bValue = b.draws;
-          break;
-        case "losses":
-          aValue = a.losses;
-          bValue = b.losses;
-          break;
-        case "goalsFor":
-          aValue = 0;
-          bValue = 0;
-          break;
-        case "goalsAgainst":
-          aValue = 0;
-          bValue = 0;
-          break;
-        case "goalDifference":
-          aValue = a.goalDifference ?? 0;
-          bValue = b.goalDifference ?? 0;
-          break;
-        default:
-          aValue = a.points;
-          bValue = b.points;
-      }
-
-      // Descending sort
-      return bValue - aValue;
-    });
-  }, [standings, activeLeague, sortBy]);
+    return rowsCopy.sort((a, b) => b.points - a.points);
+  }, [standings, activeLeague]);
 
   // Update ranks after sorting
   const rankedRows = useMemo(() => {
@@ -109,14 +69,14 @@ export function LeagueTablesPreview({ standings, container = true, className }: 
           <h2 className="!text-slate-900 text-lg font-bold text-slate-900 lg:text-base">جدول لیگ</h2>
         </div>
 
-        {/* Filters - Horizontal on desktop, max 2 rows on mobile */}
-        <div className="grid grid-cols-2 gap-3 sm:grid-cols-4 lg:flex lg:flex-wrap lg:items-center lg:gap-3">
+        {/* Filters - 2 rows layout, organized and symmetric */}
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-2 lg:grid-cols-4 w-full items-end">
           <label className="flex flex-col gap-1 text-xs font-semibold text-slate-900 sm:text-sm">
-            <span>رشته:</span>
+            <span className="h-5 flex items-center whitespace-nowrap">رشته:</span>
             <select
               value={activeLeague}
               onChange={(e) => setActiveLeague(e.target.value as LeagueKey)}
-              className="w-full rounded-lg border border-[var(--border)] bg-white px-2.5 py-1.5 text-xs text-slate-900 focus:border-brand focus:outline-none sm:px-3 sm:py-2 sm:text-sm"
+              className="w-full rounded-lg border border-[var(--border)] bg-white px-2.5 py-1.5 text-xs text-slate-900 focus:border-brand focus:outline-none sm:px-3 sm:py-2 sm:text-sm h-[38px] sm:h-[42px]"
             >
               {orderedLeagues.map((league) => (
                 <option key={league.id} value={league.id}>
@@ -127,11 +87,11 @@ export function LeagueTablesPreview({ standings, container = true, className }: 
           </label>
 
           <label className="flex flex-col gap-1 text-xs font-semibold text-slate-900 sm:text-sm">
-            <span>فصل:</span>
+            <span className="h-5 flex items-center whitespace-nowrap">فصل:</span>
             <select
               value={selectedSeason}
               onChange={(e) => setSelectedSeason(e.target.value)}
-              className="w-full rounded-lg border border-[var(--border)] bg-white px-2.5 py-1.5 text-xs text-slate-900 focus:border-brand focus:outline-none sm:px-3 sm:py-2 sm:text-sm"
+              className="w-full rounded-lg border border-[var(--border)] bg-white px-2.5 py-1.5 text-xs text-slate-900 focus:border-brand focus:outline-none sm:px-3 sm:py-2 sm:text-sm h-[38px] sm:h-[42px]"
             >
               {standingsSeasons.map((season) => (
                 <option key={season.id} value={season.id}>
@@ -142,11 +102,11 @@ export function LeagueTablesPreview({ standings, container = true, className }: 
           </label>
 
           <label className="flex flex-col gap-1 text-xs font-semibold text-slate-900 sm:text-sm">
-            <span>هفته:</span>
+            <span className="h-5 flex items-center whitespace-nowrap">هفته:</span>
             <select
               value={selectedWeek}
               onChange={(e) => setSelectedWeek(e.target.value)}
-              className="w-full rounded-lg border border-[var(--border)] bg-white px-2.5 py-1.5 text-xs text-slate-900 focus:border-brand focus:outline-none sm:px-3 sm:py-2 sm:text-sm"
+              className="w-full rounded-lg border border-[var(--border)] bg-white px-2.5 py-1.5 text-xs text-slate-900 focus:border-brand focus:outline-none sm:px-3 sm:py-2 sm:text-sm h-[38px] sm:h-[42px]"
             >
               {standingsWeeks.map((week) => (
                 <option key={week.id} value={week.id}>
@@ -157,17 +117,18 @@ export function LeagueTablesPreview({ standings, container = true, className }: 
           </label>
 
           <label className="flex flex-col gap-1 text-xs font-semibold text-slate-900 sm:text-sm">
-            <span>مرتب‌سازی:</span>
+            <span className="h-5 flex items-center whitespace-nowrap">نوع مسابقه:</span>
             <select
-              value={sortBy}
-              onChange={(e) => setSortBy(e.target.value as SortField)}
-              className="w-full rounded-lg border border-[var(--border)] bg-white px-2.5 py-1.5 text-xs text-slate-900 focus:border-brand focus:outline-none sm:px-3 sm:py-2 sm:text-sm"
+              value={selectedCompetitionType}
+              onChange={(e) => setSelectedCompetitionType(e.target.value as CompetitionType)}
+              className="w-full rounded-lg border border-[var(--border)] bg-white px-2.5 py-1.5 text-xs text-slate-900 focus:border-brand focus:outline-none sm:px-3 sm:py-2 sm:text-sm h-[38px] sm:h-[42px]"
             >
-              {sortOptions.map((option) => (
-                <option key={option.id} value={option.id}>
-                  {option.label}
-                </option>
-              ))}
+              <option value="all">همه</option>
+              <option value="league">لیگ</option>
+              <option value="womens-league">لیگ بانوان</option>
+              <option value="cup">جام</option>
+              <option value="world-cup">جام جهانی</option>
+              <option value="friendly">دوستانه</option>
             </select>
           </label>
         </div>

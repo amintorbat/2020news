@@ -4,10 +4,13 @@ export type MatchStatus = "live" | "finished" | "upcoming";
 
 export type MatchStatusFilter = "all" | "live" | "finished" | "upcoming";
 
+export type CompetitionType = "league" | "womens-league" | "cup" | "world-cup" | "friendly";
+
 export type MatchItem = {
   id: string;
   sport: LeagueKey;
   competition: string;
+  competitionType?: CompetitionType; // Optional, defaults to "league" if not provided
   season: string;
   week: string;
   dateISO: string;
@@ -37,6 +40,7 @@ export const mockMatches: MatchItem[] = [
     id: "futsal-today-1",
     sport: "futsal",
     competition: "لیگ برتر فوتسال",
+    competitionType: "league",
     season: "1403",
     week: "1",
     dateISO: new Date().toISOString().split("T")[0],
@@ -53,6 +57,7 @@ export const mockMatches: MatchItem[] = [
     id: "futsal-today-2",
     sport: "futsal",
     competition: "لیگ برتر فوتسال",
+    competitionType: "league",
     season: "1403",
     week: "1",
     dateISO: new Date().toISOString().split("T")[0],
@@ -68,6 +73,7 @@ export const mockMatches: MatchItem[] = [
     id: "beach-today-1",
     sport: "beach",
     competition: "لیگ فوتبال ساحلی",
+    competitionType: "league",
     season: "1403",
     week: "1",
     dateISO: new Date().toISOString().split("T")[0],
@@ -84,6 +90,7 @@ export const mockMatches: MatchItem[] = [
     id: "futsal-tomorrow-1",
     sport: "futsal",
     competition: "لیگ برتر فوتسال",
+    competitionType: "league",
     season: "1403",
     week: "1",
     dateISO: new Date(Date.now() + 86400000).toISOString().split("T")[0],
@@ -98,6 +105,7 @@ export const mockMatches: MatchItem[] = [
     id: "futsal-tomorrow-2",
     sport: "futsal",
     competition: "لیگ برتر فوتسال",
+    competitionType: "league",
     season: "1403",
     week: "1",
     dateISO: new Date(Date.now() + 86400000).toISOString().split("T")[0],
@@ -113,6 +121,7 @@ export const mockMatches: MatchItem[] = [
     id: "beach-week-1",
     sport: "beach",
     competition: "لیگ فوتبال ساحلی",
+    competitionType: "league",
     season: "1403",
     week: "1",
     dateISO: new Date(Date.now() + 2 * 86400000).toISOString().split("T")[0],
@@ -127,6 +136,7 @@ export const mockMatches: MatchItem[] = [
     id: "beach-week-2",
     sport: "beach",
     competition: "لیگ فوتبال ساحلی",
+    competitionType: "league",
     season: "1403",
     week: "1",
     dateISO: new Date(Date.now() + 3 * 86400000).toISOString().split("T")[0],
@@ -142,6 +152,7 @@ export const mockMatches: MatchItem[] = [
     id: "futsal-finished-1",
     sport: "futsal",
     competition: "لیگ برتر فوتسال",
+    competitionType: "league",
     season: "1403",
     week: "1",
     dateISO: new Date(Date.now() - 86400000).toISOString().split("T")[0],
@@ -157,6 +168,7 @@ export const mockMatches: MatchItem[] = [
     id: "beach-finished-1",
     sport: "beach",
     competition: "لیگ فوتبال ساحلی",
+    competitionType: "league",
     season: "1403",
     week: "1",
     dateISO: new Date(Date.now() - 86400000).toISOString().split("T")[0],

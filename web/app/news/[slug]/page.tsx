@@ -8,16 +8,16 @@ import { Footer } from "@/components/layout/Footer";
 import { ArticleEngagement } from "@/components/news/ArticleEngagement";
 import { Breadcrumb } from "@/components/common/Breadcrumb";
 import { ArticleShareSidebar } from "@/components/news/ArticleShareSidebar";
-import { RelatedArticlesSidebar } from "@/components/news/RelatedArticlesSidebar";
-import { ArticleTagsSidebar } from "@/components/news/ArticleTagsSidebar";
+import { ArticleLikeButton } from "@/components/news/ArticleLikeButton";
 import { TableOfContents } from "@/components/news/TableOfContents";
-import { MobileTOC } from "@/components/news/MobileTOC";
 import { ArticleNavigation } from "@/components/news/ArticleNavigation";
-import { calculateReadingTime, addHeadingIds } from "@/lib/utils/article";
+import { addHeadingIds } from "@/lib/utils/article";
 import { formatDateTimeCombined } from "@/lib/utils/date";
 import { generateNewsCode } from "@/lib/utils/newsCode";
 import { NewsCode } from "@/components/news/NewsCode";
 import { RelatedArticlesGrid } from "@/components/news/RelatedArticlesGrid";
+import { RelatedArticlesSidebar } from "@/components/news/RelatedArticlesSidebar";
+import { ArticleTagsSidebar } from "@/components/news/ArticleTagsSidebar";
 import { NewsletterBox } from "@/components/news/NewsletterBox";
 import { getMockNewsDetail, getMockAllArticles } from "@/lib/mock/newsService";
 
@@ -68,9 +68,9 @@ export default async function NewsDetailsPage({ params }: PageProps) {
   const bodyHtml = addHeadingIds(bodyHtmlRaw);
   const tags = detail.tags;
   const teams = detail.teams;
-  const readingTime = calculateReadingTime(bodyHtml);
   const formattedDateTime = formatDateTimeCombined(publishedAt);
   const newsCode = generateNewsCode(publishedAt, params.slug, params.slug);
+  const source = (detail as any).sourceUrl || "2020news.ir";
   
   // Mock: Check if user is authenticated (for now, always false - UI only)
   const isAuthenticated = false;
@@ -99,8 +99,11 @@ export default async function NewsDetailsPage({ params }: PageProps) {
 
   return (
     <div className="min-h-screen w-full overflow-x-hidden bg-[var(--background)]">
-      <div className="container space-y-6 px-4 pt-6 sm:px-6" dir="rtl">
-        <Breadcrumb items={breadcrumbItems} />
+      <div className="container space-y-6 px-4 pt-6 sm:px-6 lg:pt-12" dir="rtl">
+        {/* Breadcrumb - Desktop */}
+        <div className="hidden lg:block">
+          <Breadcrumb items={breadcrumbItems} />
+        </div>
 
         <article className="lg:grid lg:grid-cols-[1fr_320px] lg:gap-8" itemScope itemType="https://schema.org/NewsArticle">
           <meta itemProp="headline" content={title} />
@@ -109,49 +112,46 @@ export default async function NewsDetailsPage({ params }: PageProps) {
 
           {/* Main Content */}
           <div className="space-y-6">
-            {/* Header */}
-            <header className="space-y-4">
-              <div className="flex flex-wrap items-center gap-2">
-                <span className="inline-block rounded-full bg-brand/10 px-4 py-1.5 text-sm font-semibold text-brand">
-                  {category}
-                </span>
-                <span className="inline-block rounded-full bg-slate-100 px-4 py-1.5 text-sm font-semibold text-slate-700">
-                  {sportLabel}
-                </span>
-              </div>
-              <h1 className="text-3xl font-extrabold leading-tight text-slate-900 sm:text-4xl lg:text-5xl" itemProp="headline">
-                {title}
-              </h1>
-              {lead && (
-                <p className="text-lg leading-relaxed text-slate-700" itemProp="description">
-                  {lead}
-                </p>
-              )}
+            {/* Category Labels - Desktop */}
+            <div className="hidden flex-wrap items-center gap-2 lg:flex">
+              <span className="inline-block rounded-full bg-brand/10 px-4 py-1.5 text-sm font-semibold text-brand">
+                {category}
+              </span>
+              <span className="inline-block rounded-full bg-slate-100 px-4 py-1.5 text-sm font-semibold text-slate-700">
+                {sportLabel}
+              </span>
+            </div>
 
-              {/* Meta Information */}
-              <div className="flex flex-wrap items-center gap-3 border-t border-[var(--border)] pt-4 text-sm text-slate-600">
-                <span className="text-slate-600">{formattedDateTime}</span>
-                <span className="h-1 w-1 rounded-full bg-slate-400" aria-hidden="true" />
-                <NewsCode code={newsCode} />
-                <span className="h-1 w-1 rounded-full bg-slate-400" aria-hidden="true" />
-                <span>زمان مطالعه: {readingTime} دقیقه</span>
-                <span className="h-1 w-1 rounded-full bg-slate-400" aria-hidden="true" />
-                <span>منبع: 2020news.ir</span>
-              </div>
+            {/* Meta Information - Desktop (above title) */}
+            <div className="hidden flex-wrap items-center gap-3 border-b border-[var(--border)] pb-4 text-sm text-slate-600 lg:flex">
+              <span className="text-slate-600">{formattedDateTime}</span>
+              <span className="h-1 w-1 rounded-full bg-slate-400" aria-hidden="true" />
+              <NewsCode code={newsCode} />
+              <span className="h-1 w-1 rounded-full bg-slate-400" aria-hidden="true" />
+              <span>منبع: {source}</span>
+            </div>
 
-              {/* Share Buttons - Mobile */}
-              <div className="border-t border-[var(--border)] pt-4 lg:hidden">
-                <ArticleShareSidebar url={`/news/${params.slug}`} title={title} description={lead} />
-              </div>
-            </header>
+            {/* 1. Title */}
+            <h1 className="text-3xl font-extrabold leading-tight text-slate-900 sm:text-4xl lg:mt-4 lg:text-5xl" itemProp="headline">
+              {title}
+            </h1>
 
-            {/* Mobile TOC */}
-            <MobileTOC html={bodyHtml} />
+            {/* 2. Lead */}
+            {lead && (
+              <p className="text-lg leading-relaxed text-slate-700" itemProp="description">
+                {lead}
+              </p>
+            )}
 
-            {/* Hero Image */}
+            {/* 3. Table of Contents (Mobile - collapsible) */}
+            <div className="lg:hidden">
+              <TableOfContents html={bodyHtml} collapsible />
+            </div>
+
+            {/* 4. Main Image */}
             {imageUrl && (
               <figure className="relative -mx-4 w-[calc(100%+2rem)] overflow-hidden sm:-mx-6 sm:w-[calc(100%+3rem)] lg:mx-0 lg:w-full">
-                <div className="relative h-64 w-full sm:h-80 lg:h-96">
+                <div className="relative h-80 w-full sm:h-96 lg:h-[450px]">
                   <Image
                     src={imageUrl}
                     alt={title}
@@ -165,67 +165,66 @@ export default async function NewsDetailsPage({ params }: PageProps) {
               </figure>
             )}
 
-            {/* Article Body */}
+            {/* 5. Article Body */}
             <div
               className="prose prose-slate max-w-none text-base leading-8 prose-headings:font-bold prose-headings:text-slate-900 prose-p:text-slate-800 prose-a:text-blue-600 prose-strong:text-slate-900 prose-ul:text-slate-800 prose-ol:text-slate-800 prose-li:text-slate-800 prose-blockquote:text-slate-600"
               itemProp="articleBody"
               dangerouslySetInnerHTML={{ __html: bodyHtml }}
             />
 
-            {/* Tags and Teams */}
-            {(tags.length > 0 || teams.length > 0) && (
-              <section className="space-y-4 rounded-xl border border-[var(--border)] bg-white p-6">
-                {tags.length > 0 && (
-                  <div className="space-y-2">
-                    <h3 className="text-sm font-semibold text-slate-900">برچسب‌ها</h3>
-                    <div className="flex flex-wrap gap-2">
-                      {tags.map((tag) => (
-                        <Link
-                          key={tag}
-                          href={`/news?q=${encodeURIComponent(tag)}`}
-                          className="rounded-full border border-[var(--border)] bg-slate-50 px-3 py-1 text-xs font-semibold text-slate-700 transition hover:border-brand hover:bg-brand/5 hover:text-brand"
-                        >
-                          {tag}
-                        </Link>
-                      ))}
-                    </div>
-                  </div>
-                )}
-                {teams.length > 0 && (
-                  <div className="space-y-2">
-                    <h3 className="text-sm font-semibold text-slate-900">تیم‌های مرتبط</h3>
-                    <div className="flex flex-wrap gap-2">
-                      {teams.map((team) => (
-                        <span key={team} className="rounded-full border border-[var(--border)] bg-slate-50 px-3 py-1 text-xs font-semibold text-slate-700">
-                          {team}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-                )}
+            {/* 6. Date + time + news code + source (Mobile) */}
+            <div className="flex flex-wrap items-center gap-3 border-t border-[var(--border)] pt-4 text-sm text-slate-600 lg:hidden">
+              <span className="text-slate-600">{formattedDateTime}</span>
+              <span className="h-1 w-1 rounded-full bg-slate-400" aria-hidden="true" />
+              <NewsCode code={newsCode} />
+              <span className="h-1 w-1 rounded-full bg-slate-400" aria-hidden="true" />
+              <span>منبع: {source}</span>
+            </div>
+
+            {/* 7. Tags (Mobile) */}
+            {tags.length > 0 && (
+              <section className="space-y-3 lg:hidden">
+                <h3 className="text-sm font-semibold text-slate-900">برچسب‌ها</h3>
+                <div className="flex flex-wrap gap-2">
+                  {tags.map((tag) => (
+                    <Link
+                      key={tag}
+                      href={`/news?q=${encodeURIComponent(tag)}`}
+                      className="rounded-full border border-[var(--border)] bg-slate-50 px-3 py-1 text-xs font-semibold text-slate-700 transition hover:border-brand hover:bg-brand/5 hover:text-brand"
+                    >
+                      {tag}
+                    </Link>
+                  ))}
+                </div>
               </section>
             )}
 
-            {/* Newsletter */}
-            <section aria-label="خبرنامه">
-              <NewsletterBox />
-            </section>
+            {/* 8. Like & Share (Mobile - icons only) */}
+            <div className="flex items-center gap-3 border-t border-[var(--border)] pt-4 lg:hidden">
+              <ArticleLikeButton slug={params.slug} />
+              <ArticleShareSidebar url={`/news/${params.slug}`} title={title} description={lead} compact />
+            </div>
 
-            {/* Engagement */}
-            <section aria-label="تعاملات">
-              <ArticleEngagement slug={params.slug} isAuthenticated={isAuthenticated} />
-            </section>
-
-            {/* Previous/Next Navigation */}
+            {/* 9. Previous / Next news */}
             <ArticleNavigation prevArticle={prevArticle} nextArticle={nextArticle} />
 
-            {/* Related Articles */}
+            {/* 10. Related news (Mobile - اخبار مرتبط) */}
             {related.length > 0 && (
-              <section className="space-y-4">
-                <h2 className="text-xl font-bold text-slate-900">مطالب مرتبط</h2>
+              <section className="space-y-4 lg:hidden">
+                <h2 className="text-xl font-bold text-slate-900">اخبار مرتبط</h2>
                 <RelatedArticlesGrid articles={related} />
               </section>
             )}
+
+            {/* 11. Newsletter signup (Mobile) */}
+            <section aria-label="خبرنامه" className="lg:hidden">
+              <NewsletterBox />
+            </section>
+
+            {/* 12. Comments */}
+            <section aria-label="تعاملات">
+              <ArticleEngagement slug={params.slug} isAuthenticated={isAuthenticated} />
+            </section>
           </div>
 
           {/* Sidebar - Desktop Only */}

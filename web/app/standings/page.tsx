@@ -4,10 +4,11 @@ import { useState } from "react";
 import Link from "next/link";
 import { Footer } from "@/components/layout/Footer";
 import { StandingsTableWithSort, sortOptions, type SortField } from "@/components/standings/StandingsTableWithSort";
+import { type CompetitionType } from "@/components/filters/CompetitionTypeFilter";
 import { leagueOptions, standings, standingsSeasons, standingsWeeks, type LeagueKey } from "@/lib/data";
 
 type StandingsPageProps = {
-  searchParams?: { league?: string; season?: string; week?: string };
+  searchParams?: { league?: string; season?: string; week?: string; competitionType?: string };
 };
 
 export default function StandingsPage({ searchParams }: StandingsPageProps) {
@@ -34,7 +35,7 @@ export default function StandingsPage({ searchParams }: StandingsPageProps) {
           </div>
 
           <div className="space-y-4">
-            <form className="grid gap-4 grid-cols-2 lg:grid-cols-5" action="/standings">
+            <form className="grid gap-4 grid-cols-2 lg:grid-cols-6" action="/standings">
               <div className="flex flex-col gap-1.5">
                 <label htmlFor="league-filter" className="text-xs font-semibold text-slate-700 sm:text-sm">
                   لیگ
@@ -87,6 +88,24 @@ export default function StandingsPage({ searchParams }: StandingsPageProps) {
                 </select>
               </div>
               <div className="flex flex-col gap-1.5">
+                <label htmlFor="competition-type-filter" className="text-xs font-semibold text-slate-700 sm:text-sm">
+                  نوع مسابقه
+                </label>
+                <select
+                  id="competition-type-filter"
+                  name="competitionType"
+                  defaultValue={filters.competitionType || "all"}
+                  className="w-full rounded-xl border border-[var(--border)] bg-white px-3 py-2 text-sm text-slate-900 transition focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/20 sm:py-2.5"
+                >
+                  <option value="all">همه</option>
+                  <option value="league">لیگ</option>
+                  <option value="womens-league">لیگ بانوان</option>
+                  <option value="cup">جام</option>
+                  <option value="world-cup">جام جهانی</option>
+                  <option value="friendly">دوستانه</option>
+                </select>
+              </div>
+              <div className="flex flex-col gap-1.5">
                 <label htmlFor="sort-filter" className="text-xs font-semibold text-slate-700 sm:text-sm">
                   مرتب‌سازی بر اساس
                 </label>
@@ -123,9 +142,13 @@ export default function StandingsPage({ searchParams }: StandingsPageProps) {
   );
 }
 
-function resolveFilters(searchParams?: { league?: string; season?: string; week?: string }) {
+function resolveFilters(searchParams?: { league?: string; season?: string; week?: string; competitionType?: string }) {
   const league = leagueOptions.some((option) => option.id === searchParams?.league) ? (searchParams?.league as LeagueKey) : leagueOptions[0].id;
   const season = standingsSeasons.some((season) => season.id === searchParams?.season) ? (searchParams?.season as string) : standingsSeasons[0].id;
   const week = standingsWeeks.some((week) => week.id === searchParams?.week) ? (searchParams?.week as string) : standingsWeeks[0].id;
-  return { league, season, week };
+  const competitionType: CompetitionType | undefined = searchParams?.competitionType && 
+    ["all", "league", "womens-league", "cup", "world-cup", "friendly"].includes(searchParams.competitionType)
+    ? (searchParams.competitionType as CompetitionType)
+    : undefined;
+  return { league, season, week, competitionType };
 }

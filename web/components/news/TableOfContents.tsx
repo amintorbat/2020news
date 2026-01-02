@@ -12,9 +12,10 @@ type TableOfContentsProps = {
   html: string;
 };
 
-export function TableOfContents({ html }: TableOfContentsProps) {
+export function TableOfContents({ html, collapsible = false }: TableOfContentsProps) {
   const [headings, setHeadings] = useState<Heading[]>([]);
   const [activeId, setActiveId] = useState<string>("");
+  const [isOpen, setIsOpen] = useState(!collapsible);
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -91,30 +92,43 @@ export function TableOfContents({ html }: TableOfContentsProps) {
   };
 
   return (
-    <nav className="space-y-3" dir="rtl">
-      <h3 className="mb-3 text-sm font-bold text-slate-900">فهرست مطالب</h3>
-      <ul className="space-y-0.5 text-sm">
-        {headings.map((heading) => (
-          <li key={heading.id} className="relative">
-            <button
-              type="button"
-              onClick={() => scrollToHeading(heading.id)}
-              className={`block w-full rounded-md px-2 py-1.5 text-right transition-all hover:bg-slate-50 hover:text-blue-600 ${
-                heading.level === 3 ? "mr-6 text-xs" : "text-sm"
-              } ${
-                activeId === heading.id
-                  ? "bg-blue-50 font-semibold text-blue-600"
-                  : "text-slate-700"
-              }`}
-            >
-              {heading.level === 3 && (
-                <span className="mr-1 inline-block h-1 w-1 rounded-full bg-slate-400 align-middle" />
-              )}
-              <span className="align-middle">{heading.text}</span>
-            </button>
-          </li>
-        ))}
-      </ul>
+    <nav className="space-y-3 rounded-xl border border-[var(--border)] bg-white p-4 lg:p-6" dir="rtl">
+      <button
+        type="button"
+        onClick={() => setIsOpen(!isOpen)}
+        className="flex w-full items-center justify-between text-sm font-bold text-slate-900"
+      >
+        <span>فهرست مطالب</span>
+        {collapsible && (
+          <svg
+            className={`h-5 w-5 transition-transform ${isOpen ? "rotate-180" : ""}`}
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+          </svg>
+        )}
+      </button>
+      {isOpen && (
+        <ul className="space-y-1 text-sm">
+          {headings.map((heading) => (
+            <li key={heading.id} className="relative">
+              <button
+                type="button"
+                onClick={() => scrollToHeading(heading.id)}
+                className={`block w-full rounded-lg px-3 py-2 text-right text-sm transition-all ${
+                  activeId === heading.id
+                    ? "bg-blue-50 font-semibold text-blue-600"
+                    : "text-slate-700 hover:bg-slate-50 hover:text-blue-600"
+                }`}
+              >
+                <span className="block leading-relaxed">{heading.text}</span>
+              </button>
+            </li>
+          ))}
+        </ul>
+      )}
     </nav>
   );
 }

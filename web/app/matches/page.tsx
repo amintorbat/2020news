@@ -1,11 +1,12 @@
 import { PageHero } from "@/components/common/PageHero";
 import { Footer } from "@/components/layout/Footer";
 import { MatchFilters } from "@/components/matches/MatchFilters";
+import { type CompetitionType } from "@/components/filters/CompetitionTypeFilter";
 import { leagueOptions, matchSeasons, matchStatuses, matchWeeks, type LeagueKey } from "@/lib/data";
 import { mockMatches, timeRangeOptions, type MatchItem, type MatchStatusFilter, type TimeRange } from "@/lib/data/matches";
 
 type MatchesPageProps = {
-  searchParams?: { league?: string; season?: string; week?: string; status?: string; timeRange?: string };
+  searchParams?: { league?: string; season?: string; week?: string; status?: string; timeRange?: string; competitionType?: string };
 };
 
 type Filters = {
@@ -14,6 +15,7 @@ type Filters = {
   week: string;
   status: MatchStatusFilter;
   timeRange?: TimeRange;
+  competitionType?: CompetitionType;
 };
 
 export default function MatchesPage({ searchParams }: MatchesPageProps) {
@@ -21,6 +23,14 @@ export default function MatchesPage({ searchParams }: MatchesPageProps) {
 
   // Use mockMatches for better data structure
   let filteredMatches: MatchItem[] = mockMatches.filter((match) => match.sport === filters.league);
+
+  // Filter by competition type if provided
+  if (filters.competitionType && filters.competitionType !== "all") {
+    filteredMatches = filteredMatches.filter((match) => {
+      const matchType = match.competitionType || "league";
+      return matchType === filters.competitionType;
+    });
+  }
 
   // Filter by time range if provided
   if (filters.timeRange) {
@@ -105,7 +115,7 @@ export default function MatchesPage({ searchParams }: MatchesPageProps) {
 
 function FiltersForm({ filters }: { filters: Filters }) {
   return (
-    <form className="grid gap-3 sm:gap-4 sm:grid-cols-2 lg:grid-cols-4" action="/matches" dir="rtl">
+    <form className="grid gap-3 sm:gap-4 sm:grid-cols-2 lg:grid-cols-5" action="/matches" dir="rtl">
       <input type="hidden" name="league" value={filters.league} />
       <input type="hidden" name="status" value={filters.status} />
       {filters.timeRange && <input type="hidden" name="timeRange" value={filters.timeRange} />}
@@ -149,6 +159,21 @@ function FiltersForm({ filters }: { filters: Filters }) {
               {week.label}
             </option>
           ))}
+        </select>
+      </label>
+      <label className="text-sm font-semibold text-slate-900">
+        نوع مسابقه
+        <select
+          name="competitionType"
+          defaultValue={filters.competitionType || "all"}
+          className="mt-1.5 w-full rounded-xl border border-[var(--border)] bg-white px-3 py-2 text-sm text-slate-900 focus:border-brand focus:outline-none"
+        >
+          <option value="all">همه</option>
+          <option value="league">لیگ</option>
+          <option value="womens-league">لیگ بانوان</option>
+          <option value="cup">جام</option>
+          <option value="world-cup">جام جهانی</option>
+          <option value="friendly">دوستانه</option>
         </select>
       </label>
       <div className="flex items-end">
@@ -235,5 +260,10 @@ function resolveFilters(searchParams?: MatchesPageProps["searchParams"]): Filter
     ? (searchParams?.timeRange as TimeRange)
     : undefined;
 
-  return { league, season, week, status, timeRange };
+  const competitionType: CompetitionType | undefined = searchParams?.competitionType && 
+    ["all", "league", "womens-league", "cup", "world-cup", "friendly"].includes(searchParams.competitionType)
+    ? (searchParams.competitionType as CompetitionType)
+    : undefined;
+
+  return { league, season, week, status, timeRange, competitionType };
 }

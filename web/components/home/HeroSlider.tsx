@@ -75,7 +75,6 @@ type SlideItemProps = {
 
 function SlideItem({ slide, priority }: SlideItemProps) {
   const hasImage = Boolean(slide.imageUrl?.trim());
-  const formattedDate = slide.publishedAt;
 
   return (
     <article className="relative h-full w-full" dir="rtl">
@@ -99,17 +98,9 @@ function SlideItem({ slide, priority }: SlideItemProps) {
       {/* Text Content Layer */}
       <div className="relative z-10 flex h-full flex-col justify-end bg-gradient-to-t from-black/70 via-black/40 to-transparent px-4 pb-20 text-white sm:px-8 sm:pb-24 md:px-12 md:pb-28">
         <div className="container mx-auto max-w-4xl">
-          <div className="space-y-4 sm:space-y-5">
-            {/* Category and Date */}
-            <div className="flex flex-wrap items-center gap-2.5 text-xs font-semibold sm:text-sm">
-              <span className="rounded-full bg-brand/90 px-3 py-1 text-white backdrop-blur-sm sm:px-4 sm:py-1.5">
-                {slide.category}
-              </span>
-              {formattedDate && <span className="text-white/90">{formattedDate}</span>}
-            </div>
-
+          <div className="flex flex-col items-center text-center space-y-4 sm:space-y-5">
             {/* Title */}
-            <h1 className="line-clamp-2 text-2xl font-black leading-tight text-white sm:text-3xl md:text-4xl lg:text-5xl">
+            <h1 className="line-clamp-2 text-2xl font-black leading-relaxed text-white drop-shadow-lg sm:text-3xl sm:leading-relaxed md:text-3xl md:leading-relaxed lg:text-4xl lg:leading-relaxed">
               {slide.title}
             </h1>
 
@@ -117,7 +108,7 @@ function SlideItem({ slide, priority }: SlideItemProps) {
             <div className="pt-2 sm:pt-3">
               <Link
                 href={slide.href}
-                className="inline-flex items-center gap-2 rounded-full bg-brand px-5 py-2.5 text-xs font-semibold text-white shadow-lg transition hover:bg-brand/90 hover:shadow-xl sm:px-6 sm:py-3 sm:text-sm md:px-8 md:py-3.5 md:text-base"
+                className="group inline-flex items-center gap-2 rounded-full bg-brand px-5 py-2.5 text-xs font-semibold text-white shadow-lg transition hover:bg-brand/90 hover:shadow-xl sm:px-6 sm:py-3 sm:text-sm md:px-8 md:py-3.5 md:text-base"
               >
                 مشاهده خبر کامل
                 <svg className="h-3.5 w-3.5 sm:h-4 sm:w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">

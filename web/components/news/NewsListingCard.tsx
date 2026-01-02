@@ -11,20 +11,20 @@ export function NewsListingCard({ article }: NewsListingCardProps) {
 
   return (
     <article
-      className="flex flex-col gap-4 rounded-xl border border-[var(--border)] bg-white p-4 shadow-sm transition hover:border-brand hover:shadow-md sm:flex-row sm:items-stretch"
+      className="flex gap-4 rounded-xl border border-[var(--border)] bg-white p-4 shadow-sm transition hover:border-brand hover:shadow-md sm:items-center"
       dir="rtl"
     >
-      <div className="relative h-44 w-full overflow-hidden sm:h-auto sm:w-60 lg:w-72">
+      <div className="relative h-44 w-44 flex-shrink-0 overflow-hidden sm:h-24 sm:w-24 lg:h-28 lg:w-28">
         <Image
           src={imageUrl}
           alt={article.title}
           fill
-          sizes="(min-width: 640px) 300px, 100vw"
+          sizes="(min-width: 1024px) 112px, (min-width: 640px) 96px, 176px"
           className="object-cover"
           style={{ borderRadius: 0 }}
         />
       </div>
-      <div className="flex min-w-0 flex-1 flex-col justify-center gap-3 overflow-hidden sm:pr-6">
+      <div className="flex min-w-0 flex-1 flex-col gap-3 overflow-hidden text-right">
         <div className="flex flex-wrap items-center gap-2 text-xs text-slate-500">
           <span className="rounded-full bg-brand/10 px-3 py-1 font-semibold text-brand">
             {article.category}
