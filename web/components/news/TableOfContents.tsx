@@ -10,6 +10,7 @@ type Heading = {
 
 type TableOfContentsProps = {
   html: string;
+  collapsible?: boolean;
 };
 
 export function TableOfContents({ html, collapsible = false }: TableOfContentsProps) {
