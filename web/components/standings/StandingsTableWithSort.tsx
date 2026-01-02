@@ -19,9 +19,10 @@ export const sortOptions = [
 type StandingsTableWithSortProps = {
   rows: LeagueRow[];
   sortBy: SortField;
+  liveTeamNames?: string[];
 };
 
-export function StandingsTableWithSort({ rows, sortBy }: StandingsTableWithSortProps) {
+export function StandingsTableWithSort({ rows, sortBy, liveTeamNames }: StandingsTableWithSortProps) {
   const sortedRows = useMemo(() => {
     const rowsCopy = [...rows];
     
@@ -70,5 +71,5 @@ export function StandingsTableWithSort({ rows, sortBy }: StandingsTableWithSortP
     });
   }, [rows, sortBy]);
 
-  return <StandingsTable rows={sortedRows} />;
+  return <StandingsTable rows={sortedRows} liveTeamNames={liveTeamNames} />;
 }

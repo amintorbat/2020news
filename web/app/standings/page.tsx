@@ -6,6 +6,7 @@ import { Footer } from "@/components/layout/Footer";
 import { StandingsTableWithSort, sortOptions, type SortField } from "@/components/standings/StandingsTableWithSort";
 import { type CompetitionType } from "@/components/filters/CompetitionTypeFilter";
 import { leagueOptions, standings, standingsSeasons, standingsWeeks, type LeagueKey } from "@/lib/data";
+import { mockMatches } from "@/lib/data/matches";
 
 type StandingsPageProps = {
   searchParams?: { league?: string; season?: string; week?: string; competitionType?: string };
@@ -15,6 +16,21 @@ export default function StandingsPage({ searchParams }: StandingsPageProps) {
   const filters = resolveFilters(searchParams);
   const rows = standings[filters.league];
   const [sortBy, setSortBy] = useState<SortField>("points");
+
+  // Get teams playing live today
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const liveMatchesToday = mockMatches.filter((match) => {
+    const matchDate = new Date(match.dateISO);
+    matchDate.setHours(0, 0, 0, 0);
+    return match.status === "live" && match.sport === filters.league && matchDate.getTime() === today.getTime();
+  });
+  const liveTeamNames = Array.from(
+    new Set([
+      ...liveMatchesToday.map((m) => m.homeTeam.name),
+      ...liveMatchesToday.map((m) => m.awayTeam.name),
+    ])
+  );
 
   return (
     <div className="min-h-screen bg-[var(--background)] font-sans">
@@ -132,7 +148,7 @@ export default function StandingsPage({ searchParams }: StandingsPageProps) {
           </div>
 
           <div className="mt-6">
-            <StandingsTableWithSort rows={rows} sortBy={sortBy} />
+            <StandingsTableWithSort rows={rows} sortBy={sortBy} liveTeamNames={liveTeamNames.length > 0 ? liveTeamNames : undefined} />
           </div>
         </section>
 

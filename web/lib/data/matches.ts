@@ -182,9 +182,10 @@ export const mockMatches: MatchItem[] = [
   },
 ];
 
-export type TimeRange = "today" | "tomorrow" | "this-week";
+export type TimeRange = "all" | "today" | "tomorrow" | "this-week";
 
 export const timeRangeOptions = [
+  { id: "all" as TimeRange, label: "همه" },
   { id: "today" as TimeRange, label: "امروز" },
   { id: "tomorrow" as TimeRange, label: "فردا" },
   { id: "this-week" as TimeRange, label: "این هفته" },

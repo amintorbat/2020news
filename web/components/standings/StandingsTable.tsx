@@ -46,7 +46,7 @@ function FormIndicator({ form }: { form?: ("W" | "D" | "L")[] }) {
   );
 }
 
-export function StandingsTable({ rows, compact = false }: { rows: LeagueRow[]; compact?: boolean }) {
+export function StandingsTable({ rows, compact = false, liveTeamNames }: { rows: LeagueRow[]; compact?: boolean; liveTeamNames?: string[] }) {
   if (compact) {
     return (
       <div className="overflow-hidden border border-[var(--border)] bg-white" dir="rtl">
@@ -60,8 +60,10 @@ export function StandingsTable({ rows, compact = false }: { rows: LeagueRow[]; c
             </tr>
           </thead>
           <tbody>
-            {rows.map((row) => (
-              <tr key={row.team} className="border-t border-[var(--border)]">
+            {rows.map((row) => {
+              const isPlayingLive = liveTeamNames?.includes(row.team) ?? false;
+              return (
+              <tr key={row.team} className={`border-t border-[var(--border)] ${isPlayingLive ? "bg-red-50/40" : ""}`}>
                 <td className="py-2.5 text-center text-xs text-slate-700">{row.rank}</td>
                 <td className="py-2.5">
                   <div className="flex items-center gap-2.5">
@@ -74,7 +76,8 @@ export function StandingsTable({ rows, compact = false }: { rows: LeagueRow[]; c
                 <td className="py-2.5 text-center text-xs text-slate-700">{row.played}</td>
                 <td className="py-2.5 text-center text-sm font-semibold text-brand">{row.points}</td>
               </tr>
-            ))}
+              );
+            })}
           </tbody>
         </table>
       </div>
@@ -186,8 +189,9 @@ export function StandingsTable({ rows, compact = false }: { rows: LeagueRow[]; c
               const goalDifference = row.goalDifference ?? 0;
               const goalsFor = row.goalsFor ?? 0;
               const goalsAgainst = row.goalsAgainst ?? 0;
+              const isPlayingLive = liveTeamNames?.includes(row.team) ?? false;
               return (
-                <tr key={row.team} className="border-t border-[var(--border)]">
+                <tr key={row.team} className={`border-t border-[var(--border)] ${isPlayingLive ? "bg-red-50/40" : ""}`}>
                   <td className="px-1 py-2 text-center text-slate-900 whitespace-nowrap align-middle">{toPersianNumber(row.rank)}</td>
                   <td className="px-0.5 py-2 text-center whitespace-nowrap align-middle">
                     <RankChangeIndicator currentRank={row.rank} previousRank={row.previousRank} />
@@ -241,8 +245,9 @@ export function StandingsTable({ rows, compact = false }: { rows: LeagueRow[]; c
               const goalDifference = row.goalDifference ?? 0;
               const goalsFor = row.goalsFor ?? 0;
               const goalsAgainst = row.goalsAgainst ?? 0;
+              const isPlayingLive = liveTeamNames?.includes(row.team) ?? false;
               return (
-                <tr key={row.team} className="border-t border-[var(--border)] transition hover:bg-slate-50">
+                <tr key={row.team} className={`border-t border-[var(--border)] transition ${isPlayingLive ? "bg-red-50/40 hover:bg-red-50/60" : "hover:bg-slate-50"}`}>
                   <td className="px-2 py-2 text-center text-slate-900 whitespace-nowrap text-xs md:px-4 md:py-3 md:text-sm">{toPersianNumber(row.rank)}</td>
                   <td className="px-1 py-2 text-center whitespace-nowrap md:px-4 md:py-3">
                     <RankChangeIndicator currentRank={row.rank} previousRank={row.previousRank} />
