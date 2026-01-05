@@ -10,7 +10,7 @@ import { Footer } from "@/components/layout/Footer";
 import { getFallbackStandingsPayload } from "@/lib/acs/fallback";
 import { heroSlides } from "@/lib/mock/home";
 import type { StandingsRow } from "@/lib/acs/types";
-import { topScorers, type LeagueKey } from "@/lib/data";
+import type { LeagueKey } from "@/lib/data";
 
 function mapStandings(payload: Awaited<ReturnType<typeof getFallbackStandingsPayload>>): StandingsRow[] {
   return payload.rows.slice(0, 6);
@@ -127,13 +127,13 @@ export default async function HomePage() {
               <div className="space-y-8 md:hidden">
                 <LeagueTablesPreview standings={standingsByLeague} container={false} />
                 <MatchesAndResults container={false} />
-                <TopScorersPreview scorers={topScorers} container={false} />
+                <TopScorersPreview container={false} />
               </div>
             </div>
             <aside className="hidden md:block space-y-8 lg:space-y-6">
               <LeagueTablesPreview standings={standingsByLeague} container={false} />
               <MatchesAndResults container={false} />
-              <TopScorersPreview scorers={topScorers} container={false} />
+              <TopScorersPreview container={false} />
               <section className="space-y-6" dir="rtl">
                 <h2 className="text-lg font-bold text-slate-900" style={{ color: '#0f172a' }}>کیوسک روزنامه</h2>
               </section>

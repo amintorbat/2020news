@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { Footer } from "@/components/layout/Footer";
 import { leagueOptions, matchSeasons, type LeagueKey } from "@/lib/data";
 import { mockMatches, type MatchItem, type MatchStatusFilter, type TimeRange, type CompetitionType } from "@/lib/data/matches";
@@ -33,7 +34,18 @@ export default function MatchesPage({ searchParams }: MatchesPageProps) {
         {/* Page Header */}
         <section className="container pt-8 sm:pt-12 lg:pt-16" dir="rtl">
           <div className="space-y-3">
-            <h1 className="text-2xl font-extrabold text-slate-900 sm:text-3xl lg:text-4xl">برنامه مسابقات</h1>
+            <div className="flex items-center justify-between">
+              <h1 className="text-2xl font-extrabold text-slate-900 sm:text-3xl lg:text-4xl">برنامه مسابقات</h1>
+              <Link
+                href="/"
+                className="inline-flex items-center gap-2 rounded-lg border border-[var(--border)] bg-white px-4 py-2 text-sm font-semibold text-slate-900 transition hover:bg-slate-50"
+              >
+                <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                </svg>
+                بازگشت به خانه
+              </Link>
+            </div>
             <p className="text-sm text-slate-600 sm:text-base">
               آرشیو کامل و بایگانی تمامی مسابقات لیگ‌های فوتسال و فوتبال ساحلی
             </p>
