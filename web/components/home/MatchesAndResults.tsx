@@ -89,65 +89,69 @@ export function MatchesAndResults({ container = true, className }: MatchesAndRes
         </div>
 
         {/* Filters - 2 rows layout (RTL order: رشته, بازه زمانی / وضعیت, نوع مسابقه) */}
-        <div className="grid grid-cols-2 gap-3 sm:grid-cols-2 lg:grid-cols-4 w-full items-end">
-          <label className="flex flex-col gap-1 text-xs font-semibold text-slate-900 sm:text-sm">
-            <span className="h-5 flex items-center whitespace-nowrap">رشته:</span>
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-2 lg:grid-cols-4 w-full items-end min-w-0">
+          <label className="flex flex-col gap-1.5 text-xs font-semibold text-slate-900 sm:text-sm min-w-0">
+            <span className="h-5 flex items-center whitespace-nowrap text-slate-800 font-semibold">رشته:</span>
             <select
               value={selectedLeague}
               onChange={(e) => setSelectedLeague(e.target.value as LeagueKey)}
-              className="w-full rounded-lg border border-[var(--border)] bg-white px-2.5 py-1.5 text-xs text-slate-900 focus:border-brand focus:outline-none sm:px-3 sm:py-2 sm:text-sm h-[38px] sm:h-[42px]"
+              className="w-full rounded-lg border-2 border-slate-300 bg-white px-3 py-2.5 text-sm font-semibold text-slate-900 shadow-sm transition focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/20 h-[42px] min-w-0"
+              style={{ color: "#0f172a !important", WebkitTextFillColor: "#0f172a !important" }}
             >
               {leagueOptions.map((option) => (
-                <option key={option.id} value={option.id}>
+                <option key={option.id} value={option.id} style={{ color: "#0f172a", fontWeight: "600" }}>
                   {option.label}
                 </option>
               ))}
             </select>
           </label>
 
-          <label className="flex flex-col gap-1 text-xs font-semibold text-slate-900 sm:text-sm">
-            <span className="h-5 flex items-center whitespace-nowrap">بازه زمانی:</span>
+          <label className="flex flex-col gap-1.5 text-xs font-semibold text-slate-900 sm:text-sm min-w-0">
+            <span className="h-5 flex items-center whitespace-nowrap text-slate-800 font-semibold">بازه زمانی:</span>
             <select
               value={selectedTimeRange}
               onChange={(e) => setSelectedTimeRange(e.target.value as TimeRange)}
-              className="w-full rounded-lg border border-[var(--border)] bg-white px-2.5 py-1.5 text-xs text-slate-900 focus:border-brand focus:outline-none sm:px-3 sm:py-2 sm:text-sm h-[38px] sm:h-[42px]"
+              className="w-full rounded-lg border-2 border-slate-300 bg-white px-3 py-2.5 text-sm font-semibold text-slate-900 shadow-sm transition focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/20 h-[42px] min-w-0"
+              style={{ color: "#0f172a !important", WebkitTextFillColor: "#0f172a !important" }}
             >
               {timeRangeOptions.map((option) => (
-                <option key={option.id} value={option.id}>
+                <option key={option.id} value={option.id} style={{ color: "#0f172a", fontWeight: "600" }}>
                   {option.label}
                 </option>
               ))}
             </select>
           </label>
 
-          <label className="flex flex-col gap-1 text-xs font-semibold text-slate-900 sm:text-sm">
-            <span className="h-5 flex items-center whitespace-nowrap">وضعیت:</span>
+          <label className="flex flex-col gap-1.5 text-xs font-semibold text-slate-900 sm:text-sm min-w-0">
+            <span className="h-5 flex items-center whitespace-nowrap text-slate-800 font-semibold">وضعیت:</span>
             <select
               value={selectedStatus}
               onChange={(e) => setSelectedStatus(e.target.value as typeof selectedStatus)}
-              className="w-full rounded-lg border border-[var(--border)] bg-white px-2.5 py-1.5 text-xs text-slate-900 focus:border-brand focus:outline-none sm:px-3 sm:py-2 sm:text-sm h-[38px] sm:h-[42px]"
+              className="w-full rounded-lg border-2 border-slate-300 bg-white px-3 py-2.5 text-sm font-semibold text-slate-900 shadow-sm transition focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/20 h-[42px] min-w-0"
+              style={{ color: "#0f172a !important", WebkitTextFillColor: "#0f172a !important" }}
             >
               {statusOptions.map((option) => (
-                <option key={option.id} value={option.id}>
+                <option key={option.id} value={option.id} style={{ color: "#0f172a", fontWeight: "600" }}>
                   {option.label}
                 </option>
               ))}
             </select>
           </label>
 
-          <label className="flex flex-col gap-1 text-xs font-semibold text-slate-900 sm:text-sm">
-            <span className="h-5 flex items-center whitespace-nowrap">نوع مسابقه:</span>
+          <label className="flex flex-col gap-1.5 text-xs font-semibold text-slate-900 sm:text-sm min-w-0">
+            <span className="h-5 flex items-center whitespace-nowrap text-slate-800 font-semibold">نوع مسابقه:</span>
             <select
               value={selectedCompetitionType}
               onChange={(e) => setSelectedCompetitionType(e.target.value as CompetitionType)}
-              className="w-full rounded-lg border border-[var(--border)] bg-white px-2.5 py-1.5 text-xs text-slate-900 focus:border-brand focus:outline-none sm:px-3 sm:py-2 sm:text-sm h-[38px] sm:h-[42px]"
+              className="w-full rounded-lg border-2 border-slate-300 bg-white px-3 py-2.5 text-sm font-semibold text-slate-900 shadow-sm transition focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/20 h-[42px] min-w-0"
+              style={{ color: "#0f172a !important", WebkitTextFillColor: "#0f172a !important" }}
             >
-              <option value="all">همه</option>
-              <option value="league">لیگ</option>
-              <option value="womens-league">لیگ بانوان</option>
-              <option value="cup">جام</option>
-              <option value="world-cup">جام جهانی</option>
-              <option value="friendly">دوستانه</option>
+              <option value="all" style={{ color: "#0f172a", fontWeight: "600" }}>همه</option>
+              <option value="league" style={{ color: "#0f172a", fontWeight: "600" }}>لیگ</option>
+              <option value="womens-league" style={{ color: "#0f172a", fontWeight: "600" }}>لیگ بانوان</option>
+              <option value="cup" style={{ color: "#0f172a", fontWeight: "600" }}>جام</option>
+              <option value="world-cup" style={{ color: "#0f172a", fontWeight: "600" }}>جام جهانی</option>
+              <option value="friendly" style={{ color: "#0f172a", fontWeight: "600" }}>دوستانه</option>
             </select>
           </label>
         </div>

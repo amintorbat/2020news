@@ -3,8 +3,8 @@
   "private": true,
   "version": "1.0.0",
   "scripts": {
-    "dev": "node_modules/.bin/next dev",
-    "dev:local": "node_modules/.bin/next dev -H 127.0.0.1",
+    "dev": "next dev",
+    "dev:local": "next dev -H 127.0.0.1",
     "build": "next build",
     "start": "next start",
     "lint": "next lint",

@@ -87,8 +87,8 @@ export default async function NewsFutsalPage({ searchParams }: NewsFutsalPagePro
     .filter((article) => article.isFeatured)
     .slice(0, 5);
 
-  // Popular articles for sidebar
-  const popularArticles = filtered.slice(0, 5);
+  // Articles for sidebar
+  const sidebarArticles = filtered.slice(0, 15);
 
   const breadcrumbItems = [
     { label: "خانه", href: "/" },
@@ -228,7 +228,7 @@ export default async function NewsFutsalPage({ searchParams }: NewsFutsalPagePro
 
             {/* Sidebar */}
             <aside className="hidden lg:block">
-              <NewsSidebar popularArticles={popularArticles} />
+              <NewsSidebar articles={sidebarArticles} />
             </aside>
           </div>
         </section>
