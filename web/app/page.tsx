@@ -14,86 +14,9 @@ import { getFallbackStandingsPayload } from "@/lib/acs/fallback";
 import { heroSlides } from "@/lib/mock/home";
 import type { StandingsRow } from "@/lib/acs/types";
 import type { LeagueKey } from "@/lib/data";
+import { allReportsAndEditorials } from "@/lib/data/reports";
 
-const reports = [
-  {
-    id: 1,
-    title: "گزارش ویژه از تمرینات تیم ملی فوتسال پیش از تورنمنت",
-    excerpt: "بدنسازی و تاکتیک‌های فشرده، محور برنامه این هفته بود.",
-    category: "گزارش" as const,
-    publishedAt: "۱ ساعت پیش",
-    imageUrl: "https://picsum.photos/seed/report-1/800/500",
-    href: "/news/futsal-camp-report",
-  },
-  {
-    id: 2,
-    title: "تحلیل فنی بازی دوستانه ساحلی ایران و عمان",
-    excerpt: "تعویض‌های هوشمندانه در وقت سوم نتیجه را تغییر داد.",
-    category: "گزارش" as const,
-    publishedAt: "۲ ساعت پیش",
-    imageUrl: "https://picsum.photos/seed/report-2/800/500",
-    href: "/news/beach-soccer-oman-friendly",
-  },
-  {
-    id: 3,
-    title: "گزارش میدانی از اردوی آمادگی تیم امید فوتسال",
-    excerpt: "تمرکز کادر فنی روی بازی‌سازی در میانه زمین بود.",
-    category: "گزارش" as const,
-    publishedAt: "۳ ساعت پیش",
-    imageUrl: "https://picsum.photos/seed/report-3/800/500",
-    href: "/news/futsal-youth-camp",
-  },
-  {
-    id: 4,
-    title: "پشت صحنه آماده‌سازی زمین ساحلی برای لیگ جدید",
-    excerpt: "بهبود زیرساخت‌ها و نورپردازی ورزشگاه ساحلی تکمیل شد.",
-    category: "گزارش" as const,
-    publishedAt: "۴ ساعت پیش",
-    imageUrl: "https://picsum.photos/seed/report-4/800/500",
-    href: "/news/beach-stadium-prep",
-  },
-] satisfies SectionItem[];
-
-const editorials = [
-  {
-    id: 11,
-    title: "یادداشت سردبیری: نسل تازه فوتسال به چه چیزی نیاز دارد؟",
-    excerpt: "نگاه بلندمدت به آکادمی‌ها، کلید موفقیت بین‌المللی است.",
-    category: "یادداشت" as const,
-    publishedAt: "۳۰ دقیقه پیش",
-    imageUrl: "https://picsum.photos/seed/editorial-1/800/500",
-    href: "/news/editorial-futsal-youth",
-  },
-  {
-    id: 12,
-    title: "یادداشت: فوتبال ساحلی و فرصت‌های پنهان برای قهرمانی",
-    excerpt: "با سرمایه‌گذاری هوشمندانه می‌توان فاصله‌ها را کم کرد.",
-    category: "یادداشت" as const,
-    publishedAt: "۱ ساعت پیش",
-    imageUrl: "https://picsum.photos/seed/editorial-2/800/500",
-    href: "/news/editorial-beach-growth",
-  },
-  {
-    id: 13,
-    title: "چرا ثبات کادر فنی در فوتسال اهمیت دارد؟",
-    excerpt: "تغییرات پی‌درپی فرصت ساختارمند شدن را از تیم می‌گیرد.",
-    category: "یادداشت" as const,
-    publishedAt: "۲ ساعت پیش",
-    imageUrl: "https://picsum.photos/seed/editorial-3/800/500",
-    href: "/news/editorial-futsal-stability",
-  },
-  {
-    id: 14,
-    title: "یادداشت: نقش هواداران در موفقیت تیم‌های ساحلی",
-    excerpt: "حضور پررنگ تماشاگران، انرژی بازی‌ها را دوچندان می‌کند.",
-    category: "یادداشت" as const,
-    publishedAt: "۳ ساعت پیش",
-    imageUrl: "https://picsum.photos/seed/editorial-4/800/500",
-    href: "/news/editorial-beach-fans",
-  },
-] satisfies SectionItem[];
-
-const reportsAndEditorials: SectionItem[] = [...reports, ...editorials];
+const reportsAndEditorials = allReportsAndEditorials.slice(0, 8);
 
 function mapStandings(payload: Awaited<ReturnType<typeof getFallbackStandingsPayload>>): StandingsRow[] {
   return payload.rows.slice(0, 6);
@@ -155,7 +78,7 @@ export default async function HomePage() {
                   dir="rtl"
                 >
                   <div className="divide-y divide-[var(--border)]">
-                    {reportsAndEditorials.slice(Math.ceil(reportsAndEditorials.length / 2)).map((item) => (
+                    {reportsAndEditorials.slice(0, 8).map((item) => (
                       <Link
                         key={item.id}
                         href={item.href}
@@ -183,6 +106,14 @@ export default async function HomePage() {
                         </div>
                       </Link>
                     ))}
+                  </div>
+                  <div className="border-t border-[var(--border)] p-4">
+                    <Link
+                      href="/reports"
+                      className="flex items-center justify-center rounded-lg border border-[var(--border)] bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 transition hover:border-brand hover:bg-brand/5 hover:text-brand"
+                    >
+                      مشاهده همه گزارش‌ها و یادداشت‌ها
+                    </Link>
                   </div>
                 </section>
               </section>

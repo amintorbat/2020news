@@ -49,7 +49,7 @@ export default function AlbumPage({ params }: AlbumPageProps) {
 
         <section className="container pb-8 sm:pb-12" dir="rtl">
           {photos.length > 0 ? (
-            <AlbumView photos={photos} albumTitle={album.title} />
+            <AlbumView photos={photos} album={album} />
           ) : (
             <div className="rounded-xl border border-dashed border-[var(--border)] bg-white p-8 text-center">
               <p className="text-sm text-slate-600 sm:text-base">تصویری در این آلبوم یافت نشد.</p>
