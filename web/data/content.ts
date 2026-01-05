@@ -41,7 +41,7 @@ export const heroSlides: HeroSlide[] = [
     id: "slide-1",
     title: "بازگشت رویایی تیم ملی فوتسال مقابل ژاپن",
     summary: "ملی‌پوشان در نیمه دوم با اجرای پرس هوشمندانه ورق را برگرداندند و صدرنشینی را تثبیت کردند.",
-    image: "https://images.unsplash.com/photo-1508098682722-e99c43a406b2?auto=format&fit=crop&w=1600&q=80",
+    image: "https://images.unsplash.com/photo-1676444920926-c8a084ec4003?w=900&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTF8fGZ1dHNhbHxlbnwwfHwwfHx8MA%3D%3D",
     accent: "#f97316",
   },
   {

@@ -147,17 +147,17 @@ export default function MatchesPage({ searchParams }: MatchesPageProps) {
 
 function FiltersForm({ filters }: { filters: Filters }) {
   return (
-    <form className="grid gap-3 sm:gap-4 grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6" action="/matches" dir="rtl">
+    <form className="grid grid-cols-2 gap-4" action="/matches" dir="rtl">
       {/* Sport Filter */}
-      <div className="flex flex-col gap-1.5">
-        <label htmlFor="league-filter" className="text-xs font-semibold text-slate-700 sm:text-sm">
+      <div className="flex flex-col gap-2">
+        <label htmlFor="league-filter" className="text-xs font-semibold text-slate-700">
           رشته
         </label>
         <select
           id="league-filter"
           name="league"
           defaultValue={filters.league}
-          className="w-full rounded-xl border border-[var(--border)] bg-white px-3 py-2 text-sm text-slate-900 transition focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/20 sm:py-2.5"
+          className="w-full rounded-xl border border-[var(--border)] bg-white px-3 py-2.5 text-sm text-slate-900 transition focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/20"
         >
           {leagueOptions.map((option) => (
             <option key={option.id} value={option.id}>
@@ -168,15 +168,15 @@ function FiltersForm({ filters }: { filters: Filters }) {
       </div>
 
       {/* Competition Type Filter */}
-      <div className="flex flex-col gap-1.5">
-        <label htmlFor="competition-type-filter" className="text-xs font-semibold text-slate-700 sm:text-sm whitespace-nowrap">
+      <div className="flex flex-col gap-2">
+        <label htmlFor="competition-type-filter" className="text-xs font-semibold text-slate-700">
           نوع مسابقه
         </label>
         <select
           id="competition-type-filter"
           name="competitionType"
           defaultValue={filters.competitionType || "all"}
-          className="w-full rounded-xl border border-[var(--border)] bg-white px-3 py-2 text-sm text-slate-900 transition focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/20 sm:py-2.5"
+          className="w-full rounded-xl border border-[var(--border)] bg-white px-3 py-2.5 text-sm text-slate-900 transition focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/20"
         >
           <option value="all">همه</option>
           <option value="league">لیگ برتر</option>
@@ -188,15 +188,15 @@ function FiltersForm({ filters }: { filters: Filters }) {
       </div>
 
       {/* Status Filter */}
-      <div className="flex flex-col gap-1.5">
-        <label htmlFor="status-filter" className="text-xs font-semibold text-slate-700 sm:text-sm">
+      <div className="flex flex-col gap-2">
+        <label htmlFor="status-filter" className="text-xs font-semibold text-slate-700">
           وضعیت
         </label>
         <select
           id="status-filter"
           name="status"
           defaultValue={filters.status}
-          className="w-full rounded-xl border border-[var(--border)] bg-white px-3 py-2 text-sm text-slate-900 transition focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/20 sm:py-2.5"
+          className="w-full rounded-xl border border-[var(--border)] bg-white px-3 py-2.5 text-sm text-slate-900 transition focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/20"
         >
           {statusOptions.map((option) => (
             <option key={option.id} value={option.id}>
@@ -207,15 +207,15 @@ function FiltersForm({ filters }: { filters: Filters }) {
       </div>
 
       {/* Date Range Filter */}
-      <div className="flex flex-col gap-1.5">
-        <label htmlFor="time-range-filter" className="text-xs font-semibold text-slate-700 sm:text-sm whitespace-nowrap">
+      <div className="flex flex-col gap-2">
+        <label htmlFor="time-range-filter" className="text-xs font-semibold text-slate-700">
           بازه زمانی
         </label>
         <select
           id="time-range-filter"
           name="timeRange"
           defaultValue={filters.timeRange || "all"}
-          className="w-full rounded-xl border border-[var(--border)] bg-white px-3 py-2 text-sm text-slate-900 transition focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/20 sm:py-2.5"
+          className="w-full rounded-xl border border-[var(--border)] bg-white px-3 py-2.5 text-sm text-slate-900 transition focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/20"
         >
           {timeRangeOptions.map((option) => (
             <option key={option.id} value={option.id}>
@@ -226,15 +226,15 @@ function FiltersForm({ filters }: { filters: Filters }) {
       </div>
 
       {/* Season Filter */}
-      <div className="flex flex-col gap-1.5">
-        <label htmlFor="season-filter" className="text-xs font-semibold text-slate-700 sm:text-sm">
+      <div className="flex flex-col gap-2">
+        <label htmlFor="season-filter" className="text-xs font-semibold text-slate-700">
           فصل
         </label>
         <select
           id="season-filter"
           name="season"
           defaultValue={filters.season}
-          className="w-full rounded-xl border border-[var(--border)] bg-white px-3 py-2 text-sm text-slate-900 transition focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/20 sm:py-2.5"
+          className="w-full rounded-xl border border-[var(--border)] bg-white px-3 py-2.5 text-sm text-slate-900 transition focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/20"
         >
           {matchSeasons.map((season) => (
             <option key={season.id} value={season.id}>
@@ -245,15 +245,15 @@ function FiltersForm({ filters }: { filters: Filters }) {
       </div>
 
       {/* Week Filter */}
-      <div className="flex flex-col gap-1.5">
-        <label htmlFor="week-filter" className="text-xs font-semibold text-slate-700 sm:text-sm">
+      <div className="flex flex-col gap-2">
+        <label htmlFor="week-filter" className="text-xs font-semibold text-slate-700">
           هفته
         </label>
         <select
           id="week-filter"
           name="week"
           defaultValue={filters.week || "all"}
-          className="w-full rounded-xl border border-[var(--border)] bg-white px-3 py-2 text-sm text-slate-900 transition focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/20 sm:py-2.5"
+          className="w-full rounded-xl border border-[var(--border)] bg-white px-3 py-2.5 text-sm text-slate-900 transition focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/20"
         >
           <option value="all">همه</option>
           {matchWeeks.map((week) => (
@@ -265,11 +265,11 @@ function FiltersForm({ filters }: { filters: Filters }) {
       </div>
 
       {/* Apply Button */}
-      <div className="flex flex-col gap-1.5 col-span-2 sm:col-span-2 md:col-span-3 lg:col-span-6">
-        <label className="text-xs font-semibold text-slate-700 sm:text-sm opacity-0">اعمال</label>
+      <div className="flex flex-col gap-2 col-span-2">
+        <label className="text-xs font-semibold text-slate-700 opacity-0">اعمال</label>
         <button
           type="submit"
-          className="w-full rounded-xl bg-brand px-4 py-2.5 text-sm font-semibold text-white shadow-lg transition hover:bg-brand/90 hover:shadow-xl sm:py-3"
+          className="w-full rounded-xl bg-brand px-4 py-2.5 text-sm font-semibold text-white shadow-lg transition hover:bg-brand/90 hover:shadow-xl"
         >
           اعمال فیلتر
         </button>

@@ -116,7 +116,6 @@ export default async function NewsIndexPage({ searchParams }: NewsPageProps) {
             <NewsListingFilters
               currentSport={sport || "all"}
               currentSort={sort}
-              currentQuery={query}
             />
 
             {/* Category Chips */}

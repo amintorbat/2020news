@@ -58,14 +58,14 @@ export default function LeagueTablePage({ searchParams }: TablesPageProps) {
           ))}
         </div>
 
-        <form className="grid gap-4 md:grid-cols-3" action="/tables">
+        <form className="grid grid-cols-2 gap-4" action="/tables">
           <input type="hidden" name="type" value={filters.type} />
-          <label className="text-sm font-semibold text-[var(--foreground)]">
-            فصل
+          <label className="flex flex-col gap-2 text-sm font-semibold text-[var(--foreground)]">
+            <span>فصل</span>
             <select
               name="season"
               defaultValue={filters.season}
-              className="mt-2 w-full rounded-2xl border border-[var(--border)] bg-white px-3 py-2 text-sm text-[var(--muted)] focus:border-brand focus:outline-none"
+              className="w-full rounded-2xl border border-[var(--border)] bg-white px-3 py-2 text-sm text-[var(--muted)] focus:border-brand focus:outline-none"
             >
               {tableSeasons.map((season) => (
                 <option key={season.id} value={season.id}>
@@ -74,12 +74,12 @@ export default function LeagueTablePage({ searchParams }: TablesPageProps) {
               ))}
             </select>
           </label>
-          <label className="text-sm font-semibold text-[var(--foreground)]">
-            هفته
+          <label className="flex flex-col gap-2 text-sm font-semibold text-[var(--foreground)]">
+            <span>هفته</span>
             <select
               name="week"
               defaultValue={filters.week}
-              className="mt-2 w-full rounded-2xl border border-[var(--border)] bg-white px-3 py-2 text-sm text-[var(--muted)] focus:border-brand focus:outline-none"
+              className="w-full rounded-2xl border border-[var(--border)] bg-white px-3 py-2 text-sm text-[var(--muted)] focus:border-brand focus:outline-none"
             >
               {tableWeeks.map((week) => (
                 <option key={week.id} value={week.id}>
@@ -88,7 +88,7 @@ export default function LeagueTablePage({ searchParams }: TablesPageProps) {
               ))}
             </select>
           </label>
-          <button type="submit" className="rounded-2xl bg-slate-900 px-4 py-3 text-sm font-semibold text-white shadow-lg">
+          <button type="submit" className="col-span-2 rounded-2xl bg-slate-900 px-4 py-3 text-sm font-semibold text-white shadow-lg">
             به‌روزرسانی جدول
           </button>
         </form>

@@ -88,14 +88,14 @@ export function MatchesAndResults({ container = true, className }: MatchesAndRes
           <h2 className="text-lg font-bold text-slate-900 lg:text-base">بازی‌ها و نتایج</h2>
         </div>
 
-        {/* Filters - 2 rows layout (RTL order: رشته, بازه زمانی / وضعیت, نوع مسابقه) */}
-        <div className="grid grid-cols-2 gap-3 sm:grid-cols-2 lg:grid-cols-4 w-full items-end min-w-0">
-          <label className="flex flex-col gap-1.5 text-xs font-semibold text-slate-900 sm:text-sm min-w-0">
-            <span className="h-5 flex items-center whitespace-nowrap text-slate-800 font-semibold">رشته:</span>
+        {/* Filters - Always 2 filters per row */}
+        <div className="grid grid-cols-2 gap-4 w-full">
+          <label className="flex flex-col gap-2 text-xs font-semibold text-slate-900">
+            <span className="text-slate-800 font-semibold">رشته:</span>
             <select
               value={selectedLeague}
               onChange={(e) => setSelectedLeague(e.target.value as LeagueKey)}
-              className="w-full rounded-lg border-2 border-slate-300 bg-white px-3 py-2.5 text-sm font-semibold text-slate-900 shadow-sm transition focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/20 h-[42px] min-w-0"
+              className="w-full rounded-lg border-2 border-slate-300 bg-white px-3 py-2.5 text-sm font-semibold text-slate-900 shadow-sm transition focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/20"
               style={{ color: "#0f172a !important", WebkitTextFillColor: "#0f172a !important" }}
             >
               {leagueOptions.map((option) => (
@@ -106,12 +106,12 @@ export function MatchesAndResults({ container = true, className }: MatchesAndRes
             </select>
           </label>
 
-          <label className="flex flex-col gap-1.5 text-xs font-semibold text-slate-900 sm:text-sm min-w-0">
-            <span className="h-5 flex items-center whitespace-nowrap text-slate-800 font-semibold">بازه زمانی:</span>
+          <label className="flex flex-col gap-2 text-xs font-semibold text-slate-900">
+            <span className="text-slate-800 font-semibold">بازه زمانی:</span>
             <select
               value={selectedTimeRange}
               onChange={(e) => setSelectedTimeRange(e.target.value as TimeRange)}
-              className="w-full rounded-lg border-2 border-slate-300 bg-white px-3 py-2.5 text-sm font-semibold text-slate-900 shadow-sm transition focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/20 h-[42px] min-w-0"
+              className="w-full rounded-lg border-2 border-slate-300 bg-white px-3 py-2.5 text-sm font-semibold text-slate-900 shadow-sm transition focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/20"
               style={{ color: "#0f172a !important", WebkitTextFillColor: "#0f172a !important" }}
             >
               {timeRangeOptions.map((option) => (
@@ -122,12 +122,12 @@ export function MatchesAndResults({ container = true, className }: MatchesAndRes
             </select>
           </label>
 
-          <label className="flex flex-col gap-1.5 text-xs font-semibold text-slate-900 sm:text-sm min-w-0">
-            <span className="h-5 flex items-center whitespace-nowrap text-slate-800 font-semibold">وضعیت:</span>
+          <label className="flex flex-col gap-2 text-xs font-semibold text-slate-900">
+            <span className="text-slate-800 font-semibold">وضعیت:</span>
             <select
               value={selectedStatus}
               onChange={(e) => setSelectedStatus(e.target.value as typeof selectedStatus)}
-              className="w-full rounded-lg border-2 border-slate-300 bg-white px-3 py-2.5 text-sm font-semibold text-slate-900 shadow-sm transition focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/20 h-[42px] min-w-0"
+              className="w-full rounded-lg border-2 border-slate-300 bg-white px-3 py-2.5 text-sm font-semibold text-slate-900 shadow-sm transition focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/20"
               style={{ color: "#0f172a !important", WebkitTextFillColor: "#0f172a !important" }}
             >
               {statusOptions.map((option) => (
@@ -138,12 +138,12 @@ export function MatchesAndResults({ container = true, className }: MatchesAndRes
             </select>
           </label>
 
-          <label className="flex flex-col gap-1.5 text-xs font-semibold text-slate-900 sm:text-sm min-w-0">
-            <span className="h-5 flex items-center whitespace-nowrap text-slate-800 font-semibold">نوع مسابقه:</span>
+          <label className="flex flex-col gap-2 text-xs font-semibold text-slate-900">
+            <span className="text-slate-800 font-semibold">نوع مسابقه:</span>
             <select
               value={selectedCompetitionType}
               onChange={(e) => setSelectedCompetitionType(e.target.value as CompetitionType)}
-              className="w-full rounded-lg border-2 border-slate-300 bg-white px-3 py-2.5 text-sm font-semibold text-slate-900 shadow-sm transition focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/20 h-[42px] min-w-0"
+              className="w-full rounded-lg border-2 border-slate-300 bg-white px-3 py-2.5 text-sm font-semibold text-slate-900 shadow-sm transition focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/20"
               style={{ color: "#0f172a !important", WebkitTextFillColor: "#0f172a !important" }}
             >
               <option value="all" style={{ color: "#0f172a", fontWeight: "600" }}>همه</option>

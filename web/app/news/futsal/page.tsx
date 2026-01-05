@@ -5,7 +5,6 @@ import Link from "next/link";
 import { Footer } from "@/components/layout/Footer";
 import { getMockAllArticles } from "@/lib/mock/newsService";
 import { Breadcrumb } from "@/components/common/Breadcrumb";
-import { FeaturedNewsSection } from "@/components/news/FeaturedNewsSection";
 import { NewsListingCard } from "@/components/news/NewsListingCard";
 import { NewsListingFilters } from "@/components/news/NewsListingFilters";
 import { NewsSidebar } from "@/components/news/NewsSidebar";
@@ -82,11 +81,6 @@ export default async function NewsFutsalPage({ searchParams }: NewsFutsalPagePro
   const startIndex = (currentPage - 1) * ARTICLES_PER_PAGE;
   const paginatedArticles = filtered.slice(startIndex, startIndex + ARTICLES_PER_PAGE);
 
-  // Featured articles
-  const featured = filtered
-    .filter((article) => article.isFeatured)
-    .slice(0, 5);
-
   // Articles for sidebar
   const sidebarArticles = filtered.slice(0, 15);
 
@@ -114,7 +108,6 @@ export default async function NewsFutsalPage({ searchParams }: NewsFutsalPagePro
             <NewsListingFilters
               currentSport="futsal"
               currentSort={sort}
-              currentQuery={query}
             />
 
             {/* Category Chips */}
@@ -126,16 +119,9 @@ export default async function NewsFutsalPage({ searchParams }: NewsFutsalPagePro
           </div>
         </section>
 
-        {/* Featured Section */}
-        {featured.length > 0 && currentPage === 1 && !query && (
-          <section className="container" dir="rtl">
-            <FeaturedNewsSection articles={featured} />
-          </section>
-        )}
-
         {/* Main Content + Sidebar */}
         <section className="container" dir="rtl">
-          <div className="grid gap-8 lg:grid-cols-[1fr_320px]">
+          <div className="grid gap-8 md:grid-cols-[1fr_280px] lg:grid-cols-[1fr_320px]">
             {/* Main List */}
             <div className="space-y-6">
               {paginatedArticles.length > 0 ? (
@@ -157,7 +143,7 @@ export default async function NewsFutsalPage({ searchParams }: NewsFutsalPagePro
 
                   {/* Pagination */}
                   {totalPages > 1 && (
-                    <div className="flex items-center justify-center gap-2 pt-4">
+                    <div className="flex flex-wrap items-center justify-center gap-2 pt-4">
                       {currentPage > 1 && (
                         <Link
                           href={buildPaginationUrl(currentPage - 1, query, sort, category)}
@@ -227,7 +213,7 @@ export default async function NewsFutsalPage({ searchParams }: NewsFutsalPagePro
             </div>
 
             {/* Sidebar */}
-            <aside className="hidden lg:block">
+            <aside className="hidden md:block">
               <NewsSidebar articles={sidebarArticles} />
             </aside>
           </div>

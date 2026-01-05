@@ -69,14 +69,14 @@ export function LeagueTablesPreview({ standings, container = true, className }: 
           <h2 className="!text-slate-900 text-lg font-bold text-slate-900 lg:text-base">جدول لیگ</h2>
         </div>
 
-        {/* Filters - 2 rows layout, organized and symmetric */}
-        <div className="grid grid-cols-2 gap-3 sm:grid-cols-2 lg:grid-cols-4 w-full items-end min-w-0">
-          <label className="flex flex-col gap-1.5 text-xs font-semibold text-slate-900 sm:text-sm min-w-0">
-            <span className="h-5 flex items-center whitespace-nowrap text-slate-800 font-semibold">رشته:</span>
+        {/* Filters - Always 2 filters per row */}
+        <div className="grid grid-cols-2 gap-4 w-full">
+          <label className="flex flex-col gap-2 text-xs font-semibold text-slate-900">
+            <span className="text-slate-800 font-semibold">رشته:</span>
             <select
               value={activeLeague}
               onChange={(e) => setActiveLeague(e.target.value as LeagueKey)}
-              className="w-full rounded-lg border-2 border-slate-300 bg-white px-3 py-2.5 text-sm font-semibold text-slate-900 shadow-sm transition focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/20 h-[42px] min-w-0"
+              className="w-full rounded-lg border-2 border-slate-300 bg-white px-3 py-2.5 text-sm font-semibold text-slate-900 shadow-sm transition focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/20"
               style={{ color: "#0f172a !important", WebkitTextFillColor: "#0f172a !important" }}
             >
               {orderedLeagues.map((league) => (
@@ -87,12 +87,12 @@ export function LeagueTablesPreview({ standings, container = true, className }: 
             </select>
           </label>
 
-          <label className="flex flex-col gap-1.5 text-xs font-semibold text-slate-900 sm:text-sm min-w-0">
-            <span className="h-5 flex items-center whitespace-nowrap text-slate-800 font-semibold">فصل:</span>
+          <label className="flex flex-col gap-2 text-xs font-semibold text-slate-900">
+            <span className="text-slate-800 font-semibold">فصل:</span>
             <select
               value={selectedSeason}
               onChange={(e) => setSelectedSeason(e.target.value)}
-              className="w-full rounded-lg border-2 border-slate-300 bg-white px-3 py-2.5 text-sm font-semibold text-slate-900 shadow-sm transition focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/20 h-[42px] min-w-0"
+              className="w-full rounded-lg border-2 border-slate-300 bg-white px-3 py-2.5 text-sm font-semibold text-slate-900 shadow-sm transition focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/20"
               style={{ color: "#0f172a !important", WebkitTextFillColor: "#0f172a !important" }}
             >
               {standingsSeasons.map((season) => (
@@ -103,12 +103,12 @@ export function LeagueTablesPreview({ standings, container = true, className }: 
             </select>
           </label>
 
-          <label className="flex flex-col gap-1.5 text-xs font-semibold text-slate-900 sm:text-sm min-w-0">
-            <span className="h-5 flex items-center whitespace-nowrap text-slate-800 font-semibold">هفته:</span>
+          <label className="flex flex-col gap-2 text-xs font-semibold text-slate-900">
+            <span className="text-slate-800 font-semibold">هفته:</span>
             <select
               value={selectedWeek}
               onChange={(e) => setSelectedWeek(e.target.value)}
-              className="w-full rounded-lg border-2 border-slate-300 bg-white px-3 py-2.5 text-sm font-semibold text-slate-900 shadow-sm transition focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/20 h-[42px] min-w-0"
+              className="w-full rounded-lg border-2 border-slate-300 bg-white px-3 py-2.5 text-sm font-semibold text-slate-900 shadow-sm transition focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/20"
               style={{ color: "#0f172a !important", WebkitTextFillColor: "#0f172a !important" }}
             >
               {standingsWeeks.map((week) => (
@@ -119,12 +119,12 @@ export function LeagueTablesPreview({ standings, container = true, className }: 
             </select>
           </label>
 
-          <label className="flex flex-col gap-1.5 text-xs font-semibold text-slate-900 sm:text-sm min-w-0">
-            <span className="h-5 flex items-center whitespace-nowrap text-slate-800 font-semibold">نوع مسابقه:</span>
+          <label className="flex flex-col gap-2 text-xs font-semibold text-slate-900">
+            <span className="text-slate-800 font-semibold">نوع مسابقه:</span>
             <select
               value={selectedCompetitionType}
               onChange={(e) => setSelectedCompetitionType(e.target.value as CompetitionType)}
-              className="w-full rounded-lg border-2 border-slate-300 bg-white px-3 py-2.5 text-sm font-semibold text-slate-900 shadow-sm transition focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/20 h-[42px] min-w-0"
+              className="w-full rounded-lg border-2 border-slate-300 bg-white px-3 py-2.5 text-sm font-semibold text-slate-900 shadow-sm transition focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/20"
               style={{ color: "#0f172a !important", WebkitTextFillColor: "#0f172a !important" }}
             >
               <option value="all" style={{ color: "#0f172a", fontWeight: "600" }}>همه</option>
