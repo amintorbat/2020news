@@ -3,6 +3,20 @@
  * Contains full article content for all slugs used across the site
  */
 
+export type GalleryImage = {
+  id: string;
+  imageUrl: string;
+  caption?: string;
+};
+
+export type NewsVideo = {
+  id: string;
+  title: string;
+  thumbnailUrl: string;
+  duration: string;
+  videoUrl: string;
+};
+
 export type MockArticleContent = {
   slug: string;
   title: string;
@@ -14,6 +28,9 @@ export type MockArticleContent = {
   bodyHtml: string;
   tags: string[];
   teams: string[];
+  galleryImages?: GalleryImage[];
+  mainVideo?: NewsVideo;
+  relatedVideos?: NewsVideo[];
 };
 
 const generateBodyHtml = (title: string, category: string): string => {
@@ -51,6 +68,37 @@ export const mockArticles: MockArticleContent[] = [
     bodyHtml: generateBodyHtml("پیروزی فوتسال ایران مقابل ژاپن", "فوتسال"),
     tags: ["فوتسال ایران", "ژاپن", "نیمه‌نهایی", "جام جهانی"],
     teams: ["ایران", "ژاپن"],
+    galleryImages: [
+      { id: "img-1", imageUrl: "https://picsum.photos/seed/gallery-1/800/600", caption: "جشن بازیکنان پس از گل" },
+      { id: "img-2", imageUrl: "https://picsum.photos/seed/gallery-2/800/600", caption: "لحظه گل پیروزی" },
+      { id: "img-3", imageUrl: "https://picsum.photos/seed/gallery-3/800/600", caption: "تیم ایران در حال جشن" },
+      { id: "img-4", imageUrl: "https://picsum.photos/seed/gallery-4/800/600", caption: "کادر فنی" },
+      { id: "img-5", imageUrl: "https://picsum.photos/seed/gallery-5/800/600", caption: "هواداران" },
+      { id: "img-6", imageUrl: "https://picsum.photos/seed/gallery-6/800/600" },
+    ],
+    mainVideo: {
+      id: "main-video-1",
+      title: "خلاصه بازی ایران مقابل ژاپن",
+      thumbnailUrl: "https://picsum.photos/seed/video-thumb-1/800/450",
+      duration: "12:45",
+      videoUrl: "https://example.com/iran-japan-highlights.mp4",
+    },
+    relatedVideos: [
+      {
+        id: "related-video-1",
+        title: "گزارش تصویری از بازی",
+        thumbnailUrl: "https://picsum.photos/seed/related-video-1/600/400",
+        duration: "08:30",
+        videoUrl: "https://example.com/match-report.mp4",
+      },
+      {
+        id: "related-video-2",
+        title: "مصاحبه با کاپیتان تیم",
+        thumbnailUrl: "https://picsum.photos/seed/related-video-2/600/400",
+        duration: "05:15",
+        videoUrl: "https://example.com/captain-interview.mp4",
+      },
+    ],
   },
   {
     slug: "beach-soccer-squad-final",
@@ -63,6 +111,15 @@ export const mockArticles: MockArticleContent[] = [
     bodyHtml: generateBodyHtml("ترکیب نهایی فوتبال ساحلی", "فوتبال ساحلی"),
     tags: ["فوتبال ساحلی", "جام قهرمانان", "ترکیب تیم"],
     teams: ["ایران"],
+    relatedVideos: [
+      {
+        id: "beach-video-1",
+        title: "معرفی ترکیب تیم",
+        thumbnailUrl: "https://picsum.photos/seed/beach-video-1/600/400",
+        duration: "06:20",
+        videoUrl: "https://example.com/squad-intro.mp4",
+      },
+    ],
   },
   {
     slug: "futsal-star-return",

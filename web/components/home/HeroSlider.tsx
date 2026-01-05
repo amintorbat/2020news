@@ -117,19 +117,19 @@ function SlideItem({ slide, priority, isActive }: SlideItemProps) {
 
   return (
     <article className="relative w-full bg-slate-900" dir="rtl">
-      <div className="container mx-auto">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-0 min-h-[500px] md:min-h-[550px] lg:min-h-[600px]">
+      <div className="container mx-auto px-4 sm:px-6">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-0 min-h-[450px] sm:min-h-[400px] md:min-h-[500px] lg:min-h-[600px]">
           {/* Image - First on Mobile, Left Side on Desktop (RTL) */}
           {hasImage && (
             <Link href={slide.href} className="relative block w-full h-full overflow-hidden group order-1 lg:order-2">
               {/* Image Container with Square Aspect Ratio - More Compact */}
-              <div className="relative w-full h-full max-w-[500px] mx-auto" style={{ aspectRatio: '1 / 1' }}>
+              <div className="relative w-full h-full max-w-[400px] sm:max-w-[450px] md:max-w-[500px] mx-auto" style={{ aspectRatio: '1 / 1' }}>
                 <Image
                   src={slide.imageUrl as string}
                   alt={slide.title}
                   fill
                   className="object-cover transition-transform duration-700 group-hover:scale-105"
-                  sizes="(max-width: 1024px) 100vw, 500px"
+                  sizes="(max-width: 640px) 400px, (max-width: 768px) 450px, (max-width: 1024px) 500px, 500px"
                   quality={100}
                   priority={priority}
                   style={{ borderRadius: 0 }}
@@ -139,8 +139,8 @@ function SlideItem({ slide, priority, isActive }: SlideItemProps) {
           )}
 
           {/* Text Content - Second on Mobile, Right Side on Desktop (RTL) */}
-          <div className={`flex flex-col justify-center px-6 py-12 md:px-12 md:py-16 lg:px-16 lg:py-20 bg-slate-900 transition-opacity duration-500 order-2 lg:order-1 ${isActive ? 'opacity-100' : 'opacity-0'}`}>
-            <div className="space-y-6 md:space-y-8 max-w-2xl">
+          <div className={`flex flex-col justify-center px-4 py-8 sm:px-6 sm:py-10 md:px-12 md:py-16 lg:px-16 lg:py-20 bg-slate-900 transition-opacity duration-500 order-2 lg:order-1 ${isActive ? 'opacity-100' : 'opacity-0'}`}>
+            <div className="space-y-4 sm:space-y-5 md:space-y-6 lg:space-y-8 max-w-2xl">
               {/* Roofline (Category Badge) */}
               <div>
                 <span className="inline-block text-xs font-semibold text-brand uppercase tracking-wider sm:text-sm">
@@ -150,27 +150,27 @@ function SlideItem({ slide, priority, isActive }: SlideItemProps) {
 
               {/* Title */}
               <Link href={slide.href} className="block group">
-                <h1 className="text-xl font-bold leading-loose text-white sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl group-hover:text-brand transition-colors">
+                <h1 className="text-lg sm:text-xl md:text-2xl lg:text-3xl xl:text-4xl font-bold leading-loose text-white group-hover:text-brand transition-colors">
                   {slide.title}
                 </h1>
               </Link>
 
               {/* Description */}
               {slide.excerpt && (
-                <p className="text-base text-slate-300 leading-relaxed sm:text-lg md:text-xl line-clamp-2 hidden md:block">
+                <p className="text-sm text-slate-300 leading-relaxed sm:text-base md:text-lg lg:text-xl line-clamp-2 sm:line-clamp-3 md:line-clamp-none">
                   {slide.excerpt}
                 </p>
               )}
 
               {/* CTA Button */}
-              <div className="pt-4 md:pt-6">
+              <div className="pt-3 sm:pt-4 md:pt-6">
                 <Link
                   href={slide.href}
-                  className="inline-flex items-center gap-2 bg-white text-slate-900 px-6 py-3 text-sm font-semibold transition hover:bg-slate-100 sm:px-8 sm:py-3.5 sm:text-base md:px-10 md:py-4"
+                  className="inline-flex items-center gap-2 bg-white text-slate-900 px-4 py-2.5 text-xs font-semibold transition hover:bg-slate-100 sm:px-6 sm:py-3 sm:text-sm md:px-8 md:py-3.5 md:text-base lg:px-10 lg:py-4"
                   style={{ color: '#0f172a' }}
                 >
                   <span style={{ color: '#0f172a' }}>مشاهده خبر کامل</span>
-                  <svg className="h-4 w-4 sm:h-5 sm:w-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" style={{ color: '#0f172a' }}>
+                  <svg className="h-3.5 w-3.5 sm:h-4 sm:w-4 md:h-5 md:w-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" style={{ color: '#0f172a' }}>
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
                   </svg>
                 </Link>

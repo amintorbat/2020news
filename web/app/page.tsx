@@ -39,24 +39,24 @@ export default async function HomePage() {
           <HeroSlider slides={heroSlides} />
         </div>
       )}
-      <div className={`space-y-16 lg:space-y-12 ${heroSlides.length >= 3 ? "pt-12 lg:pt-16" : ""}`}>
-        <div className="container">
-          <div className="grid gap-10 md:grid-cols-[1fr_280px] lg:grid-cols-[1fr_320px] lg:items-start lg:gap-8">
-            <div className="min-w-0 flex-1 space-y-12 lg:space-y-8">
-              <section className="space-y-6" dir="rtl">
+      <div className={`space-y-12 sm:space-y-14 md:space-y-16 lg:space-y-12 ${heroSlides.length >= 3 ? "pt-8 sm:pt-10 md:pt-12 lg:pt-16" : ""}`}>
+        <div className="container px-4 sm:px-6">
+          <div className="grid gap-8 sm:gap-10 md:grid-cols-[1fr_260px] lg:grid-cols-[1fr_320px] lg:items-start lg:gap-8">
+            <div className="min-w-0 flex-1 space-y-10 sm:space-y-12 lg:space-y-8">
+              <section className="space-y-4 sm:space-y-6" dir="rtl">
                 <div className="flex items-center justify-between">
-                  <h2 className="text-lg md:text-2xl lg:text-3xl font-extrabold text-gray-900">آخرین اخبار</h2>
+                  <h2 className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-extrabold text-gray-900">آخرین اخبار</h2>
                 </div>
                 <LatestNews />
               </section>
-              {/* Mobile-only sections */}
-              <div className="space-y-8 md:hidden">
+              {/* Mobile and landscape mobile only sections */}
+              <div className="space-y-6 sm:space-y-8 md:hidden">
                 <LeagueTablesPreview standings={standingsByLeague} container={false} />
                 <MatchesAndResults container={false} />
                 <TopScorersPreview container={false} />
               </div>
             </div>
-            <aside className="hidden md:block space-y-8 lg:space-y-6">
+            <aside className="hidden md:block space-y-6 lg:space-y-6">
               <LeagueTablesPreview standings={standingsByLeague} container={false} />
               <MatchesAndResults container={false} />
               <TopScorersPreview container={false} />
@@ -66,12 +66,12 @@ export default async function HomePage() {
             </aside>
           </div>
         </div>
-        <div className="container space-y-12 lg:space-y-10">
-          <div className="grid gap-6 md:grid-cols-2">
+        <div className="container px-4 sm:px-6 space-y-10 sm:space-y-12 lg:space-y-10">
+          <div className="grid gap-6 sm:gap-8 md:grid-cols-2 lg:gap-6">
             <div>
-              <section className="space-y-6" dir="rtl">
+              <section className="space-y-4 sm:space-y-6" dir="rtl">
                 <div className="flex items-center justify-between">
-                  <h2 className="text-lg md:text-2xl lg:text-3xl font-extrabold text-gray-900">گزارش‌ها و یادداشت‌ها</h2>
+                  <h2 className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-extrabold text-gray-900">گزارش‌ها و یادداشت‌ها</h2>
                 </div>
                 <section
                   className="rounded-3xl border border-[var(--border)] bg-white shadow-card"
@@ -118,7 +118,7 @@ export default async function HomePage() {
                 </section>
               </section>
             </div>
-            <div className="space-y-6">
+            <div className="space-y-6 sm:space-y-8 lg:space-y-6">
               <GalleryPreview container={false} />
               <VideosPreview container={false} />
             </div>

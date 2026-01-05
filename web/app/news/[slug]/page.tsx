@@ -19,6 +19,9 @@ import { RelatedArticlesGrid } from "@/components/news/RelatedArticlesGrid";
 import { RelatedArticlesSidebar } from "@/components/news/RelatedArticlesSidebar";
 import { ArticleTagsSidebar } from "@/components/news/ArticleTagsSidebar";
 import { NewsletterBox } from "@/components/news/NewsletterBox";
+import { NewsGallerySection } from "@/components/news/NewsGallerySection";
+import { NewsMainVideoSection } from "@/components/news/NewsMainVideoSection";
+import { NewsRelatedVideosSection } from "@/components/news/NewsRelatedVideosSection";
 import { getMockNewsDetail, getMockAllArticles } from "@/lib/mock/newsService";
 
 type PageProps = {
@@ -143,6 +146,11 @@ export default async function NewsDetailsPage({ params }: PageProps) {
               </p>
             )}
 
+            {/* 2.5. Main Video (if exists) */}
+            {(detail as any).mainVideo && (
+              <NewsMainVideoSection video={(detail as any).mainVideo} />
+            )}
+
             {/* 3. Table of Contents (Mobile - collapsible) */}
             <div className="lg:hidden">
               <TableOfContents html={bodyHtml} collapsible />
@@ -171,6 +179,16 @@ export default async function NewsDetailsPage({ params }: PageProps) {
               itemProp="articleBody"
               dangerouslySetInnerHTML={{ __html: bodyHtml }}
             />
+
+            {/* 5.5. Gallery Images (if exists) */}
+            {(detail as any).galleryImages && Array.isArray((detail as any).galleryImages) && (detail as any).galleryImages.length > 0 && (
+              <NewsGallerySection images={(detail as any).galleryImages} />
+            )}
+
+            {/* 5.6. Related Videos (if exists) */}
+            {(detail as any).relatedVideos && Array.isArray((detail as any).relatedVideos) && (detail as any).relatedVideos.length > 0 && (
+              <NewsRelatedVideosSection videos={(detail as any).relatedVideos} />
+            )}
 
             {/* 6. Date + time + news code + source (Mobile) */}
             <div className="flex flex-wrap items-center gap-3 border-t border-[var(--border)] pt-4 text-sm text-slate-600 lg:hidden">

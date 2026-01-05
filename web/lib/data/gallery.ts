@@ -7,6 +7,7 @@ export type PhotoAlbum = {
   imageCount: number;
   sport: LeagueKey;
   publishedAt: string;
+  relatedNewsSlug?: string;
 };
 
 export type PhotoItem = {
@@ -24,6 +25,7 @@ export const mockAlbums: PhotoAlbum[] = [
     imageCount: 24,
     sport: "futsal",
     publishedAt: "۱۴۰۳/۰۱/۲۰",
+    relatedNewsSlug: "futsal-camp-report",
   },
   {
     id: "album-2",

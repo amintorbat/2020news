@@ -60,9 +60,10 @@ export function VideosPreview({ container = true, className }: VideosPreviewProp
               spaceBetween={16}
               pagination={{ clickable: true }}
               breakpoints={{
-                640: { slidesPerView: 2, spaceBetween: 16 },
-                768: { slidesPerView: 2, spaceBetween: 20 },
-                1024: { slidesPerView: 3, spaceBetween: 24 },
+                640: { slidesPerView: 1.5, spaceBetween: 14 },
+                768: { slidesPerView: 2, spaceBetween: 16 },
+                1024: { slidesPerView: 2, spaceBetween: 20 },
+                1280: { slidesPerView: 3, spaceBetween: 24 },
               }}
               className="videos-swiper [&_.swiper-pagination]:static [&_.swiper-pagination]:mt-4"
               dir="rtl"

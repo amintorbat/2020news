@@ -60,9 +60,10 @@ export function GalleryPreview({ container = true, className }: GalleryPreviewPr
               spaceBetween={12}
               pagination={{ clickable: true }}
               breakpoints={{
-                640: { slidesPerView: 2, spaceBetween: 16 },
-                768: { slidesPerView: 3, spaceBetween: 16 },
-                1024: { slidesPerView: 4, spaceBetween: 20 },
+                640: { slidesPerView: 2, spaceBetween: 14 },
+                768: { slidesPerView: 2, spaceBetween: 16 },
+                1024: { slidesPerView: 3, spaceBetween: 18 },
+                1280: { slidesPerView: 4, spaceBetween: 20 },
               }}
               className="gallery-swiper [&_.swiper-pagination]:static [&_.swiper-pagination]:mt-4"
               dir="rtl"

@@ -8,6 +8,7 @@ export type VideoItem = {
   videoUrl: string;
   sport: LeagueKey;
   publishedAt: string;
+  relatedNewsSlug?: string;
 };
 
 export const mockVideos: VideoItem[] = [
@@ -19,6 +20,7 @@ export const mockVideos: VideoItem[] = [
     videoUrl: "https://example.com/video1.mp4",
     sport: "futsal",
     publishedAt: "۱۴۰۳/۰۱/۲۰",
+    relatedNewsSlug: "iran-futsal-japan-semi",
   },
   {
     id: "video-2",

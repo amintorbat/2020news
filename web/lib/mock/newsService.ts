@@ -72,6 +72,9 @@ export async function getMockNewsDetail(slug: string) {
     sourceUrl: "",
     tags: mockArticle.tags,
     teams: mockArticle.teams,
+    galleryImages: mockArticle.galleryImages,
+    mainVideo: mockArticle.mainVideo,
+    relatedVideos: mockArticle.relatedVideos,
   };
 }
 
