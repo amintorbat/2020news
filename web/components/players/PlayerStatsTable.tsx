@@ -38,7 +38,10 @@ export function PlayerStatsTable({ title, statKey, players, compact = false, lim
 
   const displayPlayers = limit ? sortedPlayers.slice(0, limit) : sortedPlayers;
 
-  const getStatValue = (player: PlayerWithStats) => player.stats[config.key];
+  const getStatValue = (player: PlayerWithStats): number => {
+    const value = player.stats[config.key];
+    return (typeof value === 'number' ? value : 0) || 0;
+  };
 
   return (
     <div className="rounded-xl border border-[var(--border)] bg-white overflow-hidden">
