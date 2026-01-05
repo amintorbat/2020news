@@ -6,7 +6,6 @@ import { Footer } from "@/components/layout/Footer";
 import { getMockAllArticles } from "@/lib/mock/newsService";
 import type { SportType } from "@/lib/acs/types";
 import { Breadcrumb } from "@/components/common/Breadcrumb";
-import { FeaturedNewsSection } from "@/components/news/FeaturedNewsSection";
 import { NewsListingCard } from "@/components/news/NewsListingCard";
 import { NewsListingFilters } from "@/components/news/NewsListingFilters";
 import { NewsSidebar } from "@/components/news/NewsSidebar";
@@ -91,13 +90,8 @@ export default async function NewsIndexPage({ searchParams }: NewsPageProps) {
   const startIndex = (currentPage - 1) * ARTICLES_PER_PAGE;
   const paginatedArticles = filtered.slice(startIndex, startIndex + ARTICLES_PER_PAGE);
 
-  // Featured articles (first 5)
-  const featured = filtered
-    .filter((article) => article.isFeatured || !sport)
-    .slice(0, 5);
-
-  // Popular articles for sidebar (mock - just take some articles)
-  const popularArticles = filtered.slice(0, 5);
+  // Latest articles for sidebar (first 15)
+  const sidebarArticles = filtered.slice(0, 15);
 
   const breadcrumbItems = [
     { label: "خانه", href: "/" },
@@ -133,13 +127,6 @@ export default async function NewsIndexPage({ searchParams }: NewsPageProps) {
             />
           </div>
         </section>
-
-        {/* Featured Section */}
-        {featured.length > 0 && currentPage === 1 && !query && (
-          <section className="container" dir="rtl">
-            <FeaturedNewsSection articles={featured} />
-          </section>
-        )}
 
         {/* Main Content + Sidebar */}
         <section className="container" dir="rtl">
@@ -236,7 +223,7 @@ export default async function NewsIndexPage({ searchParams }: NewsPageProps) {
 
             {/* Sidebar */}
             <aside className="hidden md:block">
-              <NewsSidebar popularArticles={popularArticles} />
+              <NewsSidebar articles={sidebarArticles} />
             </aside>
           </div>
         </section>
