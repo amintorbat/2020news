@@ -66,15 +66,15 @@ export default async function HomePage() {
             </aside>
           </div>
         </div>
-        <div className="container px-4 sm:px-6 space-y-10 sm:space-y-12 lg:space-y-10">
-          <div className="grid gap-6 sm:gap-8 md:grid-cols-2 lg:gap-6">
-            <div>
-              <section className="space-y-4 sm:space-y-6" dir="rtl">
+        <div className="container px-3 sm:px-4 md:px-6 space-y-6 sm:space-y-8 md:space-y-10 lg:space-y-10">
+          <div className="grid gap-4 sm:gap-6 md:grid-cols-2 lg:gap-6">
+            <div className="w-full min-w-0">
+              <section className="space-y-3 sm:space-y-4 md:space-y-6" dir="rtl">
                 <div className="flex items-center justify-between">
-                  <h2 className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-extrabold text-gray-900">گزارش‌ها و یادداشت‌ها</h2>
+                  <h2 className="text-base sm:text-lg md:text-xl lg:text-2xl xl:text-3xl font-extrabold text-gray-900">گزارش‌ها و یادداشت‌ها</h2>
                 </div>
                 <section
-                  className="rounded-3xl border border-[var(--border)] bg-white shadow-card"
+                  className="rounded-xl sm:rounded-2xl md:rounded-3xl border border-[var(--border)] bg-white shadow-card overflow-hidden"
                   dir="rtl"
                 >
                   <div className="divide-y divide-[var(--border)]">
@@ -82,21 +82,21 @@ export default async function HomePage() {
                       <Link
                         key={item.id}
                         href={item.href}
-                        className="group flex flex-row-reverse items-center gap-4 p-4 text-gray-900 transition hover:bg-slate-50 sm:gap-6"
+                        className="group flex flex-row-reverse items-center gap-2.5 p-2.5 text-gray-900 transition hover:bg-slate-50 sm:gap-3 sm:p-3 md:gap-4 md:p-4 lg:gap-6"
                       >
-                        <div className="min-w-0 flex-1 space-y-2 text-right">
-                          <div className="flex flex-wrap items-center gap-2 text-xs text-slate-400">
-                            <span className="rounded-full bg-gray-100 px-3 py-1 font-semibold text-slate-600">
+                        <div className="min-w-0 flex-1 space-y-1 sm:space-y-1.5 md:space-y-2 text-right">
+                          <div className="flex flex-wrap items-center gap-1 sm:gap-1.5 md:gap-2 text-[10px] sm:text-[11px] md:text-xs text-slate-400">
+                            <span className="rounded-full bg-gray-100 px-1.5 py-0.5 sm:px-2 sm:py-0.5 md:px-3 md:py-1 text-[9px] sm:text-[10px] md:text-xs font-semibold text-slate-600">
                               {item.category}
                             </span>
-                            <span>{item.publishedAt}</span>
+                            <span className="text-[10px] sm:text-[11px] md:text-xs">{item.publishedAt}</span>
                           </div>
-                          <h3 className="news-title text-base leading-7">
+                          <h3 className="news-title text-xs sm:text-sm md:text-base leading-5 sm:leading-6 md:leading-7 line-clamp-2">
                             {item.title}
                           </h3>
-                          <p className="news-excerpt text-sm leading-6">{item.excerpt}</p>
+                          <p className="news-excerpt text-[10px] sm:text-xs md:text-sm leading-4 sm:leading-5 md:leading-6 line-clamp-2">{item.excerpt}</p>
                         </div>
-                        <div className="h-20 w-28 flex-shrink-0 overflow-hidden bg-slate-100 sm:h-24 sm:w-36">
+                        <div className="h-14 w-18 flex-shrink-0 overflow-hidden rounded bg-slate-100 sm:h-16 sm:w-22 md:h-20 md:w-28 lg:h-24 lg:w-36">
                           <img
                             src={item.imageUrl}
                             alt={item.title}
@@ -107,10 +107,10 @@ export default async function HomePage() {
                       </Link>
                     ))}
                   </div>
-                  <div className="border-t border-[var(--border)] p-4">
+                  <div className="border-t border-[var(--border)] p-2.5 sm:p-3 md:p-4">
                     <Link
                       href="/reports"
-                      className="flex items-center justify-center rounded-lg border border-[var(--border)] bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 transition hover:border-brand hover:bg-brand/5 hover:text-brand"
+                      className="flex items-center justify-center rounded-lg border border-[var(--border)] bg-white px-2.5 py-1.5 text-[10px] sm:text-xs md:text-sm font-semibold text-slate-700 transition hover:border-brand hover:bg-brand/5 hover:text-brand sm:px-3 sm:py-2 md:px-4 md:py-2.5"
                     >
                       مشاهده همه گزارش‌ها و یادداشت‌ها
                     </Link>
@@ -118,7 +118,7 @@ export default async function HomePage() {
                 </section>
               </section>
             </div>
-            <div className="space-y-6 sm:space-y-8 lg:space-y-6">
+            <div className="w-full min-w-0 space-y-4 sm:space-y-6 md:space-y-8 lg:space-y-6">
               <GalleryPreview container={false} />
               <VideosPreview container={false} />
             </div>

@@ -20,15 +20,15 @@ export function AlbumCard({ album }: AlbumCardProps) {
           className="object-cover transition-transform duration-300 group-hover:scale-105"
           sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 20vw"
         />
-        <div className="absolute bottom-2 left-2 rounded-full bg-black/60 px-2.5 py-1 text-xs font-semibold text-white backdrop-blur-sm">
+        <div className="absolute bottom-1 left-1 sm:bottom-1.5 sm:left-1.5 md:bottom-2 md:left-2 rounded-full bg-black/60 px-1.5 py-0.5 sm:px-2 sm:py-0.5 md:px-2.5 md:py-1 text-[9px] sm:text-[10px] md:text-xs font-semibold text-white backdrop-blur-sm">
           {album.imageCount} تصویر
         </div>
       </div>
-      <div className="p-3">
-        <h3 className="text-sm font-semibold text-slate-900 line-clamp-2" style={{ color: '#0f172a' }}>
+      <div className="p-2 sm:p-2.5 md:p-3">
+        <h3 className="text-[10px] sm:text-xs md:text-sm font-semibold text-slate-900 line-clamp-2 leading-4 sm:leading-5 md:leading-6" style={{ color: '#0f172a' }}>
           {album.title}
         </h3>
-        <p className="mt-1 text-xs text-slate-600">{album.publishedAt}</p>
+        <p className="mt-0.5 sm:mt-1 text-[9px] sm:text-[10px] md:text-xs text-slate-600">{album.publishedAt}</p>
       </div>
     </Link>
   );
