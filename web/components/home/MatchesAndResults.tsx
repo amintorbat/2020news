@@ -4,8 +4,9 @@ import { useState, useMemo } from "react";
 import Link from "next/link";
 import type { LeagueKey } from "@/lib/data";
 import { leagueOptions } from "@/lib/data";
-import { mockMatches, timeRangeOptions, statusOptions, type MatchItem, type MatchStatusFilter, type TimeRange } from "@/lib/data/matches";
-import { type CompetitionType } from "@/components/filters/CompetitionTypeFilter";
+import { mockMatches, type MatchStatusFilter, type TimeRange, type CompetitionType } from "@/lib/data/matches";
+import { filterAndSortMatches, type MatchFilters } from "@/lib/matches/filtering";
+import { MatchCard } from "@/components/matches/MatchCard";
 import { cn } from "@/lib/cn";
 
 type MatchesAndResultsProps = {
@@ -17,62 +18,21 @@ export function MatchesAndResults({ container = true, className }: MatchesAndRes
   const [selectedLeague, setSelectedLeague] = useState<LeagueKey>("futsal");
   const [selectedTimeRange, setSelectedTimeRange] = useState<TimeRange>("this-week");
   const [selectedStatus, setSelectedStatus] = useState<MatchStatusFilter>("all");
-  const [selectedCompetitionType, setSelectedCompetitionType] = useState<CompetitionType>("all");
+  const [selectedCompetitionType, setSelectedCompetitionType] = useState<CompetitionType | "all">("all");
+
+  const filters: MatchFilters = useMemo(() => ({
+    league: selectedLeague,
+    timeRange: selectedTimeRange,
+    status: selectedStatus,
+    competitionType: selectedCompetitionType,
+  }), [selectedLeague, selectedTimeRange, selectedStatus, selectedCompetitionType]);
 
   const filteredMatches = useMemo(() => {
-    let matches = mockMatches.filter((match) => match.sport === selectedLeague);
+    return filterAndSortMatches(mockMatches, filters);
+  }, [filters]);
 
-    // Filter by competition type
-    if (selectedCompetitionType !== "all") {
-      matches = matches.filter((match) => {
-        const matchType = match.competitionType || "league";
-        return matchType === selectedCompetitionType;
-      });
-    }
-
-    // Filter by time range
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    const tomorrow = new Date(today);
-    tomorrow.setDate(tomorrow.getDate() + 1);
-    const weekEnd = new Date(today);
-    weekEnd.setDate(weekEnd.getDate() + 7);
-
-    if (selectedTimeRange === "today") {
-      matches = matches.filter((match) => {
-        const matchDate = new Date(match.dateISO);
-        matchDate.setHours(0, 0, 0, 0);
-        return matchDate.getTime() === today.getTime();
-      });
-    } else if (selectedTimeRange === "tomorrow") {
-      matches = matches.filter((match) => {
-        const matchDate = new Date(match.dateISO);
-        matchDate.setHours(0, 0, 0, 0);
-        return matchDate.getTime() === tomorrow.getTime();
-      });
-    } else if (selectedTimeRange === "this-week") {
-      matches = matches.filter((match) => {
-        const matchDate = new Date(match.dateISO);
-        matchDate.setHours(0, 0, 0, 0);
-        return matchDate.getTime() >= today.getTime() && matchDate.getTime() < weekEnd.getTime();
-      });
-    }
-
-    // Filter by status
-    if (selectedStatus !== "all") {
-      matches = matches.filter((match) => match.status === selectedStatus);
-    }
-
-    // Sort: live first, then by date
-    return matches.sort((a, b) => {
-      if (a.status === "live" && b.status !== "live") return -1;
-      if (a.status !== "live" && b.status === "live") return 1;
-      return new Date(a.dateISO).getTime() - new Date(b.dateISO).getTime();
-    });
-  }, [selectedLeague, selectedTimeRange, selectedStatus, selectedCompetitionType]);
-
-  // For homepage, show weekly summary (this-week filter)
-  const displayMatches = filteredMatches.slice(0, 6);
+  // For homepage, show limited matches (3-4) to avoid scrolling
+  const displayMatches = filteredMatches.slice(0, 4);
 
   return (
     <section
@@ -85,10 +45,10 @@ export function MatchesAndResults({ container = true, className }: MatchesAndRes
     >
       <div className="card p-3 sm:p-4 space-y-4">
         <div className="flex items-center justify-between">
-          <h2 className="text-lg font-bold text-slate-900 lg:text-base">بازی‌ها و نتایج</h2>
+          <h2 className="text-lg font-bold text-slate-900 lg:text-base">برنامه مسابقات</h2>
         </div>
 
-        {/* Filters - Always 2 filters per row */}
+        {/* Filters - Using shared component but with local state */}
         <div className="grid grid-cols-2 gap-4 w-full">
           <label className="flex flex-col gap-2 text-xs font-semibold text-slate-900">
             <span className="text-slate-800 font-semibold">رشته:</span>
@@ -114,11 +74,10 @@ export function MatchesAndResults({ container = true, className }: MatchesAndRes
               className="w-full rounded-lg border-2 border-slate-300 bg-white px-3 py-2.5 text-sm font-semibold text-slate-900 shadow-sm transition focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/20"
               style={{ color: "#0f172a !important", WebkitTextFillColor: "#0f172a !important" }}
             >
-              {timeRangeOptions.map((option) => (
-                <option key={option.id} value={option.id} style={{ color: "#0f172a", fontWeight: "600" }}>
-                  {option.label}
-                </option>
-              ))}
+              <option value="all" style={{ color: "#0f172a", fontWeight: "600" }}>همه</option>
+              <option value="today" style={{ color: "#0f172a", fontWeight: "600" }}>امروز</option>
+              <option value="tomorrow" style={{ color: "#0f172a", fontWeight: "600" }}>فردا</option>
+              <option value="this-week" style={{ color: "#0f172a", fontWeight: "600" }}>این هفته</option>
             </select>
           </label>
 
@@ -130,11 +89,10 @@ export function MatchesAndResults({ container = true, className }: MatchesAndRes
               className="w-full rounded-lg border-2 border-slate-300 bg-white px-3 py-2.5 text-sm font-semibold text-slate-900 shadow-sm transition focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/20"
               style={{ color: "#0f172a !important", WebkitTextFillColor: "#0f172a !important" }}
             >
-              {statusOptions.map((option) => (
-                <option key={option.id} value={option.id} style={{ color: "#0f172a", fontWeight: "600" }}>
-                  {option.label}
-                </option>
-              ))}
+              <option value="all" style={{ color: "#0f172a", fontWeight: "600" }}>همه</option>
+              <option value="live" style={{ color: "#0f172a", fontWeight: "600" }}>زنده</option>
+              <option value="finished" style={{ color: "#0f172a", fontWeight: "600" }}>تمام‌شده</option>
+              <option value="upcoming" style={{ color: "#0f172a", fontWeight: "600" }}>در انتظار</option>
             </select>
           </label>
 
@@ -142,15 +100,14 @@ export function MatchesAndResults({ container = true, className }: MatchesAndRes
             <span className="text-slate-800 font-semibold">نوع مسابقه:</span>
             <select
               value={selectedCompetitionType}
-              onChange={(e) => setSelectedCompetitionType(e.target.value as CompetitionType)}
+              onChange={(e) => setSelectedCompetitionType(e.target.value as CompetitionType | "all")}
               className="w-full rounded-lg border-2 border-slate-300 bg-white px-3 py-2.5 text-sm font-semibold text-slate-900 shadow-sm transition focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/20"
               style={{ color: "#0f172a !important", WebkitTextFillColor: "#0f172a !important" }}
             >
               <option value="all" style={{ color: "#0f172a", fontWeight: "600" }}>همه</option>
               <option value="league" style={{ color: "#0f172a", fontWeight: "600" }}>لیگ</option>
-              <option value="womens-league" style={{ color: "#0f172a", fontWeight: "600" }}>لیگ بانوان</option>
               <option value="cup" style={{ color: "#0f172a", fontWeight: "600" }}>جام</option>
-              <option value="world-cup" style={{ color: "#0f172a", fontWeight: "600" }}>جام جهانی</option>
+              <option value="international" style={{ color: "#0f172a", fontWeight: "600" }}>بین‌المللی</option>
               <option value="friendly" style={{ color: "#0f172a", fontWeight: "600" }}>دوستانه</option>
             </select>
           </label>
@@ -160,7 +117,7 @@ export function MatchesAndResults({ container = true, className }: MatchesAndRes
         {displayMatches.length > 0 ? (
           <div className="space-y-2.5 sm:space-y-3">
             {displayMatches.map((match) => (
-              <MatchItemCard key={match.id} match={match} />
+              <MatchCard key={match.id} match={match} compact={true} />
             ))}
           </div>
         ) : (
@@ -183,77 +140,3 @@ export function MatchesAndResults({ container = true, className }: MatchesAndRes
   );
 }
 
-function MatchItemCard({ match }: { match: MatchItem }) {
-  const getStatusBadge = () => {
-    if (match.status === "live") {
-      return (
-        <span className="inline-flex items-center gap-1 rounded-full bg-red-500/10 px-2 py-0.5 text-[10px] font-semibold text-red-600 sm:text-xs">
-          <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-red-600" />
-          زنده
-        </span>
-      );
-    }
-    if (match.status === "finished") {
-      return (
-        <span className="rounded-full bg-slate-100 px-2 py-0.5 text-[10px] font-semibold text-slate-600 sm:text-xs">
-          تمام‌شده
-        </span>
-      );
-    }
-    return (
-      <span className="rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-semibold text-amber-700 sm:text-xs">
-        در انتظار
-      </span>
-    );
-  };
-
-  return (
-    <article className="rounded-xl border border-[var(--border)] bg-white p-3 shadow-sm transition hover:shadow-md sm:p-4 text-slate-900">
-      <div className="flex items-start justify-between gap-2">
-        <div className="min-w-0 flex-1 space-y-2 overflow-hidden">
-          {/* Date and Time */}
-          <div className="flex items-center gap-2 text-xs text-slate-900 sm:text-sm">
-            <span className="whitespace-nowrap">{match.datePersian}</span>
-            <span className="text-slate-400 flex-shrink-0">•</span>
-            <span className="whitespace-nowrap">{match.time}</span>
-            {match.status === "live" && match.liveMinute && (
-              <>
-                <span className="text-slate-400 flex-shrink-0">•</span>
-                <span className="font-semibold text-red-600 whitespace-nowrap">{match.liveMinute}&apos;</span>
-              </>
-            )}
-          </div>
-
-          {/* Teams */}
-          <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-2 text-sm font-semibold sm:text-base">
-            <span className="truncate  text-right">
-              {match.homeTeam.name}
-            </span>
-
-            {match.status === "finished" && match.score ? (
-              <span className="font-bold text-brand px-1">
-                {match.score.home} - {match.score.away}
-              </span>
-            ) : match.status === "live" && match.score ? (
-              <span className="font-bold text-red-600 px-1">
-                {match.score.home} - {match.score.away}
-              </span>
-            ) : (
-              <span className="text-slate-400 px-1">vs</span>
-            )}
-
-            <span className="truncate text-left">
-              {match.awayTeam.name}
-            </span>
-          </div>
-
-          {/* Venue */}
-          <div className="text-xs text-slate-900 sm:text-sm truncate">{match.venue}</div>
-        </div>
-
-        {/* Status Badge */}
-        <div className="flex-shrink-0">{getStatusBadge()}</div>
-      </div>
-    </article>
-  );
-}
