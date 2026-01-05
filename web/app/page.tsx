@@ -1,6 +1,7 @@
 export const dynamic = "force-dynamic";
 
 import Link from "next/link";
+import Image from "next/image";
 import { HeroSlider } from "@/components/home/HeroSlider";
 import { LatestNews } from "@/components/home/LatestNews";
 import { ContentSection, type SectionItem } from "@/components/home/ContentSection";
@@ -96,12 +97,15 @@ export default async function HomePage() {
                           </h3>
                           <p className="news-excerpt text-[10px] sm:text-xs md:text-sm leading-4 sm:leading-5 md:leading-6 line-clamp-2">{item.excerpt}</p>
                         </div>
-                        <div className="h-14 w-18 flex-shrink-0 overflow-hidden rounded bg-slate-100 sm:h-16 sm:w-22 md:h-20 md:w-28 lg:h-24 lg:w-36">
-                          <img
+                        <div className="relative w-16 flex-shrink-0 overflow-hidden rounded bg-slate-100 aspect-[4/3] sm:w-20 md:w-28 lg:w-36">
+                          <Image
                             src={item.imageUrl}
                             alt={item.title}
-                            className="h-full w-full object-cover"
+                            fill
+                            sizes="(max-width: 640px) 64px, (max-width: 768px) 80px, (max-width: 1024px) 112px, 144px"
+                            className="object-cover"
                             loading="lazy"
+                            quality={85}
                           />
                         </div>
                       </Link>
