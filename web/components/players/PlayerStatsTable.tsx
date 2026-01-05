@@ -31,8 +31,8 @@ export function PlayerStatsTable({ title, statKey, players, compact = false, lim
   if (!config) return null;
 
   const sortedPlayers = [...players].sort((a, b) => {
-    const aVal = a.stats[config.key];
-    const bVal = b.stats[config.key];
+    const aVal = (a.stats[config.key] as number) || 0;
+    const bVal = (b.stats[config.key] as number) || 0;
     return config.sortDesc ? bVal - aVal : aVal - bVal;
   });
 
