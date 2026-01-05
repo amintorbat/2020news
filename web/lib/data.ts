@@ -330,6 +330,8 @@ export const navigationMenu: NavItem[] = [
       { title: "برنامه و نتایج", href: "/matches?league=futsal" },
       { title: "جدول لیگ", href: "/tables/futsal" },
       { title: "گلزنان", href: "/scorers/futsal" },
+      { title: "گالری تصاویر", href: "/gallery?sport=futsal" },
+      { title: "ویدیوها", href: "/videos?sport=futsal" },
     ],
   },
   {
@@ -340,6 +342,8 @@ export const navigationMenu: NavItem[] = [
       { title: "برنامه و نتایج", href: "/matches?league=beach" },
       { title: "جدول لیگ", href: "/tables/beach-soccer" },
       { title: "گلزنان", href: "/scorers/beach-soccer" },
+      { title: "گالری تصاویر", href: "/gallery?sport=beach" },
+      { title: "ویدیوها", href: "/videos?sport=beach" },
     ],
   },
   { title: "باشگاه هواداری", href: "/fan-club" },

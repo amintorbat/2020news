@@ -1,27 +1,26 @@
 export const dynamic = "force-dynamic";
 
+import Link from "next/link";
 import { HeroSlider } from "@/components/home/HeroSlider";
 import { LatestNews } from "@/components/home/LatestNews";
 import { ContentSection, type SectionItem } from "@/components/home/ContentSection";
 import { LeagueTablesPreview } from "@/components/home/LeagueTablesPreview";
 import { TopScorersPreview } from "@/components/home/TopScorersPreview";
 import { MatchesAndResults } from "@/components/home/MatchesAndResults";
+import { GalleryPreview } from "@/components/home/GalleryPreview";
+import { VideosPreview } from "@/components/home/VideosPreview";
 import { Footer } from "@/components/layout/Footer";
 import { getFallbackStandingsPayload } from "@/lib/acs/fallback";
 import { heroSlides } from "@/lib/mock/home";
 import type { StandingsRow } from "@/lib/acs/types";
 import type { LeagueKey } from "@/lib/data";
 
-function mapStandings(payload: Awaited<ReturnType<typeof getFallbackStandingsPayload>>): StandingsRow[] {
-  return payload.rows.slice(0, 6);
-}
-
 const reports = [
   {
     id: 1,
     title: "گزارش ویژه از تمرینات تیم ملی فوتسال پیش از تورنمنت",
     excerpt: "بدنسازی و تاکتیک‌های فشرده، محور برنامه این هفته بود.",
-    category: "گزارش",
+    category: "گزارش" as const,
     publishedAt: "۱ ساعت پیش",
     imageUrl: "https://picsum.photos/seed/report-1/800/500",
     href: "/news/futsal-camp-report",
@@ -30,7 +29,7 @@ const reports = [
     id: 2,
     title: "تحلیل فنی بازی دوستانه ساحلی ایران و عمان",
     excerpt: "تعویض‌های هوشمندانه در وقت سوم نتیجه را تغییر داد.",
-    category: "گزارش",
+    category: "گزارش" as const,
     publishedAt: "۲ ساعت پیش",
     imageUrl: "https://picsum.photos/seed/report-2/800/500",
     href: "/news/beach-soccer-oman-friendly",
@@ -39,7 +38,7 @@ const reports = [
     id: 3,
     title: "گزارش میدانی از اردوی آمادگی تیم امید فوتسال",
     excerpt: "تمرکز کادر فنی روی بازی‌سازی در میانه زمین بود.",
-    category: "گزارش",
+    category: "گزارش" as const,
     publishedAt: "۳ ساعت پیش",
     imageUrl: "https://picsum.photos/seed/report-3/800/500",
     href: "/news/futsal-youth-camp",
@@ -48,7 +47,7 @@ const reports = [
     id: 4,
     title: "پشت صحنه آماده‌سازی زمین ساحلی برای لیگ جدید",
     excerpt: "بهبود زیرساخت‌ها و نورپردازی ورزشگاه ساحلی تکمیل شد.",
-    category: "گزارش",
+    category: "گزارش" as const,
     publishedAt: "۴ ساعت پیش",
     imageUrl: "https://picsum.photos/seed/report-4/800/500",
     href: "/news/beach-stadium-prep",
@@ -60,7 +59,7 @@ const editorials = [
     id: 11,
     title: "یادداشت سردبیری: نسل تازه فوتسال به چه چیزی نیاز دارد؟",
     excerpt: "نگاه بلندمدت به آکادمی‌ها، کلید موفقیت بین‌المللی است.",
-    category: "یادداشت",
+    category: "یادداشت" as const,
     publishedAt: "۳۰ دقیقه پیش",
     imageUrl: "https://picsum.photos/seed/editorial-1/800/500",
     href: "/news/editorial-futsal-youth",
@@ -69,7 +68,7 @@ const editorials = [
     id: 12,
     title: "یادداشت: فوتبال ساحلی و فرصت‌های پنهان برای قهرمانی",
     excerpt: "با سرمایه‌گذاری هوشمندانه می‌توان فاصله‌ها را کم کرد.",
-    category: "یادداشت",
+    category: "یادداشت" as const,
     publishedAt: "۱ ساعت پیش",
     imageUrl: "https://picsum.photos/seed/editorial-2/800/500",
     href: "/news/editorial-beach-growth",
@@ -78,7 +77,7 @@ const editorials = [
     id: 13,
     title: "چرا ثبات کادر فنی در فوتسال اهمیت دارد؟",
     excerpt: "تغییرات پی‌درپی فرصت ساختارمند شدن را از تیم می‌گیرد.",
-    category: "یادداشت",
+    category: "یادداشت" as const,
     publishedAt: "۲ ساعت پیش",
     imageUrl: "https://picsum.photos/seed/editorial-3/800/500",
     href: "/news/editorial-futsal-stability",
@@ -87,7 +86,7 @@ const editorials = [
     id: 14,
     title: "یادداشت: نقش هواداران در موفقیت تیم‌های ساحلی",
     excerpt: "حضور پررنگ تماشاگران، انرژی بازی‌ها را دوچندان می‌کند.",
-    category: "یادداشت",
+    category: "یادداشت" as const,
     publishedAt: "۳ ساعت پیش",
     imageUrl: "https://picsum.photos/seed/editorial-4/800/500",
     href: "/news/editorial-beach-fans",
@@ -95,6 +94,10 @@ const editorials = [
 ] satisfies SectionItem[];
 
 const reportsAndEditorials: SectionItem[] = [...reports, ...editorials];
+
+function mapStandings(payload: Awaited<ReturnType<typeof getFallbackStandingsPayload>>): StandingsRow[] {
+  return payload.rows.slice(0, 6);
+}
 
 export default async function HomePage() {
   const [futsalStandings, beachStandings] = await Promise.all([
@@ -141,7 +144,44 @@ export default async function HomePage() {
           </div>
         </div>
         <div className="container space-y-12 lg:space-y-10">
-          <ContentSection title="گزارش‌ها و یادداشت‌ها" items={reportsAndEditorials} />
+          <div className="grid gap-6 md:grid-cols-2">
+            <div>
+              <section className="space-y-6" dir="rtl">
+                <div className="flex items-center justify-between">
+                  <h2 className="text-lg font-bold text-slate-900">گزارش‌ها و یادداشت‌ها</h2>
+                </div>
+                <div className="space-y-4">
+                  {reportsAndEditorials.slice(Math.ceil(reportsAndEditorials.length / 2)).map((item) => (
+                    <Link
+                      key={item.id}
+                      href={item.href}
+                      className="group flex flex-row-reverse items-center gap-4 rounded-3xl border border-[var(--border)] bg-white p-4 shadow-card transition hover:bg-slate-50"
+                    >
+                      <div className="min-w-0 flex-1 space-y-2 text-right">
+                        <div className="flex flex-wrap items-center gap-2 text-xs text-slate-400">
+                          <span className="rounded-full bg-gray-100 px-3 py-1 font-semibold text-slate-600">
+                            {item.category}
+                          </span>
+                          <span>{item.publishedAt}</span>
+                        </div>
+                        <h3 className="news-title line-clamp-2 text-sm leading-6 sm:text-base">
+                          {item.title}
+                        </h3>
+                        <p className="news-excerpt line-clamp-2 text-xs sm:text-sm">{item.excerpt}</p>
+                      </div>
+                      <div className="h-20 w-28 flex-shrink-0 overflow-hidden bg-slate-100 sm:h-24 sm:w-36">
+                        <img src={item.imageUrl} alt={item.title} className="h-full w-full object-cover" loading="lazy" />
+                      </div>
+                    </Link>
+                  ))}
+                </div>
+              </section>
+            </div>
+            <div className="space-y-6">
+              <GalleryPreview container={false} />
+              <VideosPreview container={false} />
+            </div>
+          </div>
         </div>
         <Footer />
       </div>
