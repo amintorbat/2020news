@@ -148,33 +148,43 @@ export default async function HomePage() {
             <div>
               <section className="space-y-6" dir="rtl">
                 <div className="flex items-center justify-between">
-                  <h2 className="text-lg font-bold text-slate-900">گزارش‌ها و یادداشت‌ها</h2>
+                  <h2 className="text-lg md:text-2xl lg:text-3xl font-extrabold text-gray-900">گزارش‌ها و یادداشت‌ها</h2>
                 </div>
-                <div className="space-y-4">
-                  {reportsAndEditorials.slice(Math.ceil(reportsAndEditorials.length / 2)).map((item) => (
-                    <Link
-                      key={item.id}
-                      href={item.href}
-                      className="group flex flex-row-reverse items-center gap-4 rounded-3xl border border-[var(--border)] bg-white p-4 shadow-card transition hover:bg-slate-50"
-                    >
-                      <div className="min-w-0 flex-1 space-y-2 text-right">
-                        <div className="flex flex-wrap items-center gap-2 text-xs text-slate-400">
-                          <span className="rounded-full bg-gray-100 px-3 py-1 font-semibold text-slate-600">
-                            {item.category}
-                          </span>
-                          <span>{item.publishedAt}</span>
+                <section
+                  className="rounded-3xl border border-[var(--border)] bg-white shadow-card"
+                  dir="rtl"
+                >
+                  <div className="divide-y divide-[var(--border)]">
+                    {reportsAndEditorials.slice(Math.ceil(reportsAndEditorials.length / 2)).map((item) => (
+                      <Link
+                        key={item.id}
+                        href={item.href}
+                        className="group flex flex-row-reverse items-center gap-4 p-4 text-gray-900 transition hover:bg-slate-50 sm:gap-6"
+                      >
+                        <div className="min-w-0 flex-1 space-y-2 text-right">
+                          <div className="flex flex-wrap items-center gap-2 text-xs text-slate-400">
+                            <span className="rounded-full bg-gray-100 px-3 py-1 font-semibold text-slate-600">
+                              {item.category}
+                            </span>
+                            <span>{item.publishedAt}</span>
+                          </div>
+                          <h3 className="news-title text-base leading-7">
+                            {item.title}
+                          </h3>
+                          <p className="news-excerpt text-sm leading-6">{item.excerpt}</p>
                         </div>
-                        <h3 className="news-title line-clamp-2 text-sm leading-6 sm:text-base">
-                          {item.title}
-                        </h3>
-                        <p className="news-excerpt line-clamp-2 text-xs sm:text-sm">{item.excerpt}</p>
-                      </div>
-                      <div className="h-20 w-28 flex-shrink-0 overflow-hidden bg-slate-100 sm:h-24 sm:w-36">
-                        <img src={item.imageUrl} alt={item.title} className="h-full w-full object-cover" loading="lazy" />
-                      </div>
-                    </Link>
-                  ))}
-                </div>
+                        <div className="h-20 w-28 flex-shrink-0 overflow-hidden bg-slate-100 sm:h-24 sm:w-36">
+                          <img
+                            src={item.imageUrl}
+                            alt={item.title}
+                            className="h-full w-full object-cover"
+                            loading="lazy"
+                          />
+                        </div>
+                      </Link>
+                    ))}
+                  </div>
+                </section>
               </section>
             </div>
             <div className="space-y-6">

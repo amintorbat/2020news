@@ -2,11 +2,15 @@
 
 import { useState, useMemo } from "react";
 import Link from "next/link";
+import { Swiper, SwiperSlide } from "swiper/react";
+import { Pagination } from "swiper/modules";
 import type { LeagueKey } from "@/lib/data";
 import { leagueOptions } from "@/lib/data";
 import { mockVideos } from "@/lib/data/videos";
 import { VideoCard } from "@/components/videos/VideoCard";
 import { cn } from "@/lib/cn";
+import "swiper/css";
+import "swiper/css/pagination";
 
 type VideosPreviewProps = {
   container?: boolean;
@@ -18,9 +22,9 @@ export function VideosPreview({ container = true, className }: VideosPreviewProp
 
   const filteredVideos = useMemo(() => {
     if (selectedSport === "all") {
-      return mockVideos.slice(0, 3);
+      return mockVideos;
     }
-    return mockVideos.filter((video) => video.sport === selectedSport).slice(0, 3);
+    return mockVideos.filter((video) => video.sport === selectedSport);
   }, [selectedSport]);
 
   return (
@@ -49,10 +53,26 @@ export function VideosPreview({ container = true, className }: VideosPreviewProp
         </div>
 
         {filteredVideos.length > 0 ? (
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-            {filteredVideos.map((video) => (
-              <VideoCard key={video.id} video={video} compact={true} />
-            ))}
+          <div className="relative">
+            <Swiper
+              modules={[Pagination]}
+              slidesPerView={1}
+              spaceBetween={16}
+              pagination={{ clickable: true }}
+              breakpoints={{
+                640: { slidesPerView: 2, spaceBetween: 16 },
+                768: { slidesPerView: 2, spaceBetween: 20 },
+                1024: { slidesPerView: 3, spaceBetween: 24 },
+              }}
+              className="videos-swiper [&_.swiper-pagination]:static [&_.swiper-pagination]:mt-4"
+              dir="rtl"
+            >
+              {filteredVideos.map((video) => (
+                <SwiperSlide key={video.id}>
+                  <VideoCard video={video} compact={true} />
+                </SwiperSlide>
+              ))}
+            </Swiper>
           </div>
         ) : (
           <div className="rounded-xl border border-dashed border-[var(--border)] bg-white p-4 text-center text-sm text-slate-900">

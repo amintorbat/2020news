@@ -2,11 +2,15 @@
 
 import { useState, useMemo } from "react";
 import Link from "next/link";
+import { Swiper, SwiperSlide } from "swiper/react";
+import { Pagination } from "swiper/modules";
 import type { LeagueKey } from "@/lib/data";
 import { leagueOptions } from "@/lib/data";
 import { mockAlbums } from "@/lib/data/gallery";
 import { AlbumCard } from "@/components/gallery/AlbumCard";
 import { cn } from "@/lib/cn";
+import "swiper/css";
+import "swiper/css/pagination";
 
 type GalleryPreviewProps = {
   container?: boolean;
@@ -18,9 +22,9 @@ export function GalleryPreview({ container = true, className }: GalleryPreviewPr
 
   const filteredAlbums = useMemo(() => {
     if (selectedSport === "all") {
-      return mockAlbums.slice(0, 4);
+      return mockAlbums;
     }
-    return mockAlbums.filter((album) => album.sport === selectedSport).slice(0, 4);
+    return mockAlbums.filter((album) => album.sport === selectedSport);
   }, [selectedSport]);
 
   return (
@@ -49,10 +53,26 @@ export function GalleryPreview({ container = true, className }: GalleryPreviewPr
         </div>
 
         {filteredAlbums.length > 0 ? (
-          <div className="grid grid-cols-2 gap-3 sm:grid-cols-2">
-            {filteredAlbums.map((album) => (
-              <AlbumCard key={album.id} album={album} />
-            ))}
+          <div className="relative">
+            <Swiper
+              modules={[Pagination]}
+              slidesPerView={2}
+              spaceBetween={12}
+              pagination={{ clickable: true }}
+              breakpoints={{
+                640: { slidesPerView: 2, spaceBetween: 16 },
+                768: { slidesPerView: 3, spaceBetween: 16 },
+                1024: { slidesPerView: 4, spaceBetween: 20 },
+              }}
+              className="gallery-swiper [&_.swiper-pagination]:static [&_.swiper-pagination]:mt-4"
+              dir="rtl"
+            >
+              {filteredAlbums.map((album) => (
+                <SwiperSlide key={album.id}>
+                  <AlbumCard album={album} />
+                </SwiperSlide>
+              ))}
+            </Swiper>
           </div>
         ) : (
           <div className="rounded-xl border border-dashed border-[var(--border)] bg-white p-4 text-center text-sm text-slate-900">

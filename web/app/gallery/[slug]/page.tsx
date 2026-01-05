@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { Footer } from "@/components/layout/Footer";
 import { getAlbumById, getPhotosByAlbum } from "@/lib/data/gallery";
-import { PhotoGrid } from "@/components/gallery/PhotoGrid";
+import { AlbumView } from "@/components/gallery/AlbumView";
 import { notFound } from "next/navigation";
 
 type AlbumPageProps = {
@@ -49,7 +49,7 @@ export default function AlbumPage({ params }: AlbumPageProps) {
 
         <section className="container pb-8 sm:pb-12" dir="rtl">
           {photos.length > 0 ? (
-            <PhotoGrid photos={photos} />
+            <AlbumView photos={photos} albumTitle={album.title} />
           ) : (
             <div className="rounded-xl border border-dashed border-[var(--border)] bg-white p-8 text-center">
               <p className="text-sm text-slate-600 sm:text-base">تصویری در این آلبوم یافت نشد.</p>

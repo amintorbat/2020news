@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Footer } from "@/components/layout/Footer";
 import { getVideoById } from "@/lib/data/videos";
+import { VideoPlayer } from "@/components/videos/VideoPlayer";
 import { notFound } from "next/navigation";
 
 type VideoPageProps = {
@@ -45,18 +46,7 @@ export default function VideoPage({ params }: VideoPageProps) {
         </section>
 
         <section className="container pb-8 sm:pb-12" dir="rtl">
-          <div className="rounded-xl border border-[var(--border)] bg-white p-4 sm:p-6">
-            <div className="relative aspect-video w-full overflow-hidden rounded-lg bg-slate-900">
-              <video
-                src={video.videoUrl}
-                controls
-                className="h-full w-full"
-                poster={video.thumbnailUrl}
-              >
-                مرورگر شما از پخش ویدیو پشتیبانی نمی‌کند.
-              </video>
-            </div>
-          </div>
+          <VideoPlayer video={video} />
         </section>
 
         <Footer />
