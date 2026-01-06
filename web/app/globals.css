@@ -285,3 +285,42 @@ select {
   min-width: 0 !important;
   max-width: 100% !important;
 }
+
+/* Force placeholder text to be visible */
+input::placeholder,
+textarea::placeholder {
+  color: #334155 !important; /* slate-700 - much darker */
+  opacity: 1 !important;
+  font-weight: 500 !important;
+}
+
+input::-webkit-input-placeholder,
+textarea::-webkit-input-placeholder {
+  color: #334155 !important; /* slate-700 - much darker */
+  opacity: 1 !important;
+  font-weight: 500 !important;
+}
+
+input::-moz-placeholder,
+textarea::-moz-placeholder {
+  color: #334155 !important; /* slate-700 - much darker */
+  opacity: 1 !important;
+  font-weight: 500 !important;
+}
+
+input:-ms-input-placeholder,
+textarea:-ms-input-placeholder {
+  color: #334155 !important; /* slate-700 - much darker */
+  opacity: 1 !important;
+  font-weight: 500 !important;
+}
+
+/* Hide scrollbar for stories section */
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
