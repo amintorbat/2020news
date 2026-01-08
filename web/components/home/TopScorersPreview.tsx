@@ -15,9 +15,20 @@ type TopScorersPreviewProps = {
   className?: string;
 };
 
+type StatType = "goals" | "yellowCards" | "redCards" | "cleanSheets" | "goalsConceded";
+
+const statTypeOptions: { id: StatType; label: string }[] = [
+  { id: "goals", label: "گلزنان برتر" },
+  { id: "yellowCards", label: "کارت زرد" },
+  { id: "redCards", label: "کارت قرمز" },
+  { id: "cleanSheets", label: "کلین‌شیت" },
+  { id: "goalsConceded", label: "کمترین گل خورده" },
+];
+
 export function TopScorersPreview({ container = true, className }: TopScorersPreviewProps) {
   const [active, setActive] = useState<LeagueKey>("futsal");
   const [selectedCompetitionType, setSelectedCompetitionType] = useState<CompetitionType>("all");
+  const [selectedStatType, setSelectedStatType] = useState<StatType>("goals");
 
   const allPlayers = useMemo(() => getPlayersWithStats(), []);
 
@@ -32,13 +43,39 @@ export function TopScorersPreview({ container = true, className }: TopScorersPre
 
   const filteredPlayers = useMemo(() => filterPlayers(allPlayers, filters), [allPlayers, filters]);
 
-  const top5 = filteredPlayers.slice(0, 5);
+  const sortedAndTop5 = useMemo(() => {
+    const sorted = [...filteredPlayers].sort((a, b) => {
+      const aVal = (a.stats[selectedStatType] as number) || 0;
+      const bVal = (b.stats[selectedStatType] as number) || 0;
+      // For goalsConceded, sort ascending (lower is better)
+      if (selectedStatType === "goalsConceded") {
+        return aVal - bVal;
+      }
+      // For all others, sort descending (higher is better)
+      return bVal - aVal;
+    });
+    return sorted.slice(0, 5);
+  }, [filteredPlayers, selectedStatType]);
+
+  const statLabel = useMemo(() => {
+    const option = statTypeOptions.find((opt) => opt.id === selectedStatType);
+    if (!option) return "گل";
+    // Return short label for display
+    if (selectedStatType === "goals") return "گل";
+    if (selectedStatType === "yellowCards") return "کارت زرد";
+    if (selectedStatType === "redCards") return "کارت قرمز";
+    if (selectedStatType === "cleanSheets") return "کلین‌شیت";
+    if (selectedStatType === "goalsConceded") return "گل خورده";
+    return option.label;
+  }, [selectedStatType]);
+
+  const getStatValue = (player: typeof sortedAndTop5[0]) => (player.stats[selectedStatType] as number) || 0;
 
   return (
     <section className={cn(container && "container", "space-y-6 lg:space-y-4", className)} dir="rtl">
       <div className="card p-3 sm:p-4 space-y-4">
         <div className="flex items-center justify-between">
-          <h2 className="!text-slate-900 text-lg font-bold text-slate-900 lg:text-base">بازیکنان برتر</h2>
+          <h2 className="!text-slate-900 text-lg font-bold text-slate-900 lg:text-base">برترین‌ها</h2>
         </div>
 
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
@@ -63,9 +100,26 @@ export function TopScorersPreview({ container = true, className }: TopScorersPre
           />
         </div>
 
-        {top5.length > 0 ? (
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+          <label className="flex flex-col gap-1 text-xs font-semibold text-slate-900 sm:text-sm">
+            <span>نوع آمار:</span>
+            <select
+              value={selectedStatType}
+              onChange={(e) => setSelectedStatType(e.target.value as StatType)}
+              className="w-full rounded-lg border border-[var(--border)] bg-white px-2.5 py-1.5 text-xs text-slate-900 focus:border-brand focus:outline-none sm:px-3 sm:py-2 sm:text-sm"
+            >
+              {statTypeOptions.map((option) => (
+                <option key={option.id} value={option.id}>
+                  {option.label}
+                </option>
+              ))}
+            </select>
+          </label>
+        </div>
+
+        {sortedAndTop5.length > 0 ? (
           <div className="space-y-3">
-            {top5.map((player, index) => (
+            {sortedAndTop5.map((player, index) => (
               <Link
                 key={player.id}
                 href={`/players?sport=${active}`}
@@ -90,8 +144,8 @@ export function TopScorersPreview({ container = true, className }: TopScorersPre
                   <div className="text-xs text-slate-600 truncate mt-0.5">{player.team.name}</div>
                 </div>
                 <div className="flex-shrink-0 text-right">
-                  <div className="text-lg font-bold text-brand">{player.stats.goals}</div>
-                  <div className="text-xs text-slate-500">گل</div>
+                  <div className="text-lg font-bold text-brand">{getStatValue(player)}</div>
+                  <div className="text-xs text-slate-500">{statLabel}</div>
                 </div>
               </Link>
             ))}

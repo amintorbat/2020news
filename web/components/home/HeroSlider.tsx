@@ -141,13 +141,6 @@ function SlideItem({ slide, priority, isActive }: SlideItemProps) {
           {/* Text Content - Second on Mobile, Right Side on Desktop (RTL) */}
           <div className={`flex flex-col justify-center px-4 py-8 sm:px-6 sm:py-10 md:px-12 md:py-16 lg:px-16 lg:py-20 bg-slate-900 transition-opacity duration-500 order-2 lg:order-1 ${isActive ? 'opacity-100' : 'opacity-0'}`}>
             <div className="space-y-4 sm:space-y-5 md:space-y-6 lg:space-y-8 max-w-2xl">
-              {/* Roofline (Category Badge) */}
-              <div>
-                <span className="inline-block text-xs font-semibold text-brand uppercase tracking-wider sm:text-sm">
-                  {slide.category}
-                </span>
-              </div>
-
               {/* Title */}
               <Link href={slide.href} className="block group">
                 <h1 className="text-lg sm:text-xl md:text-2xl lg:text-3xl xl:text-4xl font-bold leading-loose text-white group-hover:text-brand transition-colors">
@@ -229,11 +222,6 @@ function PreviewItem({ slide, isActive, onClick }: PreviewItemProps) {
           />
         </div>
       )}
-
-      {/* Roofline */}
-      <div className="text-xs font-medium text-slate-400 mb-1">
-        {slide.category}
-      </div>
 
       {/* Title */}
       <div className="text-sm font-semibold line-clamp-2 leading-snug">

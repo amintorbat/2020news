@@ -16,9 +16,6 @@ export function LatestNews() {
           >
             <div className="min-w-0 flex-1 space-y-2 text-right">
               <div className="flex flex-wrap items-center gap-2 text-xs text-slate-400">
-                <span className="rounded-full bg-gray-100 px-3 py-1 font-semibold text-slate-600">
-                  {item.category}
-                </span>
                 <span>{item.publishedAt}</span>
               </div>
               <h3 className="news-title text-base leading-7">

@@ -5,20 +5,30 @@ import { leagueOptions, matchSeasons, type LeagueKey } from "@/lib/data";
 import type { CompetitionType } from "@/lib/data/matches";
 import type { PlayerFilters as PlayerFiltersType } from "@/lib/players/filtering";
 
+type StatType = "goals" | "yellowCards" | "redCards" | "cleanSheets" | "goalsConceded";
+
 type PlayerFiltersProps = {
   currentSport?: LeagueKey;
   currentSeason?: string;
   currentCompetitionType?: CompetitionType | "all";
   currentTeamId?: string;
-  currentPosition?: "goalkeeper" | "player" | "all";
+  currentStatType?: StatType;
 };
+
+const statTypeOptions: { id: StatType; label: string }[] = [
+  { id: "goals", label: "گلزنان برتر" },
+  { id: "yellowCards", label: "کارت زرد" },
+  { id: "redCards", label: "کارت قرمز" },
+  { id: "cleanSheets", label: "کلین‌شیت" },
+  { id: "goalsConceded", label: "کمترین گل خورده" },
+];
 
 export function PlayerFilters({
   currentSport,
   currentSeason,
   currentCompetitionType = "all",
   currentTeamId,
-  currentPosition = "all",
+  currentStatType = "goals",
 }: PlayerFiltersProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -97,18 +107,20 @@ export function PlayerFilters({
       </div>
 
       <div className="flex flex-col gap-2">
-        <label htmlFor="position-filter" className="text-xs font-semibold text-slate-700">
-          پست
+        <label htmlFor="stat-type-filter" className="text-xs font-semibold text-slate-700">
+          نوع آمار
         </label>
         <select
-          id="position-filter"
-          value={currentPosition}
-          onChange={(e) => handleFilterChange("position", e.target.value)}
+          id="stat-type-filter"
+          value={currentStatType}
+          onChange={(e) => handleFilterChange("statType", e.target.value)}
           className="w-full rounded-lg border border-[var(--border)] bg-white px-3 py-2.5 text-sm text-slate-900 transition focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/20"
         >
-          <option value="all">همه</option>
-          <option value="player">بازیکن</option>
-          <option value="goalkeeper">دروازه‌بان</option>
+          {statTypeOptions.map((option) => (
+            <option key={option.id} value={option.id}>
+              {option.label}
+            </option>
+          ))}
         </select>
       </div>
     </form>

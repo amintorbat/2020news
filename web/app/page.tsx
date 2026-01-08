@@ -87,9 +87,6 @@ export default async function HomePage() {
                       >
                         <div className="min-w-0 flex-1 space-y-1 sm:space-y-1.5 md:space-y-2 text-right">
                           <div className="flex flex-wrap items-center gap-1 sm:gap-1.5 md:gap-2 text-[10px] sm:text-[11px] md:text-xs text-slate-400">
-                            <span className="rounded-full bg-gray-100 px-1.5 py-0.5 sm:px-2 sm:py-0.5 md:px-3 md:py-1 text-[9px] sm:text-[10px] md:text-xs font-semibold text-slate-600">
-                              {item.category}
-                            </span>
                             <span className="text-[10px] sm:text-[11px] md:text-xs">{item.publishedAt}</span>
                           </div>
                           <h3 className="news-title text-xs sm:text-sm md:text-base leading-5 sm:leading-6 md:leading-7 line-clamp-2">

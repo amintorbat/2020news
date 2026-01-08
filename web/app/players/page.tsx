@@ -7,13 +7,15 @@ import { PlayerStatsTable } from "@/components/players/PlayerStatsTable";
 import type { CompetitionType } from "@/lib/data/matches";
 import { PlayerFilters as PlayerFiltersComponent } from "@/components/players/PlayerFilters";
 
+type StatType = "goals" | "yellowCards" | "redCards" | "cleanSheets" | "goalsConceded";
+
 type PlayersPageProps = {
   searchParams?: {
     sport?: string;
     season?: string;
     competitionType?: string;
     teamId?: string;
-    position?: string;
+    statType?: string;
   };
 };
 
@@ -21,6 +23,12 @@ export default function PlayersPage({ searchParams }: PlayersPageProps) {
   const filters = resolveFilters(searchParams);
   const allPlayers = getPlayersWithStats();
   const filteredPlayers = filterPlayers(allPlayers, filters);
+
+  const statType: StatType = 
+    searchParams?.statType && 
+    ["goals", "yellowCards", "redCards", "cleanSheets", "goalsConceded"].includes(searchParams.statType)
+      ? (searchParams.statType as StatType)
+      : "goals";
 
   const fieldPlayers = filteredPlayers.filter((p) => p.position === "player");
   const goalkeepers = filteredPlayers.filter((p) => p.position === "goalkeeper");
@@ -49,71 +57,44 @@ export default function PlayersPage({ searchParams }: PlayersPageProps) {
             currentSeason={filters.season}
             currentCompetitionType={filters.competitionType}
             currentTeamId={filters.teamId}
-            currentPosition={filters.position}
+            currentStatType={statType}
           />
         </section>
 
         <section className="container pb-8 sm:pb-12" dir="rtl">
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-            {fieldPlayers.length > 0 && (
-              <>
-                <div className="md:col-span-2 lg:col-span-3">
-                  <PlayerStatsTable
-                    title="گلزنان برتر"
-                    statKey="goals"
-                    players={fieldPlayers}
-                  />
+            {(() => {
+              const statConfigs: Record<StatType, { title: string; statKey: string; players: typeof filteredPlayers }> = {
+                goals: { title: "گلزنان برتر", statKey: "goals", players: fieldPlayers },
+                yellowCards: { title: "کارت زرد", statKey: "yellowCards", players: fieldPlayers },
+                redCards: { title: "کارت قرمز", statKey: "redCards", players: fieldPlayers },
+                cleanSheets: { title: "کلین‌شیت", statKey: "cleanSheets", players: goalkeepers },
+                goalsConceded: { title: "کمترین گل خورده", statKey: "goalsConceded", players: goalkeepers },
+              };
+
+              const config = statConfigs[statType];
+              const players = config.players;
+
+              if (players.length > 0) {
+                return (
+                  <div className={statType === "goals" ? "md:col-span-2 lg:col-span-3" : ""}>
+                    <PlayerStatsTable
+                      title={config.title}
+                      statKey={config.statKey}
+                      players={players}
+                    />
+                  </div>
+                );
+              }
+
+              return (
+                <div className="md:col-span-2 lg:col-span-3 rounded-xl border border-dashed border-[var(--border)] bg-white p-8 text-center">
+                  <p className="text-sm text-slate-600 sm:text-base">
+                    بازیکنی برای این فیلتر یافت نشد.
+                  </p>
                 </div>
-                <PlayerStatsTable
-                  title="بیشترین شوت"
-                  statKey="shots"
-                  players={fieldPlayers}
-                />
-                <PlayerStatsTable
-                  title="بیشترین شوت در چارچوب"
-                  statKey="shotsOnTarget"
-                  players={fieldPlayers}
-                />
-                <PlayerStatsTable
-                  title="بیشترین دقایق بازی"
-                  statKey="minutesPlayed"
-                  players={fieldPlayers}
-                />
-                <PlayerStatsTable
-                  title="کارت زرد"
-                  statKey="yellowCards"
-                  players={fieldPlayers}
-                />
-                <PlayerStatsTable
-                  title="کارت قرمز"
-                  statKey="redCards"
-                  players={fieldPlayers}
-                />
-              </>
-            )}
-
-            {goalkeepers.length > 0 && (
-              <>
-                <PlayerStatsTable
-                  title="کلین‌شیت"
-                  statKey="cleanSheets"
-                  players={goalkeepers}
-                />
-                <PlayerStatsTable
-                  title="کمترین گل خورده"
-                  statKey="goalsConceded"
-                  players={goalkeepers}
-                />
-              </>
-            )}
-
-            {filteredPlayers.length === 0 && (
-              <div className="md:col-span-2 lg:col-span-3 rounded-xl border border-dashed border-[var(--border)] bg-white p-8 text-center">
-                <p className="text-sm text-slate-600 sm:text-base">
-                  بازیکنی برای این فیلتر یافت نشد.
-                </p>
-              </div>
-            )}
+              );
+            })()}
           </div>
         </section>
 
@@ -140,11 +121,6 @@ function resolveFilters(searchParams?: PlayersPageProps["searchParams"]): Player
 
   const teamId = searchParams?.teamId || undefined;
 
-  const position =
-    searchParams?.position && ["goalkeeper", "player", "all"].includes(searchParams.position)
-      ? (searchParams.position as "goalkeeper" | "player" | "all")
-      : "all";
-
-  return { sport, season, competitionType, teamId, position };
+  return { sport, season, competitionType, teamId };
 }
 
