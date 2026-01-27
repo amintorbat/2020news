@@ -84,11 +84,11 @@ export function PlayerFormModal({ open, onClose, onSubmit, initialValues, isLoad
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
-      <div className="w-full max-w-xl rounded-2xl bg-white p-6 space-y-6">
-        <header className="space-y-1">
-          <h2 className="text-lg font-bold">{initialValues ? "ویرایش بازیکن" : "افزودن بازیکن فوتسال"}</h2>
-          <p className="text-xs text-slate-500">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4" dir="rtl">
+      <div className="w-full max-w-2xl rounded-xl bg-white p-6 sm:p-8 space-y-6 max-h-[90vh] overflow-y-auto shadow-xl">
+        <header className="space-y-1 border-b border-[var(--border)] pb-4">
+          <h2 className="text-xl font-bold text-slate-900">{initialValues ? "ویرایش بازیکن" : "افزودن بازیکن فوتسال"}</h2>
+          <p className="text-sm text-slate-600">
             اطلاعات پایه و آماری بازیکن
           </p>
         </header>
@@ -153,31 +153,50 @@ export function PlayerFormModal({ open, onClose, onSubmit, initialValues, isLoad
         </div>
 
         {/* اطلاعات پایه */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <input
-            className="rounded-lg border px-3 py-2 text-sm"
-            placeholder="نام بازیکن"
-            value={form.name}
-            onChange={(e) => setForm({ ...form, name: e.target.value })}
-          />
-          <input
-            className="rounded-lg border px-3 py-2 text-sm"
-            placeholder="نام تیم"
-            value={form.team}
-            onChange={(e) => setForm({ ...form, team: e.target.value })}
-          />
-          <select
-            className="rounded-lg border px-3 py-2 text-sm"
-            value={form.position}
-            onChange={(e) =>
-              setForm({ ...form, position: e.target.value as PlayerPosition })
-            }
-          >
-            <option value="GK">دروازه‌بان</option>
-            <option value="FIXO">فیکسو</option>
-            <option value="ALA">آلا</option>
-            <option value="PIVO">پیوت</option>
-          </select>
+        <div className="space-y-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-xs font-medium text-slate-700 mb-1.5">
+                نام بازیکن
+              </label>
+              <input
+                type="text"
+                className="w-full rounded-lg border border-[var(--border)] px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand/50 focus:border-brand"
+                placeholder="نام بازیکن"
+                value={form.name}
+                onChange={(e) => setForm({ ...form, name: e.target.value })}
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-medium text-slate-700 mb-1.5">
+                نام تیم
+              </label>
+              <input
+                type="text"
+                className="w-full rounded-lg border border-[var(--border)] px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand/50 focus:border-brand"
+                placeholder="نام تیم"
+                value={form.team}
+                onChange={(e) => setForm({ ...form, team: e.target.value })}
+              />
+            </div>
+          </div>
+          <div>
+            <label className="block text-xs font-medium text-slate-700 mb-1.5">
+              پست
+            </label>
+            <select
+              className="w-full rounded-lg border border-[var(--border)] px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand/50 focus:border-brand"
+              value={form.position}
+              onChange={(e) =>
+                setForm({ ...form, position: e.target.value as PlayerPosition })
+              }
+            >
+              <option value="GK">دروازه‌بان</option>
+              <option value="FIXO">فیکسو</option>
+              <option value="ALA">آلا</option>
+              <option value="PIVO">پیوت</option>
+            </select>
+          </div>
         </div>
 
         {/* آمار */}
@@ -252,12 +271,12 @@ function StatInput({
   onChange: (v: number) => void;
 }) {
   return (
-    <div className="flex flex-col gap-1">
-      <label className="text-xs text-slate-500">{label}</label>
+    <div className="flex flex-col gap-1.5">
+      <label className="text-xs font-medium text-slate-700">{label}</label>
       <input
         type="number"
         min={0}
-        className="rounded-lg border px-3 py-2 text-sm"
+        className="w-full rounded-lg border border-[var(--border)] px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand/50 focus:border-brand"
         value={value}
         onChange={(e) => onChange(+e.target.value)}
       />
