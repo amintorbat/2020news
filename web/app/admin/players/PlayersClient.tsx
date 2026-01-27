@@ -4,7 +4,8 @@ import { useMemo, useState } from "react";
 import { PageHeader } from "@/components/admin/PageHeader";
 import { FilterBar } from "@/components/admin/FilterBar";
 import { DataTable, Column } from "@/components/admin/DataTable";
-import { PlayerFormModal } from "@/components/admin/PlayerFormModal";
+import { PlayerFormModal, PlayerFormValues } from "@/components/admin/PlayerFormModal";
+import { DeleteConfirmationModal } from "@/components/admin/DeleteConfirmationModal";
 
 type PlayerPosition = "GK" | "FIXO" | "ALA" | "PIVO";
 

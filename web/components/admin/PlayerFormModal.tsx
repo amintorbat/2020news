@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import React, { useRef, useState } from "react";
 
 type PlayerPosition = "GK" | "FIXO" | "ALA" | "PIVO";
 
@@ -14,30 +14,59 @@ export type PlayerFormValues = {
   yellowCards: number;
   redCards: number;
   cleanSheets: number;
+  matchesPlayed: number;
 };
 
 type Props = {
   open: boolean;
   onClose: () => void;
   onSubmit: (player: PlayerFormValues) => void;
+  initialValues?: PlayerFormValues;
+  isLoading?: boolean;
 };
 
-export function PlayerFormModal({ open, onClose, onSubmit }: Props) {
+export function PlayerFormModal({ open, onClose, onSubmit, initialValues, isLoading = false }: Props) {
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
-  const [form, setForm] = useState<PlayerFormValues>({
-    name: "",
-    team: "",
-    position: "PIVO",
-    goals: 0,
-    goalsConceded: 0,
-    yellowCards: 0,
-    redCards: 0,
-    cleanSheets: 0,
-  });
+  const [form, setForm] = useState<PlayerFormValues>(
+    initialValues || {
+      name: "",
+      team: "",
+      position: "PIVO",
+      goals: 0,
+      goalsConceded: 0,
+      yellowCards: 0,
+      redCards: 0,
+      cleanSheets: 0,
+      matchesPlayed: 0,
+    }
+  );
 
-  const [preview, setPreview] = useState<string | null>(null);
+  const [preview, setPreview] = useState<string | null>(initialValues?.photo || null);
   const [dragActive, setDragActive] = useState(false);
+
+  // Reset form when modal opens/closes or initialValues change
+  React.useEffect(() => {
+    if (open) {
+      if (initialValues) {
+        setForm(initialValues);
+        setPreview(initialValues.photo || null);
+      } else {
+        setForm({
+          name: "",
+          team: "",
+          position: "PIVO",
+          goals: 0,
+          goalsConceded: 0,
+          yellowCards: 0,
+          redCards: 0,
+          cleanSheets: 0,
+          matchesPlayed: 0,
+        });
+        setPreview(null);
+      }
+    }
+  }, [open, initialValues]);
 
   if (!open) return null;
 
@@ -58,7 +87,7 @@ export function PlayerFormModal({ open, onClose, onSubmit }: Props) {
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
       <div className="w-full max-w-xl rounded-2xl bg-white p-6 space-y-6">
         <header className="space-y-1">
-          <h2 className="text-lg font-bold">افزودن بازیکن فوتسال</h2>
+          <h2 className="text-lg font-bold">{initialValues ? "ویرایش بازیکن" : "افزودن بازیکن فوتسال"}</h2>
           <p className="text-xs text-slate-500">
             اطلاعات پایه و آماری بازیکن
           </p>
@@ -177,10 +206,15 @@ export function PlayerFormModal({ open, onClose, onSubmit }: Props) {
               onChange={(v) => setForm({ ...form, cleanSheets: v })}
             />
             <StatInput
-  label="گل خورده"
-  value={form.goalsConceded}
-  onChange={(v) => setForm({ ...form, goalsConceded: v })}
-/>
+              label="گل خورده"
+              value={form.goalsConceded}
+              onChange={(v) => setForm({ ...form, goalsConceded: v })}
+            />
+            <StatInput
+              label="بازی انجام شده"
+              value={form.matchesPlayed}
+              onChange={(v) => setForm({ ...form, matchesPlayed: v })}
+            />
           </div>
         </section>
 
@@ -188,18 +222,19 @@ export function PlayerFormModal({ open, onClose, onSubmit }: Props) {
         <footer className="flex justify-end gap-2 pt-4">
           <button
             onClick={onClose}
-            className="rounded-lg border px-4 py-2 text-sm"
+            disabled={isLoading}
+            className="rounded-lg border px-4 py-2 text-sm disabled:opacity-50 disabled:cursor-not-allowed"
           >
             انصراف
           </button>
           <button
             onClick={() => {
               onSubmit(form);
-              onClose();
             }}
-            className="rounded-lg bg-brand px-5 py-2 text-sm text-white hover:bg-brand/90 transition"
+            disabled={isLoading}
+            className="rounded-lg bg-brand px-5 py-2 text-sm text-white hover:bg-brand/90 transition disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            ذخیره بازیکن
+            {isLoading ? "در حال ذخیره..." : initialValues ? "ذخیره تغییرات" : "ذخیره بازیکن"}
           </button>
         </footer>
       </div>
