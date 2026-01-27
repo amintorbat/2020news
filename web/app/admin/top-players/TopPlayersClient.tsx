@@ -9,9 +9,17 @@ export default function TopPlayersClient() {
     .sort((a, b) => b.goals - a.goals)
     .slice(0, 5);
 
+  // Filter goalkeepers: players with goalsConceded > 0 or cleanSheets > 0 are likely goalkeepers
+  // In futsal, goalkeepers typically have goalsConceded or cleanSheets stats
   const bestGoalkeepers = [...mockPlayers]
-    .filter(p => p.position === "GK")
-    .sort((a, b) => a.goalsConceded - b.goalsConceded)
+    .filter(p => p.goalsConceded > 0 || p.cleanSheets > 0)
+    .sort((a, b) => {
+      // Sort by cleanSheets first (higher is better), then by goalsConceded (lower is better)
+      if (b.cleanSheets !== a.cleanSheets) {
+        return b.cleanSheets - a.cleanSheets;
+      }
+      return a.goalsConceded - b.goalsConceded;
+    })
     .slice(0, 5);
 
   const yellowCards = [...mockPlayers]

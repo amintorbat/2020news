@@ -17,7 +17,7 @@ export default function StandingClient({items}: {items : StandingItem[]}){
 
     return (
         <div className="space-y-6">
-            <h1 className="text-x font-bold">جدول لیگ</h1>
+            <h1 className="text-xl font-bold">جدول لیگ</h1>
             <DataTable<StandingItem>
               columns={columns}
               data={items}

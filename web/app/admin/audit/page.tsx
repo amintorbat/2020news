@@ -43,8 +43,7 @@
 // }
 
 import AuditClient from "./AuditClient";
-import { mockPlayers } from "@/lib/admin/mock";
 
-export default function AdminPlayersPage() {
-  return <AuditClient data={mockPlayers} />;
+export default function AdminAuditPage() {
+  return <AuditClient />;
 }
