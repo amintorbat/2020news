@@ -185,31 +185,43 @@ export function PersianDatePicker({
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
               </svg>
             </button>
-            <div className="flex items-center gap-1 flex-1 min-w-0 overflow-hidden justify-center">
-              <select
-                value={viewMonth}
-                onChange={(e) => setViewMonth(Number(e.target.value))}
-                className="rounded-lg border border-[var(--border)] px-1.5 py-1.5 text-xs font-medium focus:outline-none focus:ring-2 focus:ring-brand/50 bg-white flex-1 min-w-0 max-w-[130px]"
-                dir="rtl"
-              >
-                {monthNames.map((name, index) => (
-                  <option key={index} value={index + 1}>
-                    {name}
-                  </option>
-                ))}
-              </select>
-              <select
-                value={viewYear}
-                onChange={(e) => setViewYear(Number(e.target.value))}
-                className="rounded-lg border border-[var(--border)] px-1.5 py-1.5 text-xs font-medium focus:outline-none focus:ring-2 focus:ring-brand/50 bg-white flex-1 min-w-0 max-w-[100px]"
-                dir="rtl"
-              >
-                {Array.from({ length: 20 }, (_, i) => currentYear - 5 + i).map((year) => (
-                  <option key={year} value={year}>
-                    {toPersianDigits(year)}
-                  </option>
-                ))}
-              </select>
+            <div className="flex items-center gap-1.5 flex-1 min-w-0 overflow-hidden justify-center">
+              <div className="relative flex-1 min-w-0 max-w-[140px]">
+                <select
+                  value={viewMonth}
+                  onChange={(e) => setViewMonth(Number(e.target.value))}
+                  className="w-full rounded-lg border border-slate-300 px-2.5 py-2 text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-brand/50 bg-white text-slate-900"
+                  dir="rtl"
+                >
+                  {monthNames.map((name, index) => (
+                    <option 
+                      key={index} 
+                      value={index + 1}
+                      className="text-slate-900 bg-white"
+                    >
+                      {name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div className="relative flex-1 min-w-0 max-w-[110px]">
+                <select
+                  value={viewYear}
+                  onChange={(e) => setViewYear(Number(e.target.value))}
+                  className="w-full rounded-lg border border-slate-300 px-2.5 py-2 text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-brand/50 bg-white text-slate-900"
+                  dir="rtl"
+                >
+                  {Array.from({ length: 20 }, (_, i) => currentYear - 5 + i).map((year) => (
+                    <option 
+                      key={year} 
+                      value={year}
+                      className="text-slate-900 bg-white"
+                    >
+                      {toPersianDigits(year)}
+                    </option>
+                  ))}
+                </select>
+              </div>
             </div>
             <button
               type="button"
