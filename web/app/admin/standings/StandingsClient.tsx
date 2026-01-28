@@ -125,10 +125,11 @@ export default function StandingsClient() {
 
           // Apply manual overrides if they exist
           const basePoints = calc.points;
-          const deduction = existing?.manualOverrides?.pointsDeduction || 0;
+          const deduction = existing?.manualOverrides?.pointsDeduction ?? 0;
           const manualPoints = existing?.manualOverrides?.points;
+          // `manualPoints` is `number | undefined` — ensure `finalPoints` is always a number
           const finalPoints =
-            manualPoints !== null ? manualPoints : basePoints - deduction;
+            manualPoints != null ? manualPoints : basePoints - deduction;
 
           calculatedStandings.push({
             id: existing?.id || `stand-${competition.id}-${season.id}-${position}`,
@@ -222,10 +223,11 @@ export default function StandingsClient() {
         prev.map((s) => {
           if (s.id === standing.id) {
             const basePoints = s.points;
-            const deduction = overrides?.pointsDeduction || 0;
+            const deduction = overrides?.pointsDeduction ?? 0;
             const manualPoints = overrides?.points;
+            // `manualPoints` is `number | undefined` — ensure `finalPoints` is always a number
             const finalPoints =
-              manualPoints !== null ? manualPoints : basePoints - deduction;
+              manualPoints != null ? manualPoints : basePoints - deduction;
 
             return {
               ...s,
