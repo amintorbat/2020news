@@ -6,7 +6,9 @@ import { PageHeader } from "@/components/admin/PageHeader";
 import { Toast } from "@/components/admin/Toast";
 import { PersianDatePicker } from "@/components/admin/PersianDatePicker";
 import { PersianTimePicker } from "@/components/admin/PersianTimePicker";
-import { Match, Competition, MatchStatus, getAvailableSports } from "@/types/matches";
+import { Match, Competition, MatchStatus, getAvailableSports, SportType } from "@/types/matches";
+import { mockTeams } from "@/lib/admin/teamsData";
+import { generateId } from "@/lib/utils/id";
 
 type Props = {
   competitions: Competition[];
@@ -16,13 +18,16 @@ export default function MatchNewClient({ competitions }: Props) {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
   const [toast, setToast] = useState<{ message: string; type: "success" | "error" } | null>(null);
+  const [step, setStep] = useState<1 | 2 | 3>(1);
 
-  const [match, setMatch] = useState<Partial<Match>>({
+  const [match, setMatch] = useState<Partial<Match> & { homeTeamId?: string; awayTeamId?: string }>({
     sport: "futsal",
     competitionId: "",
     competitionName: "",
     seasonId: "",
     seasonName: "",
+    homeTeamId: "",
+    awayTeamId: "",
     homeTeam: "",
     awayTeam: "",
     homeScore: null,
@@ -35,33 +40,61 @@ export default function MatchNewClient({ competitions }: Props) {
     isPublished: false,
   });
 
-  const selectedCompetition = useMemo(() => {
-    return competitions.find((c) => c.id === match.competitionId);
-  }, [competitions, match.competitionId]);
+  const selectedCompetition = useMemo(
+    () => competitions.find((c) => c.id === match.competitionId),
+    [competitions, match.competitionId]
+  );
 
-  const availableSeasons = useMemo(() => {
-    return selectedCompetition?.seasons || [];
-  }, [selectedCompetition]);
+  const availableSeasons = useMemo(
+    () => selectedCompetition?.seasons || [],
+    [selectedCompetition]
+  );
+
+  const availableTeams = useMemo(
+    () => mockTeams.filter((t) => t.sport === (match.sport as SportType)),
+    [match.sport]
+  );
+
+  const homeTeamOptions = availableTeams;
+  const awayTeamOptions = availableTeams.filter((t) => t.id !== match.homeTeamId);
 
   const handleSave = async () => {
-    if (!match.homeTeam || !match.awayTeam || !match.competitionId || !match.seasonId || !match.date || !match.time) {
+    if (
+      !match.sport ||
+      !match.competitionId ||
+      !match.seasonId ||
+      !match.homeTeamId ||
+      !match.awayTeamId ||
+      !match.date ||
+      !match.time
+    ) {
       setToast({ message: "لطفاً تمام فیلدهای الزامی را پر کنید", type: "error" });
       return;
     }
 
+    if (match.homeTeamId === match.awayTeamId) {
+      setToast({ message: "تیم میزبان و میهمان نمی‌توانند یکسان باشند", type: "error" });
+      return;
+    }
+
+    const homeTeam = availableTeams.find((t) => t.id === match.homeTeamId);
+    const awayTeam = availableTeams.find((t) => t.id === match.awayTeamId);
+
     setIsLoading(true);
-    await new Promise((resolve) => setTimeout(resolve, 1000));
+    await new Promise((resolve) => setTimeout(resolve, 800));
 
     try {
       const newMatch: Match = {
-        id: crypto.randomUUID(),
+        id: generateId(),
         sport: match.sport || "futsal",
         competitionId: match.competitionId!,
         competitionName: match.competitionName!,
         seasonId: match.seasonId!,
         seasonName: match.seasonName!,
-        homeTeam: match.homeTeam!,
-        awayTeam: match.awayTeam!,
+        homeTeam: homeTeam?.name || "",
+        homeTeamId: homeTeam?.id,
+        awayTeam: awayTeam?.name || "",
+        awayTeamId: awayTeam?.id,
         homeScore: match.homeScore ?? null,
         awayScore: match.awayScore ?? null,
         status: match.status || "scheduled",
@@ -78,7 +111,7 @@ export default function MatchNewClient({ competitions }: Props) {
       setTimeout(() => {
         router.push(`/admin/matches/${newMatch.id}`);
       }, 1500);
-    } catch (error) {
+    } catch {
       setToast({ message: "خطا در ایجاد مسابقه", type: "error" });
       setIsLoading(false);
     }
@@ -88,7 +121,7 @@ export default function MatchNewClient({ competitions }: Props) {
     <div className="space-y-6" dir="rtl">
       <PageHeader
         title="افزودن مسابقه جدید"
-        subtitle="ایجاد مسابقه جدید برای سیستم"
+        subtitle="ایجاد مسابقه جدید برای فوتسال و فوتبال ساحلی"
         action={
           <div className="flex items-center gap-3">
             <button
@@ -108,12 +141,49 @@ export default function MatchNewClient({ competitions }: Props) {
         }
       />
 
+      {/* Mobile stepper */}
+      <div className="flex items-center justify-between rounded-lg bg-slate-50 p-2 md:hidden">
+        <button
+          type="button"
+          onClick={() => setStep(1)}
+          className={`flex-1 rounded-md px-2 py-1 text-xs font-medium ${
+            step === 1 ? "bg-white shadow text-slate-900" : "text-slate-500"
+          }`}
+        >
+          ۱. ورزش و مسابقات
+        </button>
+        <button
+          type="button"
+          onClick={() => setStep(2)}
+          className={`flex-1 rounded-md px-2 py-1 text-xs font-medium ${
+            step === 2 ? "bg-white shadow text-slate-900" : "text-slate-500"
+          }`}
+        >
+          ۲. تیم‌ها و نتیجه
+        </button>
+        <button
+          type="button"
+          onClick={() => setStep(3)}
+          className={`flex-1 rounded-md px-2 py-1 text-xs font-medium ${
+            step === 3 ? "bg-white shadow text-slate-900" : "text-slate-500"
+          }`}
+        >
+          ۳. زمان و جزئیات
+        </button>
+      </div>
+
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Main Form */}
         <div className="lg:col-span-2 space-y-6">
-          {/* General Info */}
-          <div className="rounded-xl border border-[var(--border)] bg-white p-6 shadow-sm">
-            <h3 className="text-lg font-bold text-slate-900 mb-4">اطلاعات کلی</h3>
+          {/* Step 1: General Info */}
+          <div
+            className={`rounded-xl border border-[var(--border)] bg-white p-4 sm:p-6 shadow-sm ${
+              step !== 1 ? "hidden md:block" : ""
+            }`}
+          >
+            <h3 className="text-base sm:text-lg font-bold text-slate-900 mb-4">
+              اطلاعات کلی مسابقه
+            </h3>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label className="block text-xs font-medium text-slate-700 mb-1.5">
@@ -127,6 +197,8 @@ export default function MatchNewClient({ competitions }: Props) {
                       sport: e.target.value as Match["sport"],
                       competitionId: "",
                       seasonId: "",
+                      homeTeamId: "",
+                      awayTeamId: "",
                     }));
                   }}
                   className="w-full rounded-lg border border-[var(--border)] px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand/50 focus:border-brand"
@@ -216,38 +288,74 @@ export default function MatchNewClient({ competitions }: Props) {
             </div>
           </div>
 
-          {/* Teams and Score */}
-          <div className="rounded-xl border border-[var(--border)] bg-white p-6 shadow-sm">
-            <h3 className="text-lg font-bold text-slate-900 mb-4">تیم‌ها و نتیجه</h3>
+          {/* Step 2: Teams and Score */}
+          <div
+            className={`rounded-xl border border-[var(--border)] bg-white p-4 sm:p-6 shadow-sm ${
+              step !== 2 ? "hidden md:block" : ""
+            }`}
+          >
+            <h3 className="text-base sm:text-lg font-bold text-slate-900 mb-4">
+              تیم‌ها و نتیجه
+            </h3>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
               <div>
                 <label className="block text-xs font-medium text-slate-700 mb-1.5">
                   تیم میزبان <span className="text-red-500">*</span>
                 </label>
-                <input
-                  type="text"
-                  value={match.homeTeam}
-                  onChange={(e) => setMatch((prev) => ({ ...prev, homeTeam: e.target.value }))}
+                <select
+                  value={match.homeTeamId || ""}
+                  onChange={(e) =>
+                    setMatch((prev) => ({
+                      ...prev,
+                      homeTeamId: e.target.value,
+                      // reset away if equal
+                      awayTeamId:
+                        prev.awayTeamId === e.target.value ? "" : prev.awayTeamId,
+                    }))
+                  }
                   className="w-full rounded-lg border border-[var(--border)] px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand/50 focus:border-brand"
-                  placeholder="نام تیم میزبان"
-                />
+                >
+                  <option value="">انتخاب تیم میزبان</option>
+                  {homeTeamOptions.map((team) => (
+                    <option key={team.id} value={team.id}>
+                      {team.name}
+                    </option>
+                  ))}
+                </select>
               </div>
               <div>
                 <label className="block text-xs font-medium text-slate-700 mb-1.5">
                   تیم میهمان <span className="text-red-500">*</span>
                 </label>
-                <input
-                  type="text"
-                  value={match.awayTeam}
-                  onChange={(e) => setMatch((prev) => ({ ...prev, awayTeam: e.target.value }))}
+                <select
+                  value={match.awayTeamId || ""}
+                  onChange={(e) =>
+                    setMatch((prev) => ({
+                      ...prev,
+                      awayTeamId: e.target.value,
+                    }))
+                  }
                   className="w-full rounded-lg border border-[var(--border)] px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand/50 focus:border-brand"
-                  placeholder="نام تیم میهمان"
-                />
+                >
+                  <option value="">انتخاب تیم میهمان</option>
+                  {awayTeamOptions.map((team) => (
+                    <option key={team.id} value={team.id}>
+                      {team.name}
+                    </option>
+                  ))}
+                </select>
+                {match.homeTeamId && match.awayTeamId === match.homeTeamId && (
+                  <p className="mt-1 text-[11px] text-red-500">
+                    تیم میزبان و میهمان باید متفاوت باشند
+                  </p>
+                )}
               </div>
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-xs font-medium text-slate-700 mb-1.5">گل میزبان</label>
+                <label className="block text-xs font-medium text-slate-700 mb-1.5">
+                  گل میزبان
+                </label>
                 <input
                   type="number"
                   min={0}
@@ -255,14 +363,16 @@ export default function MatchNewClient({ competitions }: Props) {
                   onChange={(e) =>
                     setMatch((prev) => ({
                       ...prev,
-                      homeScore: e.target.value === "" ? null : parseInt(e.target.value),
+                      homeScore: e.target.value === "" ? null : parseInt(e.target.value, 10),
                     }))
                   }
                   className="w-full rounded-lg border border-[var(--border)] px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand/50 focus:border-brand"
                 />
               </div>
               <div>
-                <label className="block text-xs font-medium text-slate-700 mb-1.5">گل میهمان</label>
+                <label className="block text-xs font-medium text-slate-700 mb-1.5">
+                  گل میهمان
+                </label>
                 <input
                   type="number"
                   min={0}
@@ -270,7 +380,7 @@ export default function MatchNewClient({ competitions }: Props) {
                   onChange={(e) =>
                     setMatch((prev) => ({
                       ...prev,
-                      awayScore: e.target.value === "" ? null : parseInt(e.target.value),
+                      awayScore: e.target.value === "" ? null : parseInt(e.target.value, 10),
                     }))
                   }
                   className="w-full rounded-lg border border-[var(--border)] px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand/50 focus:border-brand"
@@ -279,9 +389,15 @@ export default function MatchNewClient({ competitions }: Props) {
             </div>
           </div>
 
-          {/* Date, Time, Venue */}
-          <div className="rounded-xl border border-[var(--border)] bg-white p-6 shadow-sm">
-            <h3 className="text-lg font-bold text-slate-900 mb-4">زمان و مکان</h3>
+          {/* Step 3: Date, Time, Venue */}
+          <div
+            className={`rounded-xl border border-[var(--border)] bg-white p-4 sm:p-6 shadow-sm ${
+              step !== 3 ? "hidden md:block" : ""
+            }`}
+          >
+            <h3 className="text-base sm:text-lg font-bold text-slate-900 mb-4">
+              زمان و مکان
+            </h3>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
               <div>
                 <label className="block text-xs font-medium text-slate-700 mb-1.5">
@@ -304,13 +420,15 @@ export default function MatchNewClient({ competitions }: Props) {
                 />
               </div>
               <div>
-                <label className="block text-xs font-medium text-slate-700 mb-1.5">مکان</label>
+                <label className="block text-xs font-medium text-slate-700 mb-1.5">
+                  مکان
+                </label>
                 <input
                   type="text"
                   value={match.venue}
                   onChange={(e) => setMatch((prev) => ({ ...prev, venue: e.target.value }))}
                   className="w-full rounded-lg border border-[var(--border)] px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand/50 focus:border-brand"
-                  placeholder="نام مکان"
+                  placeholder="نام سالن یا ورزشگاه"
                 />
               </div>
             </div>
@@ -319,12 +437,15 @@ export default function MatchNewClient({ competitions }: Props) {
 
         {/* Sidebar */}
         <div className="space-y-6">
-          {/* Additional Info */}
-          <div className="rounded-xl border border-[var(--border)] bg-white p-6 shadow-sm">
-            <h3 className="text-lg font-bold text-slate-900 mb-4">اطلاعات تکمیلی</h3>
+          <div className="rounded-xl border border-[var(--border)] bg-white p-4 sm:p-6 shadow-sm">
+            <h3 className="text-base sm:text-lg font-bold text-slate-900 mb-4">
+              اطلاعات تکمیلی
+            </h3>
             <div className="space-y-4">
               <div>
-                <label className="block text-xs font-medium text-slate-700 mb-1.5">داور</label>
+                <label className="block text-xs font-medium text-slate-700 mb-1.5">
+                  داور
+                </label>
                 <input
                   type="text"
                   value={match.referee || ""}
@@ -334,20 +455,26 @@ export default function MatchNewClient({ competitions }: Props) {
                 />
               </div>
               <div>
-                <label className="block text-xs font-medium text-slate-700 mb-1.5">تعداد تماشاگر</label>
+                <label className="block text-xs font-medium text-slate-700 mb-1.5">
+                  تعداد تماشاگر
+                </label>
                 <input
                   type="number"
                   min={0}
-                  value={match.attendance || ""}
+                  value={match.attendance ?? ""}
                   onChange={(e) =>
                     setMatch((prev) => ({
                       ...prev,
-                      attendance: e.target.value === "" ? undefined : parseInt(e.target.value),
+                      attendance:
+                        e.target.value === "" ? undefined : parseInt(e.target.value, 10),
                     }))
                   }
                   className="w-full rounded-lg border border-[var(--border)] px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand/50 focus:border-brand"
                   placeholder="تعداد تماشاگر"
                 />
+              </div>
+              <div className="text-[11px] text-slate-500">
+                <p>تمامی داده‌ها فقط در محیط مدیریت و به صورت موقت (Mock) ذخیره می‌شوند.</p>
               </div>
             </div>
           </div>

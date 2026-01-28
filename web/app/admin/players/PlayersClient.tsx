@@ -7,14 +7,36 @@ import { PlayerFormModal, PlayerFormValues } from "@/components/admin/PlayerForm
 import { DeleteConfirmationModal } from "@/components/admin/DeleteConfirmationModal";
 import { Toast } from "@/components/admin/Toast";
 import { Badge } from "@/components/admin/Badge";
+import { mockTeams } from "@/lib/admin/teamsData";
+import type { SportType } from "@/types/matches";
+import type { Team } from "@/types/teams";
+import { generateId } from "@/lib/utils/id";
 
 type PlayerPosition = "GK" | "FIXO" | "ALA" | "PIVO";
+type PlayerStatus = "active" | "injured" | "suspended" | "inactive";
+
+const statusLabel: Record<PlayerStatus, string> = {
+  active: "فعال",
+  injured: "مصدوم",
+  suspended: "محروم",
+  inactive: "غیرفعال",
+};
+
+const statusBadgeVariant: Record<PlayerStatus, "success" | "warning" | "danger" | "default"> = {
+  active: "success",
+  injured: "warning",
+  suspended: "danger",
+  inactive: "default",
+};
 
 type Player = {
   id: string;
   name: string;
-  team: string;
+  sport: SportType;
+  teamId: string;
   position: PlayerPosition;
+  status: PlayerStatus;
+  jerseyNumber?: number;
   photo?: string;
   goals: number;
   goalsConceded: number;
@@ -31,58 +53,70 @@ const positionLabel: Record<PlayerPosition, string> = {
   PIVO: "پیوت",
 };
 
-// Enhanced mock data
+// Seed players linked to existing teams
 const initialPlayers: Player[] = [
   {
-    id: "1",
-    name: "علی رضایی",
-    team: "گیتی پسند",
+    id: "player-1",
+    name: "مهدی جاوید",
+    sport: "futsal",
+    teamId: "team-1", // گیتی پسند
     position: "PIVO",
-    goals: 12,
+    status: "active",
+    jerseyNumber: 10,
+    goals: 15,
     goalsConceded: 0,
     yellowCards: 2,
     redCards: 0,
     cleanSheets: 0,
-    matchesPlayed: 15,
+    matchesPlayed: 18,
     photo: "",
   },
   {
-    id: "2",
-    name: "مهدی جاوید",
-    team: "گیتی پسند",
+    id: "player-2",
+    name: "قدرت بهادری",
+    sport: "futsal",
+    teamId: "team-2", // مس سونگون
     position: "ALA",
-    goals: 8,
+    status: "active",
+    jerseyNumber: 9,
+    goals: 11,
     goalsConceded: 0,
     yellowCards: 1,
     redCards: 0,
     cleanSheets: 0,
-    matchesPlayed: 14,
+    matchesPlayed: 17,
     photo: "",
   },
   {
-    id: "3",
-    name: "قدرت بهادری",
-    team: "مس سونگون",
+    id: "player-3",
+    name: "دروازه‌بان نمونه",
+    sport: "futsal",
+    teamId: "team-2",
     position: "GK",
+    status: "active",
+    jerseyNumber: 1,
     goals: 0,
-    goalsConceded: 15,
+    goalsConceded: 22,
     yellowCards: 0,
     redCards: 0,
-    cleanSheets: 5,
-    matchesPlayed: 12,
+    cleanSheets: 6,
+    matchesPlayed: 18,
     photo: "",
   },
   {
-    id: "4",
-    name: "احمد کریمی",
-    team: "مس سونگون",
-    position: "FIXO",
-    goals: 3,
+    id: "player-4",
+    name: "ملی‌پوش ساحلی",
+    sport: "beach-soccer",
+    teamId: "team-7", // تیم ملی ایران
+    position: "PIVO",
+    status: "active",
+    jerseyNumber: 11,
+    goals: 20,
     goalsConceded: 0,
-    yellowCards: 3,
-    redCards: 1,
+    yellowCards: 1,
+    redCards: 0,
     cleanSheets: 0,
-    matchesPlayed: 13,
+    matchesPlayed: 10,
     photo: "",
   },
 ];
@@ -100,26 +134,55 @@ export default function PlayersClient() {
 
   // Filter states
   const [search, setSearch] = useState("");
+  const [sportFilter, setSportFilter] = useState<SportType | "">("");
   const [teamFilter, setTeamFilter] = useState("");
-  const [positionFilter, setPositionFilter] = useState("");
+  const [positionFilter, setPositionFilter] = useState<PlayerPosition | "">("");
+  const [statusFilter, setStatusFilter] = useState<PlayerStatus | "">("");
   const [sortOption, setSortOption] = useState<SortOption>("none");
 
-  // Get unique teams for filter
-  const teams = useMemo(() => {
-    const uniqueTeams = Array.from(new Set(players.map((p) => p.team)));
-    return uniqueTeams.sort();
-  }, [players]);
+  const allTeams: Team[] = mockTeams;
+
+  // Derived helpers
+  const filteredTeamsBySport = useMemo(
+    () => (sportFilter ? allTeams.filter((t) => t.sport === sportFilter) : allTeams),
+    [allTeams, sportFilter]
+  );
+
+  const teamOptionsForFilter = useMemo(
+    () =>
+      filteredTeamsBySport
+        .filter((t) => t.status === "active")
+        .map((t) => ({ id: t.id, name: t.name })),
+    [filteredTeamsBySport]
+  );
+
+  const playersWithTeamData = useMemo(
+    () =>
+      players.map((p) => {
+        const team = allTeams.find((t) => t.id === p.teamId);
+        return {
+          ...p,
+          teamName: team?.name ?? "—",
+          teamSport: team?.sport ?? p.sport,
+        };
+      }),
+    [players, allTeams]
+  );
 
   // Filtered and sorted players
   const filteredPlayers = useMemo(() => {
-    let result = players.filter((p) => {
-      const matchesSearch = search === "" || p.name.toLowerCase().includes(search.toLowerCase()) || p.team.toLowerCase().includes(search.toLowerCase());
-      const matchesTeam = teamFilter === "" || p.team === teamFilter;
+    let result = playersWithTeamData.filter((p) => {
+      const matchesSearch =
+        search === "" ||
+        p.name.toLowerCase().includes(search.toLowerCase()) ||
+        p.teamName.toLowerCase().includes(search.toLowerCase());
+      const matchesSport = sportFilter === "" || p.sport === sportFilter;
+      const matchesTeam = teamFilter === "" || p.teamId === teamFilter;
       const matchesPosition = positionFilter === "" || p.position === positionFilter;
-      return matchesSearch && matchesTeam && matchesPosition;
+      const matchesStatus = statusFilter === "" || p.status === statusFilter;
+      return matchesSearch && matchesSport && matchesTeam && matchesPosition && matchesStatus;
     });
 
-    // Apply sorting
     if (sortOption !== "none") {
       result = [...result].sort((a, b) => {
         switch (sortOption) {
@@ -138,7 +201,7 @@ export default function PlayersClient() {
     }
 
     return result;
-  }, [players, search, teamFilter, positionFilter, sortOption]);
+  }, [playersWithTeamData, search, sportFilter, teamFilter, positionFilter, statusFilter, sortOption]);
 
   const handleAddPlayer = () => {
     setEditingPlayer(null);
@@ -157,37 +220,33 @@ export default function PlayersClient() {
 
   const handleSavePlayer = async (formData: PlayerFormValues) => {
     setIsLoading(true);
-    
-    // Simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 1000));
+    await new Promise((resolve) => setTimeout(resolve, 600));
 
     try {
       if (editingPlayer) {
-        // Update existing player
         setPlayers((prev) =>
           prev.map((p) =>
             p.id === editingPlayer.id
               ? {
                   ...p,
                   ...formData,
-                  id: p.id, // Keep original ID
+                  id: p.id,
                 }
               : p
           )
         );
         setToast({ message: "بازیکن با موفقیت ویرایش شد", type: "success" });
       } else {
-        // Add new player
         const newPlayer: Player = {
           ...formData,
-          id: crypto.randomUUID(),
+          id: generateId(),
         };
         setPlayers((prev) => [...prev, newPlayer]);
         setToast({ message: "بازیکن جدید با موفقیت اضافه شد", type: "success" });
       }
       setIsModalOpen(false);
       setEditingPlayer(null);
-    } catch (error) {
+    } catch {
       setToast({ message: "خطا در ذخیره اطلاعات", type: "error" });
     } finally {
       setIsLoading(false);
@@ -196,25 +255,22 @@ export default function PlayersClient() {
 
   const handleDeleteConfirm = async () => {
     if (!deletingPlayer) return;
-
     setIsLoading(true);
-    
-    // Simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 800));
+    await new Promise((resolve) => setTimeout(resolve, 500));
 
     try {
       setPlayers((prev) => prev.filter((p) => p.id !== deletingPlayer.id));
       setToast({ message: "بازیکن با موفقیت حذف شد", type: "success" });
       setIsDeleteModalOpen(false);
       setDeletingPlayer(null);
-    } catch (error) {
+    } catch {
       setToast({ message: "خطا در حذف بازیکن", type: "error" });
     } finally {
       setIsLoading(false);
     }
   };
 
-  const columns: readonly Column<Player>[] = [
+  const columns: readonly Column<(typeof playersWithTeamData)[number]> = [
     {
       key: "name",
       label: "بازیکن",
@@ -229,17 +285,45 @@ export default function PlayersClient() {
               </span>
             )}
           </div>
-          <span className="font-medium text-slate-900">{row.name}</span>
+          <div className="flex flex-col">
+            <span className="font-medium text-slate-900">{row.name}</span>
+            <span className="text-[11px] text-slate-500">
+              {row.jerseyNumber ? `شماره ${row.jerseyNumber}` : "بدون شماره"}
+            </span>
+          </div>
         </div>
       ),
     },
-    { key: "team", label: "تیم" },
+    {
+      key: "teamId",
+      label: "تیم / ورزش",
+      render: (row) => {
+        const team = allTeams.find((t) => t.id === row.teamId);
+        return (
+          <div className="flex flex-col text-xs">
+            <span className="font-medium text-slate-900">{team?.name ?? "—"}</span>
+            <span className="text-slate-500">
+              {row.sport === "futsal" ? "فوتسال" : "فوتبال ساحلی"}
+            </span>
+          </div>
+        );
+      },
+    },
     {
       key: "position",
       label: "پست",
       render: (row) => (
-        <Badge variant="info" className="text-xs">
+        <Badge variant="info" className="text-[11px]">
           {positionLabel[row.position]}
+        </Badge>
+      ),
+    },
+    {
+      key: "status",
+      label: "وضعیت",
+      render: (row) => (
+        <Badge variant={statusBadgeVariant[row.status]} className="text-[11px]">
+          {statusLabel[row.status]}
         </Badge>
       ),
     },
@@ -255,20 +339,6 @@ export default function PlayersClient() {
       label: "گل خورده",
       render: (row) => (
         <span className="text-slate-700">{row.goalsConceded}</span>
-      ),
-    },
-    {
-      key: "yellowCards",
-      label: "کارت زرد",
-      render: (row) => (
-        <span className="text-yellow-600 font-medium">{row.yellowCards}</span>
-      ),
-    },
-    {
-      key: "redCards",
-      label: "کارت قرمز",
-      render: (row) => (
-        <span className="text-red-600 font-medium">{row.redCards}</span>
       ),
     },
     {
@@ -308,11 +378,83 @@ export default function PlayersClient() {
     },
   ];
 
+  // Mobile card layout
+  const renderMobileCards = () => (
+    <div className="space-y-3 md:hidden">
+      {filteredPlayers.map((player) => {
+        const team = allTeams.find((t) => t.id === player.teamId);
+        return (
+          <div
+            key={player.id}
+            className="rounded-xl border border-[var(--border)] bg-white p-3 shadow-sm flex gap-3"
+          >
+            <div className="flex-shrink-0">
+              <div className="h-12 w-12 rounded-full bg-slate-200 flex items-center justify-center overflow-hidden">
+                {player.photo ? (
+                  <img
+                    src={player.photo}
+                    alt={player.name}
+                    className="h-full w-full object-cover"
+                  />
+                ) : (
+                  <span className="text-slate-500 text-sm font-semibold">
+                    {player.name.charAt(0)}
+                  </span>
+                )}
+              </div>
+            </div>
+            <div className="flex-1 space-y-1">
+              <div className="flex items-center justify-between gap-2">
+                <div className="flex flex-col">
+                  <span className="text-sm font-bold text-slate-900">
+                    {player.name}
+                  </span>
+                  <span className="text-[11px] text-slate-500">
+                    {team?.name ?? "—"} ·{" "}
+                    {player.sport === "futsal" ? "فوتسال" : "فوتبال ساحلی"}
+                  </span>
+                </div>
+                <Badge
+                  variant={statusBadgeVariant[player.status]}
+                  className="text-[10px]"
+                >
+                  {statusLabel[player.status]}
+                </Badge>
+              </div>
+              <div className="flex items-center justify-between text-[11px] text-slate-600">
+                <span>{positionLabel[player.position]}</span>
+                <span>بازی: {player.matchesPlayed}</span>
+                <span>گل: {player.goals}</span>
+                {player.position === "GK" && (
+                  <span>گل خورده: {player.goalsConceded}</span>
+                )}
+              </div>
+              <div className="flex justify-end gap-2 pt-1">
+                <button
+                  onClick={() => handleEditPlayer(player)}
+                  className="rounded-lg border border-[var(--border)] px-2 py-1 text-[11px] text-slate-700 hover:bg-slate-50"
+                >
+                  ویرایش
+                </button>
+                <button
+                  onClick={() => handleDeleteClick(player)}
+                  className="rounded-lg border border-red-200 bg-red-50 px-2 py-1 text-[11px] text-red-600 hover:bg-red-100"
+                >
+                  حذف
+                </button>
+              </div>
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  );
+
   return (
     <div className="space-y-6" dir="rtl">
       <PageHeader
-        title="مدیریت آمار بازیکنان فوتسال"
-        subtitle="مدیریت کامل اطلاعات و آمار بازیکنان لیگ فوتسال"
+        title="مدیریت بازیکنان"
+        subtitle="بازیکنان فوتسال و فوتبال ساحلی متصل به تیم‌های ثبت‌شده"
         action={
           <button
             onClick={handleAddPlayer}
@@ -323,84 +465,139 @@ export default function PlayersClient() {
         }
       />
 
-      {/* Advanced Filters */}
-      <div className="rounded-xl border border-[var(--border)] bg-white p-4 sm:p-6 shadow-sm">
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          {/* Search */}
-          <div className="sm:col-span-2 lg:col-span-1">
-            <label className="block text-xs font-medium text-slate-700 mb-2">
-              جستجو
-            </label>
-            <input
-              type="text"
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              placeholder="نام بازیکن یا تیم..."
-              className="w-full rounded-lg border border-[var(--border)] px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand/50 focus:border-brand"
-            />
+      {/* فیلترها - طراحی بهتر و مرتب‌تر */}
+      <div className="rounded-xl border border-[var(--border)] bg-white shadow-sm overflow-hidden">
+        {/* Header */}
+        <div className="bg-slate-50 border-b border-[var(--border)] px-4 py-3">
+          <div className="flex items-center gap-2">
+            <svg className="h-5 w-5 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
+            </svg>
+            <h3 className="text-sm font-semibold text-slate-900">فیلترها و جستجو</h3>
           </div>
+        </div>
 
-          {/* Team Filter */}
-          <div>
-            <label className="block text-xs font-medium text-slate-700 mb-2">
-              تیم
-            </label>
-            <select
-              value={teamFilter}
-              onChange={(e) => setTeamFilter(e.target.value)}
-              className="w-full rounded-lg border border-[var(--border)] px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand/50 focus:border-brand"
-            >
-              <option value="">همه تیم‌ها</option>
-              {teams.map((team) => (
-                <option key={team} value={team}>
-                  {team}
-                </option>
-              ))}
-            </select>
-          </div>
+        {/* Filters Grid */}
+        <div className="p-4 sm:p-6">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
+            {/* Search - Full width on mobile, spans 2 columns on larger screens */}
+            <div className="sm:col-span-2 lg:col-span-3 xl:col-span-2">
+              <label className="block text-xs font-semibold text-slate-700 mb-2">
+                جستجو
+              </label>
+              <div className="relative">
+                <svg className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                </svg>
+                <input
+                  type="text"
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                  placeholder="نام بازیکن یا تیم..."
+                  className="w-full rounded-lg border border-[var(--border)] pr-9 pl-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand/50 focus:border-brand"
+                />
+              </div>
+            </div>
 
-          {/* Position Filter */}
-          <div>
-            <label className="block text-xs font-medium text-slate-700 mb-2">
-              پست
-            </label>
-            <select
-              value={positionFilter}
-              onChange={(e) => setPositionFilter(e.target.value)}
-              className="w-full rounded-lg border border-[var(--border)] px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand/50 focus:border-brand"
-            >
-              <option value="">همه پست‌ها</option>
-              <option value="GK">دروازه‌بان</option>
-              <option value="FIXO">فیکسو</option>
-              <option value="ALA">آلا</option>
-              <option value="PIVO">پیوت</option>
-            </select>
-          </div>
+            {/* Sport Filter */}
+            <div>
+              <label className="block text-xs font-semibold text-slate-700 mb-2">
+                ورزش
+              </label>
+              <select
+                value={sportFilter}
+                onChange={(e) => setSportFilter(e.target.value as SportType | "")}
+                className="w-full rounded-lg border border-[var(--border)] px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand/50 focus:border-brand bg-white"
+              >
+                <option value="">همه ورزش‌ها</option>
+                <option value="futsal">فوتسال</option>
+                <option value="beach-soccer">فوتبال ساحلی</option>
+              </select>
+            </div>
 
-          {/* Sort */}
-          <div>
-            <label className="block text-xs font-medium text-slate-700 mb-2">
-              مرتب‌سازی
-            </label>
-            <select
-              value={sortOption}
-              onChange={(e) => setSortOption(e.target.value as SortOption)}
-              className="w-full rounded-lg border border-[var(--border)] px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand/50 focus:border-brand"
-            >
-              <option value="none">بدون مرتب‌سازی</option>
-              <option value="goals-desc">بیشترین گل</option>
-              <option value="goals-asc">کمترین گل</option>
-              <option value="goalsConceded-asc">کمترین گل خورده</option>
-              <option value="matches-desc">بیشترین بازی</option>
-            </select>
+            {/* Team Filter */}
+            <div>
+              <label className="block text-xs font-semibold text-slate-700 mb-2">
+                تیم
+              </label>
+              <select
+                value={teamFilter}
+                onChange={(e) => setTeamFilter(e.target.value)}
+                className="w-full rounded-lg border border-[var(--border)] px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand/50 focus:border-brand bg-white"
+              >
+                <option value="">همه تیم‌ها</option>
+                {teamOptionsForFilter.map((t) => (
+                  <option key={t.id} value={t.id}>
+                    {t.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            {/* Position Filter */}
+            <div>
+              <label className="block text-xs font-semibold text-slate-700 mb-2">
+                پست
+              </label>
+              <select
+                value={positionFilter}
+                onChange={(e) => setPositionFilter(e.target.value as PlayerPosition | "")}
+                className="w-full rounded-lg border border-[var(--border)] px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand/50 focus:border-brand bg-white"
+              >
+                <option value="">همه پست‌ها</option>
+                <option value="GK">دروازه‌بان</option>
+                <option value="FIXO">فیکسو</option>
+                <option value="ALA">آلا</option>
+                <option value="PIVO">پیوت</option>
+              </select>
+            </div>
+
+            {/* Status Filter */}
+            <div>
+              <label className="block text-xs font-semibold text-slate-700 mb-2">
+                وضعیت
+              </label>
+              <select
+                value={statusFilter}
+                onChange={(e) => setStatusFilter(e.target.value as PlayerStatus | "")}
+                className="w-full rounded-lg border border-[var(--border)] px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand/50 focus:border-brand bg-white"
+              >
+                <option value="">همه وضعیت‌ها</option>
+                <option value="active">فعال</option>
+                <option value="injured">مصدوم</option>
+                <option value="suspended">محروم</option>
+                <option value="inactive">غیرفعال</option>
+              </select>
+            </div>
+
+            {/* Sort */}
+            <div>
+              <label className="block text-xs font-semibold text-slate-700 mb-2">
+                مرتب‌سازی
+              </label>
+              <select
+                value={sortOption}
+                onChange={(e) => setSortOption(e.target.value as SortOption)}
+                className="w-full rounded-lg border border-[var(--border)] px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand/50 focus:border-brand bg-white"
+              >
+                <option value="none">بدون مرتب‌سازی</option>
+                <option value="goals-desc">بیشترین گل</option>
+                <option value="goals-asc">کمترین گل</option>
+                <option value="goalsConceded-asc">کمترین گل خورده</option>
+                <option value="matches-desc">بیشترین بازی</option>
+              </select>
+            </div>
           </div>
         </div>
       </div>
 
-      {/* Players Table */}
-      <div className="rounded-xl border border-[var(--border)] bg-white overflow-hidden shadow-sm">
+      {/* Mobile cards */}
+      {renderMobileCards()}
+
+      {/* Desktop table */}
+      <div className="hidden md:block rounded-xl border border-[var(--border)] bg-white overflow-hidden shadow-sm">
         {filteredPlayers.length > 0 ? (
-          <DataTable<Player>
+          <DataTable<typeof playersWithTeamData[number]>
             columns={columns}
             data={filteredPlayers}
             keyExtractor={(row) => row.id}
@@ -424,8 +621,11 @@ export default function PlayersClient() {
           editingPlayer
             ? {
                 name: editingPlayer.name,
-                team: editingPlayer.team,
+                sport: editingPlayer.sport,
+                teamId: editingPlayer.teamId,
                 position: editingPlayer.position,
+                jerseyNumber: editingPlayer.jerseyNumber,
+                status: editingPlayer.status,
                 photo: editingPlayer.photo,
                 goals: editingPlayer.goals,
                 goalsConceded: editingPlayer.goalsConceded,
@@ -436,6 +636,7 @@ export default function PlayersClient() {
               }
             : undefined
         }
+        teams={allTeams}
         isLoading={isLoading}
       />
 
