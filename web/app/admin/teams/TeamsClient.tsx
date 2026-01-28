@@ -11,6 +11,7 @@ import { Team, TeamFormValues } from "@/types/teams";
 import { mockTeams } from "@/lib/admin/teamsData";
 import { getAvailableSports, getSportConfig } from "@/types/matches";
 import { EmptyState } from "@/components/admin/EmptyState";
+import { generateId } from "@/lib/utils/id";
 
 export default function TeamsClient() {
   const [teams, setTeams] = useState<Team[]>(mockTeams);
@@ -89,7 +90,7 @@ export default function TeamsClient() {
         // Add new team
         const newTeam: Team = {
           ...formData,
-          id: crypto.randomUUID(),
+          id: generateId(),
           createdAt: new Date().toISOString(),
           updatedAt: new Date().toISOString(),
         };
