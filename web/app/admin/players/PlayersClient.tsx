@@ -46,6 +46,12 @@ type Player = {
   matchesPlayed: number;
 };
 
+// ردیفی که در جدول و کارت‌ها استفاده می‌کنیم (بازیکن + نام تیم)
+type PlayerRow = Player & {
+  teamName: string;
+  teamSport: SportType;
+};
+
 const positionLabel: Record<PlayerPosition, string> = {
   GK: "دروازه‌بان",
   FIXO: "فیکسو",
@@ -156,7 +162,7 @@ export default function PlayersClient() {
     [filteredTeamsBySport]
   );
 
-  const playersWithTeamData = useMemo(
+  const playersWithTeamData: PlayerRow[] = useMemo(
     () =>
       players.map((p) => {
         const team = allTeams.find((t) => t.id === p.teamId);
@@ -270,7 +276,7 @@ export default function PlayersClient() {
     }
   };
 
-  const columns: readonly Column<(typeof playersWithTeamData)[number]> = [
+  const columns: readonly Column<PlayerRow>[] = [
     {
       key: "name",
       label: "بازیکن",
@@ -381,7 +387,7 @@ export default function PlayersClient() {
   // Mobile card layout
   const renderMobileCards = () => (
     <div className="space-y-3 md:hidden">
-      {filteredPlayers.map((player) => {
+      {filteredPlayers.map((player: PlayerRow) => {
         const team = allTeams.find((t) => t.id === player.teamId);
         return (
           <div
@@ -597,7 +603,7 @@ export default function PlayersClient() {
       {/* Desktop table */}
       <div className="hidden md:block rounded-xl border border-[var(--border)] bg-white overflow-hidden shadow-sm">
         {filteredPlayers.length > 0 ? (
-          <DataTable<typeof playersWithTeamData[number]>
+          <DataTable<PlayerRow>
             columns={columns}
             data={filteredPlayers}
             keyExtractor={(row) => row.id}
