@@ -172,9 +172,9 @@ export function PersianDatePicker({
             onClick={() => setIsOpen(false)}
           />
           {/* Calendar */}
-          <div className="absolute top-full mt-2 right-0 z-[9999] bg-white rounded-xl border border-[var(--border)] shadow-xl p-3 w-[340px] max-w-[calc(100vw-2rem)]">
+          <div className="absolute top-full mt-2 right-0 z-[9999] bg-white rounded-xl border border-[var(--border)] shadow-xl p-3 w-[370px] max-w-[calc(100vw-2rem)]">
           {/* Header */}
-          <div className="flex items-center justify-between mb-3 gap-1">
+          <div className="flex items-center mb-3 gap-1">
             <button
               type="button"
               onClick={handleNextMonth}
@@ -185,11 +185,11 @@ export function PersianDatePicker({
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
               </svg>
             </button>
-            <div className="flex items-center gap-1.5 flex-1 justify-center min-w-0">
+            <div className="flex items-center gap-1 flex-1 min-w-0 overflow-hidden justify-center">
               <select
                 value={viewMonth}
                 onChange={(e) => setViewMonth(Number(e.target.value))}
-                className="rounded-lg border border-[var(--border)] px-1.5 py-1.5 text-xs font-medium focus:outline-none focus:ring-2 focus:ring-brand/50 bg-white w-full max-w-[120px]"
+                className="rounded-lg border border-[var(--border)] px-1.5 py-1.5 text-xs font-medium focus:outline-none focus:ring-2 focus:ring-brand/50 bg-white flex-1 min-w-0 max-w-[130px]"
                 dir="rtl"
               >
                 {monthNames.map((name, index) => (
@@ -201,7 +201,7 @@ export function PersianDatePicker({
               <select
                 value={viewYear}
                 onChange={(e) => setViewYear(Number(e.target.value))}
-                className="rounded-lg border border-[var(--border)] px-1.5 py-1.5 text-xs font-medium focus:outline-none focus:ring-2 focus:ring-brand/50 bg-white w-full max-w-[90px]"
+                className="rounded-lg border border-[var(--border)] px-1.5 py-1.5 text-xs font-medium focus:outline-none focus:ring-2 focus:ring-brand/50 bg-white flex-1 min-w-0 max-w-[100px]"
                 dir="rtl"
               >
                 {Array.from({ length: 20 }, (_, i) => currentYear - 5 + i).map((year) => (
