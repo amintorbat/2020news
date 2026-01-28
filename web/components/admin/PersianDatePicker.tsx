@@ -172,24 +172,24 @@ export function PersianDatePicker({
             onClick={() => setIsOpen(false)}
           />
           {/* Calendar */}
-          <div className="absolute top-full mt-2 right-0 z-[9999] bg-white rounded-xl border border-[var(--border)] shadow-xl p-4 w-[340px] max-w-[calc(100vw-2rem)]">
+          <div className="absolute top-full mt-2 right-0 z-[9999] bg-white rounded-xl border border-[var(--border)] shadow-xl p-4 w-[360px] max-w-[calc(100vw-2rem)]">
           {/* Header */}
-          <div className="flex items-center justify-between mb-4 gap-2">
+          <div className="grid grid-cols-[auto_1fr_auto] items-center gap-2 mb-4">
             <button
               type="button"
               onClick={handleNextMonth}
-              className="p-2 hover:bg-slate-100 rounded-lg transition-colors flex-shrink-0"
+              className="p-2 hover:bg-slate-100 rounded-lg transition-colors"
               aria-label="ماه بعد"
             >
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
               </svg>
             </button>
-            <div className="flex items-center gap-2 flex-1 justify-center min-w-0">
+            <div className="flex items-center gap-2 justify-center">
               <select
                 value={viewMonth}
                 onChange={(e) => setViewMonth(Number(e.target.value))}
-                className="rounded-lg border border-[var(--border)] px-2 py-1.5 text-xs font-medium focus:outline-none focus:ring-2 focus:ring-brand/50 bg-white w-[100px] flex-shrink-0"
+                className="rounded-lg border border-[var(--border)] px-2 py-1.5 text-xs font-medium focus:outline-none focus:ring-2 focus:ring-brand/50 bg-white flex-1"
                 dir="rtl"
               >
                 {monthNames.map((name, index) => (
@@ -201,7 +201,7 @@ export function PersianDatePicker({
               <select
                 value={viewYear}
                 onChange={(e) => setViewYear(Number(e.target.value))}
-                className="rounded-lg border border-[var(--border)] px-2 py-1.5 text-xs font-medium focus:outline-none focus:ring-2 focus:ring-brand/50 bg-white w-[80px] flex-shrink-0"
+                className="rounded-lg border border-[var(--border)] px-2 py-1.5 text-xs font-medium focus:outline-none focus:ring-2 focus:ring-brand/50 bg-white flex-1"
                 dir="rtl"
               >
                 {Array.from({ length: 20 }, (_, i) => currentYear - 5 + i).map((year) => (
@@ -214,7 +214,7 @@ export function PersianDatePicker({
             <button
               type="button"
               onClick={handlePrevMonth}
-              className="p-2 hover:bg-slate-100 rounded-lg transition-colors flex-shrink-0"
+              className="p-2 hover:bg-slate-100 rounded-lg transition-colors"
               aria-label="ماه قبل"
             >
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
