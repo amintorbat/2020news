@@ -19,8 +19,68 @@ export interface StandingRow {
   goalDifference: number;
   points: number;
   form: string[]; // Last 5 matches: 'W', 'D', 'L'
+  
+  // Admin features
+  isLocked: boolean; // Whether this table is locked from auto-calculation
+  manualOverrides?: {
+    points?: number; // Manual point adjustment
+    pointsDeduction?: number; // Points deducted (penalties)
+    pointsDeductionReason?: string; // Reason for deduction
+    played?: number;
+    won?: number;
+    drawn?: number;
+    lost?: number;
+    goalsFor?: number;
+    goalsAgainst?: number;
+  };
+  
+  // Zone indicators
+  zone?: "champion" | "promotion" | "relegation" | "normal";
 }
 
+// Table configuration per competition
+export interface TableConfig {
+  competitionId: string;
+  seasonId: string;
+  isLocked: boolean; // Lock entire table
+  promotionZones?: number; // Number of promotion positions
+  relegationZones?: number; // Number of relegation positions
+  pointsConfig?: {
+    win: number;
+    draw: number;
+    loss: number;
+  };
+}
+
+// Mock table configurations
+export const mockTableConfigs: TableConfig[] = [
+  {
+    competitionId: "comp-1",
+    seasonId: "season-1",
+    isLocked: false,
+    promotionZones: 3, // Top 3 for promotion
+    relegationZones: 2, // Bottom 2 for relegation
+    pointsConfig: {
+      win: 3,
+      draw: 1,
+      loss: 0,
+    },
+  },
+  {
+    competitionId: "comp-4",
+    seasonId: "season-4",
+    isLocked: false,
+    promotionZones: 2,
+    relegationZones: 1,
+    pointsConfig: {
+      win: 3,
+      draw: 1,
+      loss: 0,
+    },
+  },
+];
+
+// Legacy mock standings (will be replaced by calculated ones)
 export const mockStandings: StandingRow[] = [
   // Futsal League
   {
@@ -42,6 +102,8 @@ export const mockStandings: StandingRow[] = [
     goalDifference: 17,
     points: 25,
     form: ["W", "W", "W", "D", "W"],
+    isLocked: false,
+    zone: "champion",
   },
   {
     id: "stand-2",
@@ -62,6 +124,8 @@ export const mockStandings: StandingRow[] = [
     goalDifference: 16,
     points: 23,
     form: ["W", "W", "D", "W", "W"],
+    isLocked: false,
+    zone: "promotion",
   },
   {
     id: "stand-3",
@@ -82,6 +146,8 @@ export const mockStandings: StandingRow[] = [
     goalDifference: 11,
     points: 21,
     form: ["W", "D", "W", "D", "W"],
+    isLocked: false,
+    zone: "promotion",
   },
   {
     id: "stand-4",
@@ -102,6 +168,8 @@ export const mockStandings: StandingRow[] = [
     goalDifference: 4,
     points: 17,
     form: ["L", "W", "D", "W", "L"],
+    isLocked: false,
+    zone: "normal",
   },
   {
     id: "stand-5",
@@ -122,6 +190,8 @@ export const mockStandings: StandingRow[] = [
     goalDifference: 1,
     points: 15,
     form: ["W", "L", "D", "D", "W"],
+    isLocked: false,
+    zone: "normal",
   },
   // Beach Soccer League
   {
@@ -143,6 +213,8 @@ export const mockStandings: StandingRow[] = [
     goalDifference: 23,
     points: 21,
     form: ["W", "W", "W", "W", "L"],
+    isLocked: false,
+    zone: "champion",
   },
   {
     id: "stand-7",
@@ -163,6 +235,8 @@ export const mockStandings: StandingRow[] = [
     goalDifference: 18,
     points: 19,
     form: ["W", "W", "D", "W", "W"],
+    isLocked: false,
+    zone: "promotion",
   },
   {
     id: "stand-8",
@@ -183,5 +257,7 @@ export const mockStandings: StandingRow[] = [
     goalDifference: 10,
     points: 17,
     form: ["W", "D", "W", "D", "W"],
+    isLocked: false,
+    zone: "normal",
   },
 ];
