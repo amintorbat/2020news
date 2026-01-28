@@ -39,6 +39,20 @@ const navItems: NavItem[] = [
     ),
   },
   {
+    title: "لیگ‌ها",
+    href: "/admin/leagues",
+    icon: (
+      <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeWidth={2}
+          d="M4 6h16M4 10h10M4 14h7M4 18h4"
+        />
+      </svg>
+    ),
+  },
+  {
     title: "تیم‌ها",
     href: "/admin/teams",
     icon: (
