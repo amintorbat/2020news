@@ -42,27 +42,70 @@ export interface Competition {
   seasons: Season[];
 }
 
+// Temporary Reporter Access Permissions
+export type ReporterPermission = "goals" | "cards" | "match-news";
+
+export interface TemporaryReporterAccess {
+  enabled: boolean;
+  startDateTime?: string; // ISO datetime string
+  endDateTime?: string; // ISO datetime string
+  permissions: ReporterPermission[];
+}
+
+// Match Statistics (for finished matches)
+export interface MatchStats {
+  homeGoals: number;
+  awayGoals: number;
+  homeYellowCards: number;
+  homeRedCards: number;
+  awayYellowCards: number;
+  awayRedCards: number;
+  homeGoalsConceded: number;
+  awayGoalsConceded: number;
+}
+
 // Match
 export interface Match {
   id: string;
+  /**
+   * Link to League/Cup from /admin/leagues
+   */
+  leagueId: string;
+  leagueName: string;
+  
   sport: SportType;
-  competitionId: string;
-  competitionName: string;
+  competitionId: string; // Legacy - kept for backward compatibility
+  competitionName: string; // Legacy - kept for backward compatibility
   seasonId: string;
   seasonName: string;
+  
   homeTeam: string;
   homeTeamId?: string;
   awayTeam: string;
   awayTeamId?: string;
+  
   homeScore: number | null;
   awayScore: number | null;
   status: MatchStatus;
+  
   date: string; // ISO date string
   time: string; // HH:MM format
   venue: string;
   referee?: string;
   attendance?: number;
+  
   events: MatchEvent[];
+  
+  /**
+   * Temporary Reporter Access for limited-time permissions
+   */
+  reporterAccess?: TemporaryReporterAccess;
+  
+  /**
+   * Match statistics (only for finished matches)
+   */
+  stats?: MatchStats;
+  
   isPublished: boolean;
   createdAt: string;
   updatedAt: string;

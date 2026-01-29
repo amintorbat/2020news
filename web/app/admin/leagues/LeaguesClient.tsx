@@ -13,25 +13,34 @@ import type {
   LeagueStatus,
   LeagueSportType,
   LeagueCompetitionType,
+  PointsSystem,
 } from "@/types/leagues";
 import { generateId } from "@/lib/utils/id";
 
-type LeagueMode = "create" | "edit" | "view";
-type LeagueFormStep = 1 | 2 | 3;
+type CompetitionMode = "create" | "edit" | "view";
+type FormStep = 1 | 2 | 3;
 
-type LeagueFormValues = {
+type CompetitionFormValues = {
   title: string;
   sportType: LeagueSportType;
   competitionType: LeagueCompetitionType;
   season: string;
   status: LeagueStatus;
   numberOfTeams: number;
-  promotionSpots: number;
-  relegationSpots: number;
-  hasGroups: boolean;
   startDate: string;
   endDate: string;
   description?: string;
+
+  // League-specific fields
+  promotionSpots?: number;
+  relegationSpots?: number;
+  hasGroups?: boolean;
+  pointsSystem?: PointsSystem;
+  hasStandingsTable?: boolean;
+
+  // Knockout-specific fields
+  twoLeggedMatches?: boolean;
+  hasThirdPlaceMatch?: boolean;
 };
 
 type ToastState = { message: string; type: "success" | "error" } | null;
@@ -49,11 +58,11 @@ const sportTypeLabel: Record<LeagueSportType, string> = {
 
 const competitionTypeLabel: Record<LeagueCompetitionType, string> = {
   league: "لیگ (دوره‌ای)",
-  knockout: "جام حذفی (حذفی)",
+  knockout: "جام حذفی",
 };
 
 export default function LeaguesClient() {
-  const [leagues, setLeagues] = useState<League[]>(mockLeagues);
+  const [competitions, setCompetitions] = useState<League[]>(mockLeagues);
 
   const [search, setSearch] = useState("");
   const [sportFilter, setSportFilter] = useState<LeagueSportType | "">("");
@@ -61,113 +70,87 @@ export default function LeaguesClient() {
   const [competitionFilter, setCompetitionFilter] =
     useState<LeagueCompetitionType | "">("");
 
-  const [mode, setMode] = useState<LeagueMode>("create");
-  const [activeLeague, setActiveLeague] = useState<League | null>(null);
+  const [mode, setMode] = useState<CompetitionMode>("create");
+  const [activeCompetition, setActiveCompetition] = useState<League | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [toast, setToast] = useState<ToastState>(null);
 
-  const filteredLeagues = useMemo(() => {
-    return leagues.filter((league) => {
+  const filteredCompetitions = useMemo(() => {
+    return competitions.filter((competition) => {
       const query = search.trim().toLowerCase();
       const matchesSearch =
         query === "" ||
-        league.title.toLowerCase().includes(query) ||
-        league.season.toLowerCase().includes(query) ||
-        (league.description ?? "").toLowerCase().includes(query);
+        competition.title.toLowerCase().includes(query) ||
+        competition.season.toLowerCase().includes(query) ||
+        (competition.description ?? "").toLowerCase().includes(query);
 
       const matchesSport =
-        sportFilter === "" || league.sportType === sportFilter;
+        sportFilter === "" || competition.sportType === sportFilter;
       const matchesStatus =
-        statusFilter === "" || league.status === statusFilter;
+        statusFilter === "" || competition.status === statusFilter;
       const matchesCompetition =
         competitionFilter === "" ||
-        league.competitionType === competitionFilter;
+        competition.competitionType === competitionFilter;
 
       return matchesSearch && matchesSport && matchesStatus && matchesCompetition;
     });
-  }, [leagues, search, sportFilter, statusFilter, competitionFilter]);
+  }, [competitions, search, sportFilter, statusFilter, competitionFilter]);
 
   const handleOpenCreate = () => {
     setMode("create");
-    setActiveLeague(null);
+    setActiveCompetition(null);
     setIsModalOpen(true);
   };
 
-  const handleEditLeague = (league: League) => {
+  const handleEditCompetition = (competition: League) => {
     setMode("edit");
-    setActiveLeague(league);
+    setActiveCompetition(competition);
     setIsModalOpen(true);
   };
 
-  const handleViewLeague = (league: League) => {
+  const handleViewCompetition = (competition: League) => {
     setMode("view");
-    setActiveLeague(league);
+    setActiveCompetition(competition);
     setIsModalOpen(true);
   };
 
-  const handleArchiveLeague = (league: League) => {
-    if (league.status === "archived") return;
-
-    // Lightweight confirmation – can be replaced with custom modal later
-    // eslint-disable-next-line no-alert
-    const ok = window.confirm(
-      `آیا از آرشیو کردن لیگ «${league.title}» مطمئن هستید؟\nاین عمل لیگ را از لیست فعال خارج می‌کند اما اطلاعات آن حفظ می‌شود.`
-    );
-    if (!ok) return;
-
-    setLeagues((prev) =>
-      prev.map((lg) =>
-        lg.id === league.id
-          ? {
-              ...lg,
-              status: "archived" as LeagueStatus,
-            }
-          : lg
-      )
-    );
-    setToast({
-      message: "لیگ با موفقیت آرشیو شد.",
-      type: "success",
-    });
-  };
-
-  const handleSaveLeague = async (values: LeagueFormValues) => {
+  const handleSaveCompetition = async (values: CompetitionFormValues) => {
     setIsLoading(true);
     await new Promise((resolve) => setTimeout(resolve, 400));
 
     try {
-      if (mode === "edit" && activeLeague) {
-        setLeagues((prev) =>
-          prev.map((lg) =>
-            lg.id === activeLeague.id
+      if (mode === "edit" && activeCompetition) {
+        setCompetitions((prev) =>
+          prev.map((comp) =>
+            comp.id === activeCompetition.id
               ? {
-                  ...lg,
+                  ...comp,
                   ...values,
                 }
-              : lg
+              : comp
           )
         );
-        setToast({ message: "لیگ با موفقیت ویرایش شد.", type: "success" });
+        setToast({ message: "مسابقات با موفقیت ویرایش شد.", type: "success" });
       } else {
-        const newLeague: League = {
+        const newCompetition: League = {
           id: generateId(),
           ...values,
           createdAt: new Date().toISOString(),
         };
-        setLeagues((prev) => [...prev, newLeague]);
+        setCompetitions((prev) => [...prev, newCompetition]);
         setToast({
-          message: "لیگ جدید با موفقیت ایجاد شد.",
+          message: "مسابقات جدید با موفقیت ایجاد شد.",
           type: "success",
         });
       }
 
       setIsModalOpen(false);
-      setActiveLeague(null);
+      setActiveCompetition(null);
       setMode("create");
     } catch {
       setToast({
-        message: "خطا در ذخیره اطلاعات لیگ.",
+        message: "خطا در ذخیره اطلاعات مسابقات.",
         type: "error",
       });
     } finally {
@@ -178,7 +161,7 @@ export default function LeaguesClient() {
   const columns: readonly Column<League>[] = [
     {
       key: "title",
-      label: "عنوان لیگ",
+      label: "عنوان مسابقات",
       render: (row) => (
         <div className="flex flex-col gap-0.5">
           <span className="font-semibold text-slate-900">{row.title}</span>
@@ -223,14 +206,26 @@ export default function LeaguesClient() {
     },
     {
       key: "numberOfTeams",
-      label: "ساختار لیگ",
+      label: "ساختار",
       render: (row) => (
         <div className="flex flex-col gap-0.5 text-xs text-slate-700">
           <span>تعداد تیم‌ها: {row.numberOfTeams}</span>
-          <span>
-            صعود: {row.promotionSpots} · سقوط: {row.relegationSpots}
-            {row.hasGroups ? " · دارای گروه‌ها" : ""}
-          </span>
+          {row.competitionType === "league" && (
+            <>
+              {row.promotionSpots !== undefined && row.promotionSpots > 0 && (
+                <span>صعود: {row.promotionSpots}</span>
+              )}
+              {row.relegationSpots !== undefined && row.relegationSpots > 0 && (
+                <span>سقوط: {row.relegationSpots}</span>
+              )}
+            </>
+          )}
+          {row.competitionType === "knockout" && (
+            <>
+              {row.twoLeggedMatches && <span>رفت و برگشت</span>}
+              {row.hasThirdPlaceMatch && <span>مسابقه رده‌بندی</span>}
+            </>
+          )}
         </div>
       ),
     },
@@ -240,22 +235,16 @@ export default function LeaguesClient() {
       render: (row) => (
         <div className="flex items-center gap-2">
           <button
-            onClick={() => handleViewLeague(row)}
+            onClick={() => handleViewCompetition(row)}
             className="rounded-lg border border-[var(--border)] px-3 py-1.5 text-xs font-medium text-slate-700 hover:bg-slate-50"
           >
             مشاهده
           </button>
           <button
-            onClick={() => handleEditLeague(row)}
+            onClick={() => handleEditCompetition(row)}
             className="rounded-lg border border-[var(--border)] px-3 py-1.5 text-xs font-medium text-slate-700 hover:bg-slate-50"
           >
             ویرایش
-          </button>
-          <button
-            onClick={() => handleArchiveLeague(row)}
-            className="rounded-lg border border-red-200 px-3 py-1.5 text-xs font-medium text-red-600 hover:bg-red-50"
-          >
-            آرشیو
           </button>
         </div>
       ),
@@ -264,54 +253,56 @@ export default function LeaguesClient() {
 
   const renderMobileCards = () => (
     <div className="space-y-3 md:hidden">
-      {filteredLeagues.map((league) => (
+      {filteredCompetitions.map((competition) => (
         <div
-          key={league.id}
+          key={competition.id}
           className="flex flex-col gap-2 rounded-xl border border-[var(--border)] bg-white p-3 shadow-sm"
         >
           <div className="flex items-start justify-between gap-2">
             <div className="space-y-0.5">
               <h3 className="text-sm font-bold text-slate-900">
-                {league.title}
+                {competition.title}
               </h3>
-              <p className="text-[11px] text-slate-500">{league.season}</p>
+              <p className="text-[11px] text-slate-500">{competition.season}</p>
             </div>
             <Badge
               variant={
-                league.status === "active"
+                competition.status === "active"
                   ? "success"
-                  : league.status === "draft"
+                  : competition.status === "draft"
                   ? "warning"
                   : "default"
               }
               className="px-2 py-0.5 text-[10px]"
             >
-              {statusLabel[league.status]}
+              {statusLabel[competition.status]}
             </Badge>
           </div>
 
           <div className="flex items-center justify-between text-[11px] text-slate-600">
-            <span>{sportTypeLabel[league.sportType]}</span>
-            <span>{competitionTypeLabel[league.competitionType]}</span>
+            <span>{sportTypeLabel[competition.sportType]}</span>
+            <span>{competitionTypeLabel[competition.competitionType]}</span>
           </div>
 
           <div className="flex items-center justify-between pt-1 text-[10px] text-slate-500">
-            <span>
-              تیم‌ها: {league.numberOfTeams} · صعود: {league.promotionSpots} ·
-              سقوط: {league.relegationSpots}
-            </span>
-            {league.hasGroups && <span>لیگ گروهی</span>}
+            <span>تیم‌ها: {competition.numberOfTeams}</span>
+            {competition.competitionType === "league" && (
+              <span>
+                {competition.promotionSpots || 0} صعود /{" "}
+                {competition.relegationSpots || 0} سقوط
+              </span>
+            )}
           </div>
 
           <div className="flex justify-end gap-2 pt-1">
             <button
-              onClick={() => handleViewLeague(league)}
+              onClick={() => handleViewCompetition(competition)}
               className="rounded-lg border border-[var(--border)] px-3 py-1 text-[11px] text-slate-700 hover:bg-slate-50"
             >
               مشاهده
             </button>
             <button
-              onClick={() => handleEditLeague(league)}
+              onClick={() => handleEditCompetition(competition)}
               className="rounded-lg border border-[var(--border)] px-3 py-1 text-[11px] text-slate-700 hover:bg-slate-50"
             >
               ویرایش
@@ -322,54 +313,77 @@ export default function LeaguesClient() {
     </div>
   );
 
-  const activeCount = leagues.filter((l) => l.status === "active").length;
-  const draftCount = leagues.filter((l) => l.status === "draft").length;
-  const archivedCount = leagues.filter((l) => l.status === "archived").length;
+  const activeCount = competitions.filter((c) => c.status === "active").length;
+  const draftCount = competitions.filter((c) => c.status === "draft").length;
+  const archivedCount = competitions.filter((c) => c.status === "archived")
+    .length;
 
   return (
     <div className="space-y-6" dir="rtl">
       <PageHeader
-        title="مدیریت لیگ‌ها"
-        subtitle="هسته‌ی مدیریت لیگ‌های فوتسال و فوتبال ساحلی؛ آماده‌ی اتصال به مسابقات، تیم‌ها و جدول در ماژول‌های بعدی."
+        title="مرکز مدیریت مسابقات"
+        subtitle="مدیریت جامع لیگ‌های دوره‌ای و جام‌های حذفی فوتسال و فوتبال ساحلی - آماده برای اتصال به مسابقات و جدول رده‌بندی"
         action={
           <button
             onClick={handleOpenCreate}
             className="rounded-lg bg-brand px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-brand/90"
           >
-            ایجاد لیگ جدید
+            ایجاد مسابقات جدید
           </button>
         }
       />
 
-      {/* Filters & quick stats */}
-      <div className="overflow-hidden rounded-xl border border-[var(--border)] bg-white shadow-sm">
-        <div className="border-b border-[var(--border)] bg-slate-50 px-4 py-3">
-          <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
-            <h3 className="text-sm font-semibold text-slate-900">
-              فیلترها و نمای کلی
-            </h3>
-            <p className="text-[11px] text-slate-500 sm:text-xs">
-              فقط لیگ‌های فوتسال و فوتبال ساحلی نمایش داده می‌شوند؛ اضافه کردن
-              رشته‌های جدید در آینده آسان خواهد بود.
-            </p>
+      {/* Quick Stats */}
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+        <div className="rounded-lg border border-[var(--border)] bg-white p-3 sm:p-4">
+          <div className="text-xs sm:text-sm text-slate-600 mb-1">
+            مسابقات فعال
           </div>
+          <div className="text-lg sm:text-2xl font-bold text-emerald-700">
+            {activeCount}
+          </div>
+        </div>
+        <div className="rounded-lg border border-[var(--border)] bg-white p-3 sm:p-4">
+          <div className="text-xs sm:text-sm text-slate-600 mb-1">
+            پیش‌نویس‌ها
+          </div>
+          <div className="text-lg sm:text-2xl font-bold text-amber-700">
+            {draftCount}
+          </div>
+        </div>
+        <div className="rounded-lg border border-[var(--border)] bg-white p-3 sm:p-4 col-span-2 sm:col-span-1">
+          <div className="text-xs sm:text-sm text-slate-600 mb-1">
+            آرشیوشده
+          </div>
+          <div className="text-lg sm:text-2xl font-bold text-slate-700">
+            {archivedCount}
+          </div>
+        </div>
+      </div>
+
+      {/* Filters */}
+      <div className="rounded-xl border border-[var(--border)] bg-white shadow-sm overflow-hidden">
+        <div className="bg-slate-50 border-b border-[var(--border)] px-4 py-3">
+          <h3 className="text-sm font-semibold text-slate-900">
+            فیلترها و جستجو
+          </h3>
         </div>
         <div className="p-4 sm:p-6">
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
             <div className="sm:col-span-2">
-              <label className="mb-2 block text-xs font-semibold text-slate-700">
+              <label className="block text-xs font-semibold text-slate-700 mb-2">
                 جستجو
               </label>
               <input
                 type="text"
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                placeholder="نام لیگ، فصل یا توضیح..."
-                className="w-full rounded-lg border border-[var(--border)] px-3 py-2.5 text-sm focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/40"
+                placeholder="نام مسابقات، فصل یا توضیح..."
+                className="w-full rounded-lg border border-[var(--border)] px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand/50 focus:border-brand"
               />
             </div>
             <div>
-              <label className="mb-2 block text-xs font-semibold text-slate-700">
+              <label className="block text-xs font-semibold text-slate-700 mb-2">
                 ورزش
               </label>
               <select
@@ -377,7 +391,7 @@ export default function LeaguesClient() {
                 onChange={(e) =>
                   setSportFilter(e.target.value as LeagueSportType | "")
                 }
-                className="w-full rounded-lg border border-[var(--border)] bg-white px-3 py-2.5 text-sm focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/40"
+                className="w-full rounded-lg border border-[var(--border)] bg-white px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand/50 focus:border-brand"
               >
                 <option value="">همه ورزش‌ها</option>
                 <option value="futsal">فوتسال</option>
@@ -385,24 +399,7 @@ export default function LeaguesClient() {
               </select>
             </div>
             <div>
-              <label className="mb-2 block text-xs font-semibold text-slate-700">
-                وضعیت
-              </label>
-              <select
-                value={statusFilter}
-                onChange={(e) =>
-                  setStatusFilter(e.target.value as LeagueStatus | "")
-                }
-                className="w-full rounded-lg border border-[var(--border)] bg-white px-3 py-2.5 text-sm focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/40"
-              >
-                <option value="">همه وضعیت‌ها</option>
-                <option value="draft">پیش‌نویس</option>
-                <option value="active">فعال</option>
-                <option value="archived">آرشیو شده</option>
-              </select>
-            </div>
-            <div>
-              <label className="mb-2 block text-xs font-semibold text-slate-700">
+              <label className="block text-xs font-semibold text-slate-700 mb-2">
                 نوع رقابت
               </label>
               <select
@@ -412,29 +409,29 @@ export default function LeaguesClient() {
                     e.target.value as LeagueCompetitionType | ""
                   )
                 }
-                className="w-full rounded-lg border border-[var(--border)] bg-white px-3 py-2.5 text-sm focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/40"
+                className="w-full rounded-lg border border-[var(--border)] bg-white px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand/50 focus:border-brand"
               >
-                <option value="">همه انواع رقابت</option>
+                <option value="">همه انواع</option>
                 <option value="league">لیگ (دوره‌ای)</option>
-                <option value="knockout">جام حذفی (حذفی)</option>
+                <option value="knockout">جام حذفی</option>
               </select>
             </div>
-          </div>
-
-          <div className="mt-4 grid grid-cols-1 gap-2 text-xs sm:grid-cols-3 sm:text-sm">
-            <div className="flex items-center justify-between rounded-lg bg-slate-50 px-3 py-2">
-              <span className="text-slate-600">لیگ‌های فعال</span>
-              <span className="font-bold text-emerald-700">{activeCount}</span>
-            </div>
-            <div className="flex items-center justify-between rounded-lg bg-slate-50 px-3 py-2">
-              <span className="text-slate-600">پیش‌نویس‌ها</span>
-              <span className="font-bold text-amber-700">{draftCount}</span>
-            </div>
-            <div className="flex items-center justify-between rounded-lg bg-slate-50 px-3 py-2">
-              <span className="text-slate-600">آرشیوشده</span>
-              <span className="font-bold text-slate-700">
-                {archivedCount}
-              </span>
+            <div>
+              <label className="block text-xs font-semibold text-slate-700 mb-2">
+                وضعیت
+              </label>
+              <select
+                value={statusFilter}
+                onChange={(e) =>
+                  setStatusFilter(e.target.value as LeagueStatus | "")
+                }
+                className="w-full rounded-lg border border-[var(--border)] bg-white px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand/50 focus:border-brand"
+              >
+                <option value="">همه وضعیت‌ها</option>
+                <option value="draft">پیش‌نویس</option>
+                <option value="active">فعال</option>
+                <option value="archived">آرشیو شده</option>
+              </select>
             </div>
           </div>
         </div>
@@ -445,38 +442,42 @@ export default function LeaguesClient() {
 
       {/* Desktop table */}
       <div className="hidden md:block">
-        {filteredLeagues.length > 0 ? (
+        {filteredCompetitions.length > 0 ? (
           <DataTable<League>
             columns={columns}
-            data={filteredLeagues}
+            data={filteredCompetitions}
             keyExtractor={(row) => row.id}
           />
         ) : (
           <EmptyState
-            title="هیچ لیگی ثبت نشده است"
-            description="برای شروع، اولین لیگ فوتسال یا فوتبال ساحلی را ایجاد کنید."
+            title="هیچ مسابقه‌ای ثبت نشده است"
+            description="برای شروع، اولین لیگ یا جام حذفی را ایجاد کنید."
             action={
               <button
                 onClick={handleOpenCreate}
                 className="rounded-lg bg-brand px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-brand/90"
               >
-                ایجاد لیگ جدید
+                ایجاد مسابقات جدید
               </button>
             }
           />
         )}
       </div>
 
-      <LeagueModal
+      <CompetitionModal
         open={isModalOpen}
         mode={mode}
         onClose={() => {
           setIsModalOpen(false);
-          setActiveLeague(null);
+          setActiveCompetition(null);
           setMode("create");
         }}
-        onSubmit={handleSaveLeague}
-        initialValues={activeLeague ? mapLeagueToFormValues(activeLeague) : undefined}
+        onSubmit={handleSaveCompetition}
+        initialValues={
+          activeCompetition
+            ? mapCompetitionToFormValues(activeCompetition)
+            : undefined
+        }
         isLoading={isLoading}
       />
 
@@ -492,42 +493,48 @@ export default function LeaguesClient() {
   );
 }
 
-function mapLeagueToFormValues(league: League): LeagueFormValues {
+function mapCompetitionToFormValues(
+  competition: League
+): CompetitionFormValues {
   return {
-    title: league.title,
-    sportType: league.sportType,
-    competitionType: league.competitionType,
-    season: league.season,
-    status: league.status,
-    numberOfTeams: league.numberOfTeams,
-    promotionSpots: league.promotionSpots,
-    relegationSpots: league.relegationSpots,
-    hasGroups: league.hasGroups,
-    startDate: league.startDate,
-    endDate: league.endDate,
-    description: league.description,
+    title: competition.title,
+    sportType: competition.sportType,
+    competitionType: competition.competitionType,
+    season: competition.season,
+    status: competition.status,
+    numberOfTeams: competition.numberOfTeams,
+    startDate: competition.startDate,
+    endDate: competition.endDate,
+    description: competition.description,
+    promotionSpots: competition.promotionSpots,
+    relegationSpots: competition.relegationSpots,
+    hasGroups: competition.hasGroups,
+    pointsSystem: competition.pointsSystem,
+    hasStandingsTable: competition.hasStandingsTable,
+    twoLeggedMatches: competition.twoLeggedMatches,
+    hasThirdPlaceMatch: competition.hasThirdPlaceMatch,
   };
 }
 
-type LeagueModalProps = {
+type CompetitionModalProps = {
   open: boolean;
-  mode: LeagueMode;
+  mode: CompetitionMode;
   onClose: () => void;
-  onSubmit: (values: LeagueFormValues) => void;
-  initialValues?: LeagueFormValues;
+  onSubmit: (values: CompetitionFormValues) => void;
+  initialValues?: CompetitionFormValues;
   isLoading?: boolean;
 };
 
-function LeagueModal({
+function CompetitionModal({
   open,
   mode,
   onClose,
   onSubmit,
   initialValues,
   isLoading = false,
-}: LeagueModalProps) {
-  const [step, setStep] = useState<LeagueFormStep>(1);
-  const [form, setForm] = useState<LeagueFormValues>(
+}: CompetitionModalProps) {
+  const [step, setStep] = useState<FormStep>(1);
+  const [form, setForm] = useState<CompetitionFormValues>(
     initialValues ?? {
       title: "",
       sportType: "futsal",
@@ -535,28 +542,35 @@ function LeagueModal({
       season: "",
       status: "draft",
       numberOfTeams: 8,
-      promotionSpots: 1,
-      relegationSpots: 1,
-      hasGroups: false,
       startDate: "",
       endDate: "",
       description: "",
+      // League defaults
+      promotionSpots: 1,
+      relegationSpots: 1,
+      hasGroups: false,
+      pointsSystem: {
+        winPoints: 3,
+        drawPoints: 1,
+        lossPoints: 0,
+      },
+      hasStandingsTable: true,
+      // Knockout defaults
+      twoLeggedMatches: false,
+      hasThirdPlaceMatch: false,
     }
   );
 
   const [errors, setErrors] = useState<
-    Partial<Record<keyof LeagueFormValues, string>>
+    Partial<Record<keyof CompetitionFormValues, string>>
   >({});
 
   const isView = mode === "view";
+  const isLeague = form.competitionType === "league";
+  const isKnockout = form.competitionType === "knockout";
 
-  // keep form in sync when editing different rows
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  const hasInitialValues = !!initialValues;
-  if (hasInitialValues && form.title === "" && initialValues) {
-    // very small safeguard for first render after open
-    // (avoids extra effect wiring for this demo-style state)
-    // eslint-disable-next-line no-param-reassign
+  // Sync form when initialValues change
+  if (initialValues && form.title === "" && initialValues.title !== "") {
     setForm(initialValues);
   }
 
@@ -567,10 +581,13 @@ function LeagueModal({
       return form.title.trim() !== "" && form.season.trim() !== "";
     }
     if (step === 2) {
-      return (
-        form.numberOfTeams > 1 &&
-        form.promotionSpots + form.relegationSpots <= form.numberOfTeams
-      );
+      if (form.numberOfTeams < 2) return false;
+      if (isLeague) {
+        const promo = form.promotionSpots || 0;
+        const releg = form.relegationSpots || 0;
+        return promo + releg <= form.numberOfTeams;
+      }
+      return true;
     }
     if (step === 3) {
       return form.startDate.trim() !== "" && form.endDate.trim() !== "";
@@ -580,29 +597,36 @@ function LeagueModal({
 
   const handleNext = () => {
     if (!canGoNext()) return;
-    setStep((prev) => (prev < 3 ? ((prev + 1) as LeagueFormStep) : prev));
+    setStep((prev) => (prev < 3 ? ((prev + 1) as FormStep) : prev));
   };
 
   const handlePrev = () => {
-    setStep((prev) => (prev > 1 ? ((prev - 1) as LeagueFormStep) : prev));
+    setStep((prev) => (prev > 1 ? ((prev - 1) as FormStep) : prev));
   };
 
   const handleFinalSubmit = () => {
-    const newErrors: Partial<Record<keyof LeagueFormValues, string>> = {};
+    const newErrors: Partial<
+      Record<keyof CompetitionFormValues, string>
+    > = {};
 
-    if (!form.title.trim()) newErrors.title = "عنوان لیگ الزامی است.";
-    if (!form.season.trim()) newErrors.season = "فصل لیگ را وارد کنید.";
+    if (!form.title.trim()) newErrors.title = "عنوان مسابقات الزامی است.";
+    if (!form.season.trim()) newErrors.season = "فصل را وارد کنید.";
     if (!form.startDate.trim())
-      newErrors.startDate = "تاریخ شروع لیگ را مشخص کنید.";
+      newErrors.startDate = "تاریخ شروع را مشخص کنید.";
     if (!form.endDate.trim())
-      newErrors.endDate = "تاریخ پایان لیگ را مشخص کنید.";
+      newErrors.endDate = "تاریخ پایان را مشخص کنید.";
     if (form.numberOfTeams < 2)
-      newErrors.numberOfTeams = "حداقل دو تیم برای تعریف لیگ لازم است.";
-    if (form.promotionSpots + form.relegationSpots > form.numberOfTeams) {
-      const msg =
-        "مجموع سهمیه‌های صعود و سقوط نباید از تعداد تیم‌ها بیشتر باشد.";
-      newErrors.promotionSpots = msg;
-      newErrors.relegationSpots = msg;
+      newErrors.numberOfTeams = "حداقل دو تیم لازم است.";
+
+    if (isLeague) {
+      const promo = form.promotionSpots || 0;
+      const releg = form.relegationSpots || 0;
+      if (promo + releg > form.numberOfTeams) {
+        const msg =
+          "مجموع سهمیه‌های صعود و سقوط نباید از تعداد تیم‌ها بیشتر باشد.";
+        newErrors.promotionSpots = msg;
+        newErrors.relegationSpots = msg;
+      }
     }
 
     setErrors(newErrors);
@@ -613,9 +637,9 @@ function LeagueModal({
 
   const renderStepIndicator = () => (
     <div className="mb-4 flex items-center justify-between rounded-lg bg-slate-50 p-2">
-      {["اطلاعات پایه", "ساختار لیگ", "برنامه و توضیحات"].map(
+      {["اطلاعات پایه", "ساختار مسابقات", "برنامه زمانی"].map(
         (label, index) => {
-          const current = (index + 1) as LeagueFormStep;
+          const current = (index + 1) as FormStep;
           const active = step === current;
           return (
             <button
@@ -624,7 +648,9 @@ function LeagueModal({
               onClick={() => !isView && setStep(current)}
               className={
                 "flex-1 rounded-md px-1 py-1 text-[10px] font-medium sm:text-xs " +
-                (active ? "bg-white text-slate-900 shadow" : "text-slate-500")
+                (active
+                  ? "bg-white text-slate-900 shadow"
+                  : "text-slate-500")
               }
               disabled={isView}
             >
@@ -645,34 +671,30 @@ function LeagueModal({
         <header className="space-y-1 border-b border-[var(--border)] pb-3 sm:pb-4">
           <h2 className="text-lg font-bold text-slate-900 sm:text-xl">
             {isView
-              ? "نمایش جزئیات لیگ"
+              ? "نمایش جزئیات مسابقات"
               : initialValues
-              ? "ویرایش لیگ"
-              : "ایجاد لیگ جدید"}
+              ? "ویرایش مسابقات"
+              : "ایجاد مسابقات جدید"}
           </h2>
           <p className="text-xs text-slate-600 sm:text-sm">
-            لیگ هسته‌ی اصلی سیستم است و به مسابقات، جدول، تیم‌ها و آمار بازیکنان
-            متصل خواهد شد. این تنظیمات فقط ساختار را مشخص می‌کند و بعداً قابل
-            ویرایش است.
+            مسابقات هسته‌ی اصلی سیستم هستند و به مسابقات، جدول رده‌بندی و
+            آمار متصل می‌شوند.
           </p>
         </header>
 
         {renderStepIndicator()}
 
         <div className="space-y-4">
+          {/* Step 1: Basic Info */}
           {step === 1 && (
             <section className="space-y-4">
               <h3 className="text-sm font-semibold text-slate-900">
-                گام ۱ – اطلاعات پایه لیگ
+                گام ۱ – اطلاعات پایه
               </h3>
-              <p className="text-[11px] text-slate-500">
-                این اطلاعات برای نمایش در وب‌سایت و ابزارهای داخلی (گزارش‌گیری،
-                جستجو و API) استفاده می‌شود.
-              </p>
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <div>
                   <label className="mb-1.5 block text-xs font-medium text-slate-700">
-                    نام لیگ <span className="text-red-500">*</span>
+                    عنوان مسابقات <span className="text-red-500">*</span>
                   </label>
                   <input
                     type="text"
@@ -773,7 +795,7 @@ function LeagueModal({
                     >
                       <span className="block font-semibold">لیگ (دوره‌ای)</span>
                       <span className="mt-1 block text-[11px] text-slate-500">
-                        مناسب رقابت‌های رفت و برگشت یا دوره‌ای.
+                        مناسب رقابت‌های رفت و برگشت با جدول رده‌بندی
                       </span>
                     </button>
                     <button
@@ -793,9 +815,9 @@ function LeagueModal({
                         (isView ? " cursor-default opacity-75" : "")
                       }
                     >
-                      <span className="block font-semibold">جام حذفی (حذفی)</span>
+                      <span className="block font-semibold">جام حذفی</span>
                       <span className="mt-1 block text-[11px] text-slate-500">
-                        مناسب رقابت‌های تک‌حذفی یا چندمرحله‌ای حذفی.
+                        مناسب رقابت‌های تک‌حذفی یا چندمرحله‌ای
                       </span>
                     </button>
                   </div>
@@ -804,119 +826,262 @@ function LeagueModal({
             </section>
           )}
 
+          {/* Step 2: Competition Structure */}
           {step === 2 && (
             <section className="space-y-4">
               <h3 className="text-sm font-semibold text-slate-900">
-                گام ۲ – ساختار لیگ، گروه‌ها و صعود/سقوط
+                گام ۲ – ساختار مسابقات
               </h3>
               <p className="text-[11px] text-slate-500">
-                این تنظیمات روی منطق جدول، تعداد مراحل و اتصال به لیگ‌های بالا و
-                پایین‌تر تاثیر می‌گذارد.
+                {isLeague
+                  ? "تنظیمات مخصوص لیگ‌های دوره‌ای با جدول رده‌بندی"
+                  : "تنظیمات مخصوص جام‌های حذفی"}
               </p>
-              <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-                <div>
-                  <label className="mb-1.5 block text-xs font-medium text-slate-700">
-                    تعداد تیم‌ها
-                  </label>
-                  <input
-                    type="number"
-                    min={2}
-                    value={form.numberOfTeams}
-                    disabled={isView}
-                    onChange={(e) =>
-                      setForm((prev) => ({
-                        ...prev,
-                        numberOfTeams: Number(e.target.value) || 0,
-                      }))
-                    }
-                    className="w-full rounded-lg border border-[var(--border)] px-3 py-2.5 text-sm focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/40 disabled:bg-slate-50"
-                  />
-                  {errors.numberOfTeams && (
-                    <p className="mt-1 text-[11px] text-red-500">
-                      {errors.numberOfTeams}
-                    </p>
-                  )}
-                </div>
-                <div>
-                  <label className="mb-1.5 block text-xs font-medium text-slate-700">
-                    سهمیه‌های صعود
-                  </label>
-                  <input
-                    type="number"
-                    min={0}
-                    value={form.promotionSpots}
-                    disabled={isView}
-                    onChange={(e) =>
-                      setForm((prev) => ({
-                        ...prev,
-                        promotionSpots: Number(e.target.value) || 0,
-                      }))
-                    }
-                    className="w-full rounded-lg border border-[var(--border)] px-3 py-2.5 text-sm focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/40 disabled:bg-slate-50"
-                  />
-                  {errors.promotionSpots && (
-                    <p className="mt-1 text-[11px] text-red-500">
-                      {errors.promotionSpots}
-                    </p>
-                  )}
-                </div>
-                <div>
-                  <label className="mb-1.5 block text-xs font-medium text-slate-700">
-                    سهمیه‌های سقوط
-                  </label>
-                  <input
-                    type="number"
-                    min={0}
-                    value={form.relegationSpots}
-                    disabled={isView}
-                    onChange={(e) =>
-                      setForm((prev) => ({
-                        ...prev,
-                        relegationSpots: Number(e.target.value) || 0,
-                      }))
-                    }
-                    className="w-full rounded-lg border border-[var(--border)] px-3 py-2.5 text-sm focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/40 disabled:bg-slate-50"
-                  />
-                  {errors.relegationSpots && (
-                    <p className="mt-1 text-[11px] text-red-500">
-                      {errors.relegationSpots}
-                    </p>
-                  )}
-                </div>
+
+              {/* Common: Number of Teams */}
+              <div>
+                <label className="mb-1.5 block text-xs font-medium text-slate-700">
+                  تعداد تیم‌ها <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="number"
+                  min={2}
+                  value={form.numberOfTeams}
+                  disabled={isView}
+                  onChange={(e) =>
+                    setForm((prev) => ({
+                      ...prev,
+                      numberOfTeams: Number(e.target.value) || 0,
+                    }))
+                  }
+                  className="w-full rounded-lg border border-[var(--border)] px-3 py-2.5 text-sm focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/40 disabled:bg-slate-50"
+                />
+                {errors.numberOfTeams && (
+                  <p className="mt-1 text-[11px] text-red-500">
+                    {errors.numberOfTeams}
+                  </p>
+                )}
               </div>
 
-              <div className="space-y-3 rounded-lg border border-dashed border-[var(--border)] bg-slate-50/70 px-3 py-3 sm:px-4 sm:py-4">
-                <Toggle
-                  checked={form.hasGroups}
-                  disabled={isView}
-                  onChange={(checked) =>
-                    setForm((prev) => ({ ...prev, hasGroups: checked }))
-                  }
-                  label="این لیگ به صورت گروهی برگزار می‌شود (گروه A، گروه B و ...)"
-                  className={isView ? "opacity-75" : ""}
-                />
-                <p className="text-[11px] text-slate-500 leading-relaxed">
-                  با فعال کردن این گزینه، در ماژول‌های بعدی می‌توانید تعداد گروه‌ها،
-                  تعداد تیم در هر گروه و نحوه صعود از گروه‌ها به مراحل بعدی (مثلاً
-                  پلی‌آف یا حذفی) را تعریف کنید.
-                </p>
-              </div>
+              {/* League-specific fields */}
+              {isLeague && (
+                <>
+                  <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                    <div>
+                      <label className="mb-1.5 block text-xs font-medium text-slate-700">
+                        سهمیه‌های صعود
+                      </label>
+                      <input
+                        type="number"
+                        min={0}
+                        value={form.promotionSpots || 0}
+                        disabled={isView}
+                        onChange={(e) =>
+                          setForm((prev) => ({
+                            ...prev,
+                            promotionSpots: Number(e.target.value) || 0,
+                          }))
+                        }
+                        className="w-full rounded-lg border border-[var(--border)] px-3 py-2.5 text-sm focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/40 disabled:bg-slate-50"
+                      />
+                      {errors.promotionSpots && (
+                        <p className="mt-1 text-[11px] text-red-500">
+                          {errors.promotionSpots}
+                        </p>
+                      )}
+                    </div>
+                    <div>
+                      <label className="mb-1.5 block text-xs font-medium text-slate-700">
+                        سهمیه‌های سقوط
+                      </label>
+                      <input
+                        type="number"
+                        min={0}
+                        value={form.relegationSpots || 0}
+                        disabled={isView}
+                        onChange={(e) =>
+                          setForm((prev) => ({
+                            ...prev,
+                            relegationSpots: Number(e.target.value) || 0,
+                          }))
+                        }
+                        className="w-full rounded-lg border border-[var(--border)] px-3 py-2.5 text-sm focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/40 disabled:bg-slate-50"
+                      />
+                      {errors.relegationSpots && (
+                        <p className="mt-1 text-[11px] text-red-500">
+                          {errors.relegationSpots}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Points System */}
+                  <div className="rounded-lg border border-dashed border-[var(--border)] bg-slate-50/70 px-3 py-3 sm:px-4 sm:py-4">
+                    <label className="mb-3 block text-xs font-semibold text-slate-700">
+                      سیستم امتیازدهی
+                    </label>
+                    <div className="grid grid-cols-3 gap-3">
+                      <div>
+                        <label className="mb-1 block text-[11px] text-slate-600">
+                          امتیاز برد
+                        </label>
+                        <input
+                          type="number"
+                          min={0}
+                          value={form.pointsSystem?.winPoints || 3}
+                          disabled={isView}
+                          onChange={(e) =>
+                            setForm((prev) => ({
+                              ...prev,
+                              pointsSystem: {
+                                ...prev.pointsSystem!,
+                                winPoints: Number(e.target.value) || 0,
+                              },
+                            }))
+                          }
+                          className="w-full rounded-lg border border-[var(--border)] bg-white px-2 py-1.5 text-sm focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/40 disabled:bg-slate-50"
+                        />
+                      </div>
+                      <div>
+                        <label className="mb-1 block text-[11px] text-slate-600">
+                          امتیاز مساوی
+                        </label>
+                        <input
+                          type="number"
+                          min={0}
+                          value={form.pointsSystem?.drawPoints || 1}
+                          disabled={isView}
+                          onChange={(e) =>
+                            setForm((prev) => ({
+                              ...prev,
+                              pointsSystem: {
+                                ...prev.pointsSystem!,
+                                drawPoints: Number(e.target.value) || 0,
+                              },
+                            }))
+                          }
+                          className="w-full rounded-lg border border-[var(--border)] bg-white px-2 py-1.5 text-sm focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/40 disabled:bg-slate-50"
+                        />
+                      </div>
+                      <div>
+                        <label className="mb-1 block text-[11px] text-slate-600">
+                          امتیاز باخت
+                        </label>
+                        <input
+                          type="number"
+                          min={0}
+                          value={form.pointsSystem?.lossPoints || 0}
+                          disabled={isView}
+                          onChange={(e) =>
+                            setForm((prev) => ({
+                              ...prev,
+                              pointsSystem: {
+                                ...prev.pointsSystem!,
+                                lossPoints: Number(e.target.value) || 0,
+                              },
+                            }))
+                          }
+                          className="w-full rounded-lg border border-[var(--border)] bg-white px-2 py-1.5 text-sm focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/40 disabled:bg-slate-50"
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Standings Table Toggle */}
+                  <div className="space-y-2 rounded-lg border border-dashed border-[var(--border)] bg-slate-50/70 px-3 py-3 sm:px-4 sm:py-4">
+                    <Toggle
+                      checked={form.hasStandingsTable ?? true}
+                      disabled={isView}
+                      onChange={(checked) =>
+                        setForm((prev) => ({
+                          ...prev,
+                          hasStandingsTable: checked,
+                        }))
+                      }
+                      label="فعال‌سازی جدول رده‌بندی"
+                      className={isView ? "opacity-75" : ""}
+                    />
+                    <p className="text-[11px] text-slate-500">
+                      با فعال کردن این گزینه، جدول رده‌بندی برای این لیگ ایجاد
+                      می‌شود و به‌صورت خودکار بر اساس نتایج مسابقات به‌روزرسانی
+                      می‌شود.
+                    </p>
+                  </div>
+
+                  {/* Has Groups Toggle */}
+                  <div className="space-y-2 rounded-lg border border-dashed border-[var(--border)] bg-slate-50/70 px-3 py-3 sm:px-4 sm:py-4">
+                    <Toggle
+                      checked={form.hasGroups || false}
+                      disabled={isView}
+                      onChange={(checked) =>
+                        setForm((prev) => ({ ...prev, hasGroups: checked }))
+                      }
+                      label="این لیگ به صورت گروهی برگزار می‌شود"
+                      className={isView ? "opacity-75" : ""}
+                    />
+                    <p className="text-[11px] text-slate-500">
+                      با فعال کردن این گزینه، می‌توانید در ماژول‌های بعدی گروه‌ها
+                      را تعریف کنید.
+                    </p>
+                  </div>
+                </>
+              )}
+
+              {/* Knockout-specific fields */}
+              {isKnockout && (
+                <>
+                  <div className="space-y-3 rounded-lg border border-dashed border-[var(--border)] bg-slate-50/70 px-3 py-3 sm:px-4 sm:py-4">
+                    <Toggle
+                      checked={form.twoLeggedMatches || false}
+                      disabled={isView}
+                      onChange={(checked) =>
+                        setForm((prev) => ({
+                          ...prev,
+                          twoLeggedMatches: checked,
+                        }))
+                      }
+                      label="مسابقات به صورت رفت و برگشت برگزار می‌شود"
+                      className={isView ? "opacity-75" : ""}
+                    />
+                    <p className="text-[11px] text-slate-500">
+                      با فعال کردن این گزینه، هر مرحله شامل دو مسابقه (رفت و
+                      برگشت) خواهد بود و نتیجه مجموع دو مسابقه تعیین‌کننده است.
+                    </p>
+                  </div>
+
+                  <div className="space-y-3 rounded-lg border border-dashed border-[var(--border)] bg-slate-50/70 px-3 py-3 sm:px-4 sm:py-4">
+                    <Toggle
+                      checked={form.hasThirdPlaceMatch || false}
+                      disabled={isView}
+                      onChange={(checked) =>
+                        setForm((prev) => ({
+                          ...prev,
+                          hasThirdPlaceMatch: checked,
+                        }))
+                      }
+                      label="مسابقه رده‌بندی (مقام سوم) برگزار می‌شود"
+                      className={isView ? "opacity-75" : ""}
+                    />
+                    <p className="text-[11px] text-slate-500">
+                      با فعال کردن این گزینه، مسابقه‌ای بین دو تیم بازنده نیمه‌نهایی
+                      برای تعیین مقام سوم برگزار می‌شود.
+                    </p>
+                  </div>
+                </>
+              )}
             </section>
           )}
 
+          {/* Step 3: Schedule */}
           {step === 3 && (
             <section className="space-y-4">
               <h3 className="text-sm font-semibold text-slate-900">
                 گام ۳ – برنامه زمانی و توضیحات
               </h3>
-              <p className="text-[11px] text-slate-500">
-                تاریخ‌های تقریبی برای هم‌راستاسازی تقویم مسابقات، پوشش رسانه‌ای و
-                برنامه‌ریزی پخش زنده استفاده می‌شود.
-              </p>
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <div>
                   <label className="mb-1.5 block text-xs font-medium text-slate-700">
-                    تاریخ شروع لیگ <span className="text-red-500">*</span>
+                    تاریخ شروع <span className="text-red-500">*</span>
                   </label>
                   <input
                     type="text"
@@ -925,7 +1090,7 @@ function LeagueModal({
                     onChange={(e) =>
                       setForm((prev) => ({ ...prev, startDate: e.target.value }))
                     }
-                    placeholder="مثال: ۱۴۰۳/۰۵/۱۰ یا 2024-07-31"
+                    placeholder="مثال: ۱۴۰۳/۰۵/۱۰"
                     className="w-full rounded-lg border border-[var(--border)] px-3 py-2.5 text-sm focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/40 disabled:bg-slate-50"
                   />
                   {errors.startDate && (
@@ -936,7 +1101,7 @@ function LeagueModal({
                 </div>
                 <div>
                   <label className="mb-1.5 block text-xs font-medium text-slate-700">
-                    تاریخ پایان لیگ <span className="text-red-500">*</span>
+                    تاریخ پایان <span className="text-red-500">*</span>
                   </label>
                   <input
                     type="text"
@@ -945,7 +1110,7 @@ function LeagueModal({
                     onChange={(e) =>
                       setForm((prev) => ({ ...prev, endDate: e.target.value }))
                     }
-                    placeholder="مثال: ۱۴۰۳/۱۲/۲۵ یا 2025-03-15"
+                    placeholder="مثال: ۱۴۰۳/۱۲/۲۵"
                     className="w-full rounded-lg border border-[var(--border)] px-3 py-2.5 text-sm focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/40 disabled:bg-slate-50"
                   />
                   {errors.endDate && (
@@ -970,24 +1135,18 @@ function LeagueModal({
                       description: e.target.value,
                     }))
                   }
-                  placeholder="توضیحات کوتاه درباره ساختار لیگ، محدودیت‌های خاص، قوانین انضباطی یا نکات پوشش خبری..."
+                  placeholder="توضیحات کوتاه درباره ساختار مسابقات..."
                   className="w-full resize-none rounded-lg border border-[var(--border)] px-3 py-2.5 text-sm focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/40 disabled:bg-slate-50"
                 />
               </div>
-
-              <p className="text-[11px] text-slate-500">
-                می‌توانید بعداً تاریخ‌ها و توضیحات را بدون تغییر ساختار اصلی لیگ
-                ویرایش کنید. این اطلاعات روی تجربه کاربر در وب‌سایت و برنامه‌های
-                موبایل اثر مستقیم دارد.
-              </p>
             </section>
           )}
         </div>
 
         <footer className="mt-4 flex flex-col justify-between gap-3 border-t border-[var(--border)] pt-3 sm:flex-row sm:items-center">
           <div className="text-[11px] text-slate-500 sm:text-xs">
-            تعریف دقیق لیگ، پایه‌ی اتصال به مسابقات، تیم‌ها، جدول و آمار بازیکنان
-            در کل پلتفرم است.
+            مسابقات هسته‌ی اصلی سیستم هستند و به مسابقات، جدول و آمار متصل
+            می‌شوند.
           </div>
           <div className="flex items-center justify-end gap-2">
             <button
@@ -1025,7 +1184,7 @@ function LeagueModal({
                 disabled={isLoading || !canGoNext()}
                 className="rounded-lg bg-brand px-4 py-2 text-xs font-medium text-white transition-colors hover:bg-brand/90 disabled:cursor-not-allowed disabled:opacity-50 sm:text-sm"
               >
-                {isLoading ? "در حال ذخیره..." : "ذخیره لیگ"}
+                {isLoading ? "در حال ذخیره..." : "ذخیره مسابقات"}
               </button>
             )}
           </div>
@@ -1034,4 +1193,3 @@ function LeagueModal({
     </div>
   );
 }
-
