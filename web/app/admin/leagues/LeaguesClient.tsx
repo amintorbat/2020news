@@ -7,7 +7,10 @@ import { EmptyState } from "@/components/admin/EmptyState";
 import { Toast } from "@/components/admin/Toast";
 import { Badge } from "@/components/admin/Badge";
 import { Toggle } from "@/components/admin/Toggle";
+import { PersianDatePicker } from "@/components/admin/PersianDatePicker";
+import { GroupStageManager, type LeagueGroup } from "@/components/admin/GroupStageManager";
 import { mockLeagues } from "@/lib/admin/leaguesData";
+import jalaali from "jalaali-js";
 import type {
   League,
   LeagueStatus,
@@ -37,6 +40,7 @@ type CompetitionFormValues = {
   promotionSpots?: number;
   relegationSpots?: number;
   hasGroups?: boolean;
+  groups?: LeagueGroup[]; // Group stage groups
   pointsSystem?: PointsSystem;
   rankingRules?: RankingRules;
   hasStandingsTable?: boolean;
@@ -512,8 +516,9 @@ function mapCompetitionToFormValues(
     promotionSpots: competition.promotionSpots,
     relegationSpots: competition.relegationSpots,
     hasGroups: competition.hasGroups,
-      pointsSystem: competition.pointsSystem,
-      rankingRules: competition.rankingRules,
+    groups: (competition as any).groups || [],
+    pointsSystem: competition.pointsSystem,
+    rankingRules: competition.rankingRules,
       hasStandingsTable: competition.hasStandingsTable,
     twoLeggedMatches: competition.twoLeggedMatches,
     hasThirdPlaceMatch: competition.hasThirdPlaceMatch,
@@ -553,6 +558,7 @@ function CompetitionModal({
       promotionSpots: 1,
       relegationSpots: 1,
       hasGroups: false,
+      groups: [],
       pointsSystem: {
         winPoints: 3,
         drawPoints: 1,
@@ -635,6 +641,29 @@ function CompetitionModal({
         newErrors.promotionSpots = msg;
         newErrors.relegationSpots = msg;
       }
+      
+      // Validate groups if hasGroups is enabled
+      if (form.hasGroups) {
+        const totalAssignedTeams = (form.groups || []).reduce(
+          (sum, g) => sum + g.teamIds.length,
+          0
+        );
+        if (totalAssignedTeams !== form.numberOfTeams) {
+          newErrors.groups = `باید تمام ${form.numberOfTeams} تیم را به گروه‌ها اختصاص دهید. (فعلاً ${totalAssignedTeams} تیم اختصاص یافته)`;
+        }
+      }
+      
+      // Validate date range
+      if (form.startDate && form.endDate) {
+        const [startYear, startMonth, startDay] = form.startDate.split("-").map(Number);
+        const [endYear, endMonth, endDay] = form.endDate.split("-").map(Number);
+        
+        if (startYear > endYear || 
+            (startYear === endYear && startMonth > endMonth) ||
+            (startYear === endYear && startMonth === endMonth && startDay > endDay)) {
+          newErrors.endDate = "تاریخ پایان باید بعد از تاریخ شروع باشد.";
+        }
+      }
     }
 
     setErrors(newErrors);
@@ -644,25 +673,29 @@ function CompetitionModal({
   };
 
   const renderStepIndicator = () => (
-    <div className="mb-4 flex items-center justify-between rounded-lg bg-slate-50 p-2">
+    <div className="mb-4 flex items-center justify-between gap-1 rounded-lg bg-slate-50 p-1.5 sm:p-2">
       {["اطلاعات پایه", "ساختار مسابقات", "برنامه زمانی"].map(
         (label, index) => {
           const current = (index + 1) as FormStep;
           const active = step === current;
+          const completed = step > current;
           return (
             <button
               key={current}
               type="button"
               onClick={() => !isView && setStep(current)}
               className={
-                "flex-1 rounded-md px-1 py-1 text-[10px] font-medium sm:text-xs " +
+                "flex-1 rounded-md px-1 py-1.5 text-[9px] font-medium transition-all sm:text-[10px] md:text-xs " +
                 (active
-                  ? "bg-white text-slate-900 shadow"
+                  ? "bg-white text-slate-900 shadow-sm"
+                  : completed
+                  ? "text-slate-700 hover:bg-slate-100"
                   : "text-slate-500")
               }
               disabled={isView}
             >
-              {current}. {label}
+              <span className="hidden sm:inline">{current}. </span>
+              {label}
             </button>
           );
         }
@@ -672,10 +705,15 @@ function CompetitionModal({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-2 sm:p-4"
       dir="rtl"
+      onClick={(e) => {
+        if (e.target === e.currentTarget && !isView) {
+          onClose();
+        }
+      }}
     >
-      <div className="flex max-h-[90vh] w-full max-w-3xl flex-col overflow-y-auto rounded-xl bg-white p-4 shadow-xl sm:p-6 md:p-8">
+      <div className="flex max-h-[95vh] w-full max-w-4xl flex-col overflow-y-auto rounded-xl bg-white p-3 shadow-xl sm:p-4 md:p-6 lg:p-8">
         <header className="space-y-1 border-b border-[var(--border)] pb-3 sm:pb-4">
           <h2 className="text-lg font-bold text-slate-900 sm:text-xl">
             {isView
@@ -1083,20 +1121,41 @@ function CompetitionModal({
                   </div>
 
                   {/* Has Groups Toggle */}
-                  <div className="space-y-2 rounded-lg border border-dashed border-[var(--border)] bg-slate-50/70 px-3 py-3 sm:px-4 sm:py-4">
+                  <div className="space-y-3 rounded-lg border border-[var(--border)] bg-white p-4 shadow-sm">
                     <Toggle
                       checked={form.hasGroups || false}
                       disabled={isView}
                       onChange={(checked) =>
-                        setForm((prev) => ({ ...prev, hasGroups: checked }))
+                        setForm((prev) => ({
+                          ...prev,
+                          hasGroups: checked,
+                          groups: checked ? prev.groups || [] : [],
+                        }))
                       }
                       label="این لیگ به صورت گروهی برگزار می‌شود"
                       className={isView ? "opacity-75" : ""}
                     />
                     <p className="text-[11px] text-slate-500">
-                      با فعال کردن این گزینه، می‌توانید در ماژول‌های بعدی گروه‌ها
-                      را تعریف کنید.
+                      با فعال کردن این گزینه، می‌توانید گروه‌ها را تعریف و تیم‌ها را به آن‌ها اختصاص دهید.
                     </p>
+                    
+                    {/* Group Stage Manager */}
+                    {form.hasGroups && (
+                      <div className="mt-4 border-t border-[var(--border)] pt-4">
+                        <GroupStageManager
+                          numberOfTeams={form.numberOfTeams}
+                          sportType={form.sportType}
+                          groups={form.groups || []}
+                          onGroupsChange={(newGroups) =>
+                            setForm((prev) => ({ ...prev, groups: newGroups }))
+                          }
+                          disabled={isView}
+                        />
+                        {errors.groups && (
+                          <p className="mt-2 text-[11px] text-red-500">{errors.groups}</p>
+                        )}
+                      </div>
+                    )}
                   </div>
                 </>
               )}
@@ -1152,20 +1211,68 @@ function CompetitionModal({
               <h3 className="text-sm font-semibold text-slate-900">
                 گام ۳ – برنامه زمانی و توضیحات
               </h3>
+              
+              {/* Smart Date Presets */}
+              {!isView && (
+                <div className="flex flex-wrap gap-2 rounded-lg border border-dashed border-[var(--border)] bg-slate-50/70 p-3">
+                  <span className="text-xs font-medium text-slate-700">پیش‌تنظیمات:</span>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const now = new Date();
+                      const jalali = jalaali.toJalaali(now.getFullYear(), now.getMonth() + 1, now.getDate());
+                      const dateStr = `${jalali.jy}-${String(jalali.jm).padStart(2, "0")}-${String(jalali.jd).padStart(2, "0")}`;
+                      setForm((prev) => ({ ...prev, startDate: dateStr }));
+                    }}
+                    className="rounded-lg border border-[var(--border)] bg-white px-2.5 py-1 text-[11px] font-medium text-slate-700 hover:bg-slate-50"
+                  >
+                    امروز (شروع)
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const nextMonth = new Date();
+                      nextMonth.setMonth(nextMonth.getMonth() + 1);
+                      const jalali = jalaali.toJalaali(nextMonth.getFullYear(), nextMonth.getMonth() + 1, nextMonth.getDate());
+                      const dateStr = `${jalali.jy}-${String(jalali.jm).padStart(2, "0")}-${String(jalali.jd).padStart(2, "0")}`;
+                      setForm((prev) => ({ ...prev, endDate: dateStr }));
+                    }}
+                    className="rounded-lg border border-[var(--border)] bg-white px-2.5 py-1 text-[11px] font-medium text-slate-700 hover:bg-slate-50"
+                  >
+                    یک ماه بعد (پایان)
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const now = new Date();
+                      const jalaliStart = jalaali.toJalaali(now.getFullYear(), now.getMonth() + 1, now.getDate());
+                      const startStr = `${jalaliStart.jy}-${String(jalaliStart.jm).padStart(2, "0")}-${String(jalaliStart.jd).padStart(2, "0")}`;
+                      
+                      const sixMonthsLater = new Date();
+                      sixMonthsLater.setMonth(sixMonthsLater.getMonth() + 6);
+                      const jalaliEnd = jalaali.toJalaali(sixMonthsLater.getFullYear(), sixMonthsLater.getMonth() + 1, sixMonthsLater.getDate());
+                      const endStr = `${jalaliEnd.jy}-${String(jalaliEnd.jm).padStart(2, "0")}-${String(jalaliEnd.jd).padStart(2, "0")}`;
+                      
+                      setForm((prev) => ({ ...prev, startDate: startStr, endDate: endStr }));
+                    }}
+                    className="rounded-lg border border-[var(--border)] bg-white px-2.5 py-1 text-[11px] font-medium text-slate-700 hover:bg-slate-50"
+                  >
+                    فصل کامل (۶ ماه)
+                  </button>
+                </div>
+              )}
+
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <div>
                   <label className="mb-1.5 block text-xs font-medium text-slate-700">
                     تاریخ شروع <span className="text-red-500">*</span>
                   </label>
-                  <input
-                    type="text"
+                  <PersianDatePicker
                     value={form.startDate}
+                    onChange={(value) => setForm((prev) => ({ ...prev, startDate: value }))}
+                    placeholder="انتخاب تاریخ شروع"
                     disabled={isView}
-                    onChange={(e) =>
-                      setForm((prev) => ({ ...prev, startDate: e.target.value }))
-                    }
-                    placeholder="مثال: ۱۴۰۳/۰۵/۱۰"
-                    className="w-full rounded-lg border border-[var(--border)] px-3 py-2.5 text-sm focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/40 disabled:bg-slate-50"
+                    className="w-full"
                   />
                   {errors.startDate && (
                     <p className="mt-1 text-[11px] text-red-500">
@@ -1177,15 +1284,12 @@ function CompetitionModal({
                   <label className="mb-1.5 block text-xs font-medium text-slate-700">
                     تاریخ پایان <span className="text-red-500">*</span>
                   </label>
-                  <input
-                    type="text"
+                  <PersianDatePicker
                     value={form.endDate}
+                    onChange={(value) => setForm((prev) => ({ ...prev, endDate: value }))}
+                    placeholder="انتخاب تاریخ پایان"
                     disabled={isView}
-                    onChange={(e) =>
-                      setForm((prev) => ({ ...prev, endDate: e.target.value }))
-                    }
-                    placeholder="مثال: ۱۴۰۳/۱۲/۲۵"
-                    className="w-full rounded-lg border border-[var(--border)] px-3 py-2.5 text-sm focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/40 disabled:bg-slate-50"
+                    className="w-full"
                   />
                   {errors.endDate && (
                     <p className="mt-1 text-[11px] text-red-500">
@@ -1217,36 +1321,38 @@ function CompetitionModal({
           )}
         </div>
 
-        <footer className="mt-4 flex flex-col justify-between gap-3 border-t border-[var(--border)] pt-3 sm:flex-row sm:items-center">
-          <div className="text-[11px] text-slate-500 sm:text-xs">
-            مسابقات هسته‌ی اصلی سیستم هستند و به مسابقات، جدول و آمار متصل
-            می‌شوند.
+        <footer className="mt-6 border-t border-[var(--border)] bg-white pt-4">
+          {/* Info text - only on desktop, above buttons */}
+          <div className="mb-3 hidden text-center text-[11px] text-slate-500 sm:block">
+            مسابقات هسته‌ی اصلی سیستم هستند و به مسابقات، جدول و آمار متصل می‌شوند.
           </div>
-          <div className="flex items-center justify-end gap-2">
-            <button
-              type="button"
-              onClick={onClose}
-              disabled={isLoading}
-              className="rounded-lg border border-[var(--border)] bg-white px-4 py-2 text-xs font-medium text-slate-700 transition-colors hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50 sm:text-sm"
-            >
-              بستن
-            </button>
+          
+          {/* Action buttons */}
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-end sm:gap-3">
             {!isView && step > 1 && (
               <button
                 type="button"
                 onClick={handlePrev}
                 disabled={isLoading}
-                className="rounded-lg border border-[var(--border)] bg-white px-3 py-2 text-xs font-medium text-slate-700 transition-colors hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50 sm:text-sm"
+                className="order-2 w-full rounded-lg border border-[var(--border)] bg-white px-4 py-2.5 text-sm font-medium text-slate-700 transition-colors hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50 sm:order-1 sm:w-auto"
               >
                 مرحله قبل
               </button>
             )}
+            <button
+              type="button"
+              onClick={onClose}
+              disabled={isLoading}
+              className="order-3 w-full rounded-lg border border-[var(--border)] bg-white px-4 py-2.5 text-sm font-medium text-slate-700 transition-colors hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50 sm:order-2 sm:w-auto"
+            >
+              بستن
+            </button>
             {!isView && step < 3 && (
               <button
                 type="button"
                 onClick={handleNext}
                 disabled={isLoading || !canGoNext()}
-                className="rounded-lg bg-brand px-4 py-2 text-xs font-medium text-white transition-colors hover:bg-brand/90 disabled:cursor-not-allowed disabled:opacity-50 sm:text-sm"
+                className="order-1 w-full rounded-lg bg-brand px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-brand/90 disabled:cursor-not-allowed disabled:opacity-50 sm:order-3 sm:w-auto"
               >
                 مرحله بعد
               </button>
@@ -1256,7 +1362,7 @@ function CompetitionModal({
                 type="button"
                 onClick={handleFinalSubmit}
                 disabled={isLoading || !canGoNext()}
-                className="rounded-lg bg-brand px-4 py-2 text-xs font-medium text-white transition-colors hover:bg-brand/90 disabled:cursor-not-allowed disabled:opacity-50 sm:text-sm"
+                className="order-1 w-full rounded-lg bg-brand px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-brand/90 disabled:cursor-not-allowed disabled:opacity-50 sm:order-3 sm:w-auto"
               >
                 {isLoading ? "در حال ذخیره..." : "ذخیره مسابقات"}
               </button>
