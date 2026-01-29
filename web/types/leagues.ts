@@ -17,6 +17,24 @@ export interface PointsSystem {
   lossPoints: number;
 }
 
+/**
+ * اولویت رده‌بندی برای مرتب‌سازی تیم‌ها
+ */
+export type RankingPriority = "points" | "goalDifference" | "goalsFor" | "headToHead" | "goalsAgainst";
+
+export interface RankingRules {
+  /**
+   * ترتیب اولویت‌های رده‌بندی
+   * مثال: ["points", "goalDifference", "goalsFor", "headToHead"]
+   */
+  priorities: RankingPriority[];
+  
+  /**
+   * آیا از نتایج رو در رو استفاده شود؟
+   */
+  useHeadToHead?: boolean;
+}
+
 export interface League {
   id: string;
   /**
@@ -66,6 +84,11 @@ export interface League {
    * سیستم امتیازدهی (فقط برای لیگ)
    */
   pointsSystem?: PointsSystem;
+
+  /**
+   * قوانین رده‌بندی (فقط برای لیگ)
+   */
+  rankingRules?: RankingRules;
 
   /**
    * آیا جدول رده‌بندی فعال است؟ (فقط برای لیگ)

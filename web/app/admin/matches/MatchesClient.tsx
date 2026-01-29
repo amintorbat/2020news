@@ -2,12 +2,17 @@
 
 import { useMemo, useState } from "react";
 import { PageHeader } from "@/components/admin/PageHeader";
+import { LeagueContextSelector } from "@/components/admin/LeagueContextSelector";
+import { useLeagueContext } from "@/contexts/LeagueContext";
 import { DataTable, type Column } from "@/components/admin/DataTable";
 import { Badge } from "@/components/admin/Badge";
 import { EmptyState } from "@/components/admin/EmptyState";
 import { Toast } from "@/components/admin/Toast";
 import { DeleteConfirmationModal } from "@/components/admin/DeleteConfirmationModal";
 import { Toggle } from "@/components/admin/Toggle";
+import { PersianDatePicker } from "@/components/admin/PersianDatePicker";
+import { PersianTimePicker } from "@/components/admin/PersianTimePicker";
+import { EventTimelineEditor } from "@/components/admin/EventTimelineEditor";
 import {
   Match,
   SportType,
@@ -18,12 +23,16 @@ import {
   ReporterPermission,
   MatchStats,
 } from "@/types/matches";
+import jalaali from "jalaali-js";
 import { mockLeagues } from "@/lib/admin/leaguesData";
 import { mockTeams } from "@/lib/admin/teamsData";
 import { mockMatches } from "@/lib/admin/matchesData";
+import { mockUsers } from "@/lib/admin/mock";
+import { mockPlayers } from "@/lib/admin/playersData";
 import { generateId } from "@/lib/utils/id";
 import type { League } from "@/types/leagues";
 import type { Team } from "@/types/teams";
+import type { MatchEvent, MatchEventType } from "@/types/matches";
 
 type MatchMode = "create" | "edit" | "view";
 type FormStep = 1 | 2 | 3 | 4 | 5;
@@ -38,6 +47,7 @@ type MatchFormValues = {
   status: MatchStatus;
   reporterAccess?: TemporaryReporterAccess;
   stats?: MatchStats;
+  events?: MatchEvent[]; // Event Timeline
 };
 
 type ToastState = { message: string; type: "success" | "error" } | null;
@@ -80,8 +90,15 @@ export default function MatchesClient() {
   }, []);
 
   // Filtered matches
+  const { selectedLeague } = useLeagueContext();
+
   const filteredMatches = useMemo(() => {
     return matches.filter((match) => {
+      // Filter by selected league from context
+      if (selectedLeague && match.leagueId !== selectedLeague.id) {
+        return false;
+      }
+
       const query = search.trim().toLowerCase();
       const matchesSearch =
         query === "" ||
@@ -94,7 +111,7 @@ export default function MatchesClient() {
 
       return matchesSearch && matchesLeague && matchesStatus;
     });
-  }, [matches, search, leagueFilter, statusFilter]);
+  }, [matches, search, leagueFilter, statusFilter, selectedLeague]);
 
   const stats = useMemo(() => {
     const total = filteredMatches.length;
@@ -175,8 +192,23 @@ export default function MatchesClient() {
                   time: values.time,
                   venue: values.venue,
                   status: values.status,
-                  homeScore: values.stats?.homeGoals ?? null,
-                  awayScore: values.stats?.awayGoals ?? null,
+                  events: values.events || [],
+                  homeScore: values.events
+                    ? values.events.filter(
+                        (e) =>
+                          (e.type === "goal" || e.type === "penalty") && e.team === "home"
+                      ).length +
+                      values.events.filter((e) => e.type === "own-goal" && e.team === "away")
+                        .length
+                    : values.stats?.homeGoals ?? null,
+                  awayScore: values.events
+                    ? values.events.filter(
+                        (e) =>
+                          (e.type === "goal" || e.type === "penalty") && e.team === "away"
+                      ).length +
+                      values.events.filter((e) => e.type === "own-goal" && e.team === "home")
+                        .length
+                    : values.stats?.awayGoals ?? null,
                   reporterAccess: values.reporterAccess,
                   stats: values.stats,
                   updatedAt: new Date().toISOString(),
@@ -199,13 +231,23 @@ export default function MatchesClient() {
           homeTeamId: values.homeTeamId,
           awayTeam: awayTeam.name,
           awayTeamId: values.awayTeamId,
-          homeScore: values.stats?.homeGoals ?? null,
-          awayScore: values.stats?.awayGoals ?? null,
+          events: values.events || [],
+          homeScore: values.events
+            ? values.events.filter(
+                (e) => (e.type === "goal" || e.type === "penalty") && e.team === "home"
+              ).length +
+              values.events.filter((e) => e.type === "own-goal" && e.team === "away").length
+            : values.stats?.homeGoals ?? null,
+          awayScore: values.events
+            ? values.events.filter(
+                (e) => (e.type === "goal" || e.type === "penalty") && e.team === "away"
+              ).length +
+              values.events.filter((e) => e.type === "own-goal" && e.team === "home").length
+            : values.stats?.awayGoals ?? null,
           status: values.status,
           date: values.date,
           time: values.time,
           venue: values.venue,
-          events: [],
           reporterAccess: values.reporterAccess,
           stats: values.stats,
           isPublished: false,
@@ -253,15 +295,15 @@ export default function MatchesClient() {
       label: "تیم‌ها",
       render: (row) => (
         <div className="flex flex-col gap-0.5">
-          <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2">
             <span className="text-sm font-medium text-slate-900">{row.homeTeam}</span>
             {row.homeScore !== null && row.awayScore !== null && (
-              <>
-                <span className="text-lg font-bold text-slate-900">{row.homeScore}</span>
-                <span className="text-slate-400">-</span>
-                <span className="text-lg font-bold text-slate-900">{row.awayScore}</span>
-              </>
-            )}
+            <>
+              <span className="text-lg font-bold text-slate-900">{row.homeScore}</span>
+              <span className="text-slate-400">-</span>
+              <span className="text-lg font-bold text-slate-900">{row.awayScore}</span>
+            </>
+          )}
             <span className="text-sm font-medium text-slate-900">{row.awayTeam}</span>
           </div>
         </div>
@@ -386,6 +428,9 @@ export default function MatchesClient() {
         }
       />
 
+      {/* League Context Selector */}
+      <LeagueContextSelector />
+
       {/* Quick Stats */}
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
         <div className="rounded-lg border border-[var(--border)] bg-white p-3 sm:p-4">
@@ -454,8 +499,8 @@ export default function MatchesClient() {
               </select>
             </div>
           </div>
-        </div>
-      </div>
+            </div>
+          </div>
 
       {/* Mobile list */}
       {renderMobileCards()}
@@ -535,6 +580,7 @@ function mapMatchToFormValues(match: Match): MatchFormValues {
     status: match.status,
     reporterAccess: match.reporterAccess,
     stats: match.stats,
+    events: match.events || [],
   };
 }
 
@@ -603,7 +649,8 @@ function MatchFormModal({
     if (step === 4) return true; // Optional step
     if (step === 5) {
       if (form.status !== "finished") return true;
-      return form.stats !== undefined;
+      // Events are optional, but if status is finished, we should have some data
+      return true;
     }
     return true;
   };
@@ -636,11 +683,20 @@ function MatchFormModal({
     }
 
     if (form.reporterAccess?.enabled) {
-      if (!form.reporterAccess.startDateTime) {
+      if (!form.reporterAccess.reporterId) {
+        newErrors.reporterAccess = "انتخاب خبرنگار الزامی است.";
+      }
+      if (!form.reporterAccess.startDate) {
         newErrors.reporterAccess = "تاریخ شروع دسترسی خبرنگار الزامی است.";
       }
-      if (!form.reporterAccess.endDateTime) {
+      if (!form.reporterAccess.startTime) {
+        newErrors.reporterAccess = "زمان شروع دسترسی خبرنگار الزامی است.";
+      }
+      if (!form.reporterAccess.endDate) {
         newErrors.reporterAccess = "تاریخ پایان دسترسی خبرنگار الزامی است.";
+      }
+      if (!form.reporterAccess.endTime) {
+        newErrors.reporterAccess = "زمان پایان دسترسی خبرنگار الزامی است.";
       }
       if (form.reporterAccess.permissions.length === 0) {
         newErrors.reporterAccess = "حداقل یک دسترسی باید انتخاب شود.";
@@ -704,14 +760,14 @@ function MatchFormModal({
           {step === 1 && (
             <section className="space-y-4">
               <h3 className="text-sm font-semibold text-slate-900">گام ۱ – انتخاب مسابقات</h3>
-              <div>
+            <div>
                 <label className="mb-1.5 block text-xs font-medium text-slate-700">
                   لیگ یا جام <span className="text-red-500">*</span>
-                </label>
-                <select
+              </label>
+              <select
                   value={form.leagueId}
                   disabled={isView}
-                  onChange={(e) => {
+                onChange={(e) => {
                     setForm((prev) => ({
                       ...prev,
                       leagueId: e.target.value,
@@ -729,13 +785,13 @@ function MatchFormModal({
                       <option key={league.id} value={league.id}>
                         {league.title} ({league.season}) -{" "}
                         {league.competitionType === "league" ? "لیگ" : "جام حذفی"}
-                      </option>
-                    ))}
-                </select>
+                  </option>
+                ))}
+              </select>
                 {errors.leagueId && (
                   <p className="mt-1 text-[11px] text-red-500">{errors.leagueId}</p>
                 )}
-              </div>
+            </div>
 
               {selectedLeague && (
                 <div className="rounded-lg border border-dashed border-[var(--border)] bg-slate-50/70 px-3 py-3 sm:px-4 sm:py-4">
@@ -772,11 +828,11 @@ function MatchFormModal({
                 </p>
               ) : (
                 <>
-                  <div>
+            <div>
                     <label className="mb-1.5 block text-xs font-medium text-slate-700">
                       تیم میزبان <span className="text-red-500">*</span>
-                    </label>
-                    <select
+              </label>
+              <select
                       value={form.homeTeamId}
                       disabled={isView}
                       onChange={(e) =>
@@ -793,19 +849,19 @@ function MatchFormModal({
                         .map((team) => (
                           <option key={team.id} value={team.id}>
                             {team.name} {team.city ? `(${team.city})` : ""}
-                          </option>
-                        ))}
-                    </select>
+                  </option>
+                ))}
+              </select>
                     {errors.homeTeamId && (
                       <p className="mt-1 text-[11px] text-red-500">{errors.homeTeamId}</p>
                     )}
-                  </div>
+            </div>
 
-                  <div>
+            <div>
                     <label className="mb-1.5 block text-xs font-medium text-slate-700">
                       تیم میهمان <span className="text-red-500">*</span>
-                    </label>
-                    <select
+              </label>
+              <select
                       value={form.awayTeamId}
                       disabled={isView}
                       onChange={(e) =>
@@ -822,13 +878,13 @@ function MatchFormModal({
                         .map((team) => (
                           <option key={team.id} value={team.id}>
                             {team.name} {team.city ? `(${team.city})` : ""}
-                          </option>
-                        ))}
-                    </select>
+                  </option>
+                ))}
+              </select>
                     {errors.awayTeamId && (
                       <p className="mt-1 text-[11px] text-red-500">{errors.awayTeamId}</p>
                     )}
-                  </div>
+            </div>
 
                   {form.homeTeamId && form.awayTeamId && (
                     <div className="rounded-lg border border-dashed border-[var(--border)] bg-slate-50/70 px-3 py-3 sm:px-4 sm:py-4">
@@ -852,20 +908,63 @@ function MatchFormModal({
           {step === 3 && (
             <section className="space-y-4">
               <h3 className="text-sm font-semibold text-slate-900">گام ۳ – جزئیات مسابقه</h3>
+              
+              {/* Smart Presets */}
+              {!isView && (
+                <div className="flex flex-wrap gap-2 rounded-lg border border-dashed border-[var(--border)] bg-slate-50/70 p-3">
+                  <span className="text-xs font-medium text-slate-700">پیش‌تنظیمات:</span>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const now = new Date();
+                      const jalali = jalaali.toJalaali(now.getFullYear(), now.getMonth() + 1, now.getDate());
+                      const dateStr = `${jalali.jy}-${String(jalali.jm).padStart(2, "0")}-${String(jalali.jd).padStart(2, "0")}`;
+                      const timeStr = `${String(now.getHours()).padStart(2, "0")}:${String(now.getMinutes()).padStart(2, "0")}`;
+                      setForm((prev) => ({ ...prev, date: dateStr, time: timeStr }));
+                    }}
+                    className="rounded-lg border border-[var(--border)] bg-white px-2.5 py-1 text-[11px] font-medium text-slate-700 hover:bg-slate-50"
+                  >
+                    امروز
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const tomorrow = new Date();
+                      tomorrow.setDate(tomorrow.getDate() + 1);
+                      const jalali = jalaali.toJalaali(tomorrow.getFullYear(), tomorrow.getMonth() + 1, tomorrow.getDate());
+                      const dateStr = `${jalali.jy}-${String(jalali.jm).padStart(2, "0")}-${String(jalali.jd).padStart(2, "0")}`;
+                      setForm((prev) => ({ ...prev, date: dateStr }));
+                    }}
+                    className="rounded-lg border border-[var(--border)] bg-white px-2.5 py-1 text-[11px] font-medium text-slate-700 hover:bg-slate-50"
+                  >
+                    فردا
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const now = new Date();
+                      now.setHours(now.getHours() + 2);
+                      const timeStr = `${String(now.getHours()).padStart(2, "0")}:${String(now.getMinutes()).padStart(2, "0")}`;
+                      setForm((prev) => ({ ...prev, time: timeStr }));
+                    }}
+                    className="rounded-lg border border-[var(--border)] bg-white px-2.5 py-1 text-[11px] font-medium text-slate-700 hover:bg-slate-50"
+                  >
+                    +2 ساعت
+                  </button>
+                </div>
+              )}
+
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                <div>
+            <div>
                   <label className="mb-1.5 block text-xs font-medium text-slate-700">
                     تاریخ <span className="text-red-500">*</span>
                   </label>
-                  <input
-                    type="text"
+                  <PersianDatePicker
                     value={form.date}
+                    onChange={(value) => setForm((prev) => ({ ...prev, date: value }))}
+                    placeholder="انتخاب تاریخ"
                     disabled={isView}
-                    onChange={(e) =>
-                      setForm((prev) => ({ ...prev, date: e.target.value }))
-                    }
-                    placeholder="مثال: ۱۴۰۳/۰۹/۱۵"
-                    className="w-full rounded-lg border border-[var(--border)] px-3 py-2.5 text-sm focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/40 disabled:bg-slate-50"
+                    className="w-full"
                   />
                   {errors.date && (
                     <p className="mt-1 text-[11px] text-red-500">{errors.date}</p>
@@ -875,15 +974,12 @@ function MatchFormModal({
                   <label className="mb-1.5 block text-xs font-medium text-slate-700">
                     زمان <span className="text-red-500">*</span>
                   </label>
-                  <input
-                    type="text"
+                  <PersianTimePicker
                     value={form.time}
+                    onChange={(value) => setForm((prev) => ({ ...prev, time: value }))}
+                    placeholder="انتخاب ساعت"
                     disabled={isView}
-                    onChange={(e) =>
-                      setForm((prev) => ({ ...prev, time: e.target.value }))
-                    }
-                    placeholder="مثال: ۱۸:۰۰"
-                    className="w-full rounded-lg border border-[var(--border)] px-3 py-2.5 text-sm focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/40 disabled:bg-slate-50"
+                    className="w-full"
                   />
                   {errors.time && (
                     <p className="mt-1 text-[11px] text-red-500">{errors.time}</p>
@@ -910,8 +1006,8 @@ function MatchFormModal({
                 <div className="sm:col-span-2">
                   <label className="mb-1.5 block text-xs font-medium text-slate-700">
                     وضعیت <span className="text-red-500">*</span>
-                  </label>
-                  <select
+              </label>
+              <select
                     value={form.status}
                     disabled={isView}
                     onChange={(e) =>
@@ -937,13 +1033,13 @@ function MatchFormModal({
                     className="w-full rounded-lg border border-[var(--border)] bg-white px-3 py-2.5 text-sm focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/40 disabled:bg-slate-50"
                   >
                     {Object.entries(statusLabel).map(([value, label]) => (
-                      <option key={value} value={value}>
-                        {label}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-              </div>
+                  <option key={value} value={value}>
+                    {label}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
             </section>
           )}
 
@@ -978,60 +1074,136 @@ function MatchFormModal({
 
                 {form.reporterAccess?.enabled && (
                   <div className="mt-4 space-y-4">
+                    {/* Reporter Selection */}
+                    <div>
+                      <label className="mb-1.5 block text-xs font-medium text-slate-700">
+                        انتخاب خبرنگار <span className="text-red-500">*</span>
+                      </label>
+                      <select
+                        value={form.reporterAccess?.reporterId || ""}
+                        disabled={isView}
+                        onChange={(e) => {
+                          const selectedUser = mockUsers.find((u) => u.id === e.target.value);
+                          setForm((prev) => ({
+                            ...prev,
+                            reporterAccess: {
+                              ...prev.reporterAccess!,
+                              reporterId: e.target.value,
+                              reporterName: selectedUser?.name || "",
+                            },
+                          }));
+                        }}
+                        className="w-full rounded-lg border border-[var(--border)] bg-white px-3 py-2.5 text-sm focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/40 disabled:bg-slate-50"
+                      >
+                        <option value="">انتخاب خبرنگار...</option>
+                        {mockUsers
+                          .filter((u) => u.role === "reporter")
+                          .map((user) => (
+                            <option key={user.id} value={user.id}>
+                              {user.name} ({user.email})
+                            </option>
+                          ))}
+                      </select>
+                    </div>
+
+                    {/* Start Date & Time */}
                     <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                       <div>
                         <label className="mb-1.5 block text-xs font-medium text-slate-700">
-                          تاریخ و زمان شروع دسترسی
+                          تاریخ شروع دسترسی <span className="text-red-500">*</span>
                         </label>
-                        <input
-                          type="text"
-                          value={form.reporterAccess?.startDateTime || ""}
-                          disabled={isView}
-                          onChange={(e) =>
+                        <PersianDatePicker
+                          value={form.reporterAccess?.startDate || ""}
+                          onChange={(value) =>
                             setForm((prev) => ({
                               ...prev,
                               reporterAccess: {
                                 ...prev.reporterAccess!,
-                                startDateTime: e.target.value,
+                                startDate: value,
                               },
                             }))
                           }
-                          placeholder="مثال: ۱۴۰۳/۰۹/۱۵ ۱۷:۰۰"
-                          className="w-full rounded-lg border border-[var(--border)] px-3 py-2.5 text-sm focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/40 disabled:bg-slate-50"
+                          placeholder="انتخاب تاریخ شروع"
+                          disabled={isView}
+                          className="w-full"
                         />
                       </div>
                       <div>
                         <label className="mb-1.5 block text-xs font-medium text-slate-700">
-                          تاریخ و زمان پایان دسترسی
+                          زمان شروع دسترسی <span className="text-red-500">*</span>
                         </label>
-                        <input
-                          type="text"
-                          value={form.reporterAccess?.endDateTime || ""}
-                          disabled={isView}
-                          onChange={(e) =>
+                        <PersianTimePicker
+                          value={form.reporterAccess?.startTime || ""}
+                          onChange={(value) =>
                             setForm((prev) => ({
                               ...prev,
                               reporterAccess: {
                                 ...prev.reporterAccess!,
-                                endDateTime: e.target.value,
+                                startTime: value,
                               },
                             }))
                           }
-                          placeholder="مثال: ۱۴۰۳/۰۹/۱۵ ۲۰:۰۰"
-                          className="w-full rounded-lg border border-[var(--border)] px-3 py-2.5 text-sm focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/40 disabled:bg-slate-50"
+                          placeholder="انتخاب زمان شروع"
+                          disabled={isView}
+                          className="w-full"
                         />
                       </div>
                     </div>
 
+                    {/* End Date & Time */}
+                    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                      <div>
+                        <label className="mb-1.5 block text-xs font-medium text-slate-700">
+                          تاریخ پایان دسترسی <span className="text-red-500">*</span>
+                        </label>
+                        <PersianDatePicker
+                          value={form.reporterAccess?.endDate || ""}
+                          onChange={(value) =>
+                            setForm((prev) => ({
+                              ...prev,
+                              reporterAccess: {
+                                ...prev.reporterAccess!,
+                                endDate: value,
+                              },
+                            }))
+                          }
+                          placeholder="انتخاب تاریخ پایان"
+                          disabled={isView}
+                          className="w-full"
+                        />
+                      </div>
+                      <div>
+                        <label className="mb-1.5 block text-xs font-medium text-slate-700">
+                          زمان پایان دسترسی <span className="text-red-500">*</span>
+                        </label>
+                        <PersianTimePicker
+                          value={form.reporterAccess?.endTime || ""}
+                          onChange={(value) =>
+                            setForm((prev) => ({
+                              ...prev,
+                              reporterAccess: {
+                                ...prev.reporterAccess!,
+                                endTime: value,
+                              },
+                            }))
+                          }
+                          placeholder="انتخاب زمان پایان"
+                          disabled={isView}
+                          className="w-full"
+                        />
+                      </div>
+                    </div>
+
+                    {/* Permissions */}
                     <div>
                       <label className="mb-1.5 block text-xs font-medium text-slate-700">
-                        دسترسی‌های مجاز
+                        دسترسی‌های مجاز <span className="text-red-500">*</span>
                       </label>
-                      <div className="space-y-2">
+                      <div className="space-y-2 rounded-lg border border-[var(--border)] bg-white p-3">
                         {Object.entries(permissionLabels).map(([key, label]) => (
                           <label
                             key={key}
-                            className="flex items-center gap-2 cursor-pointer"
+                            className="flex items-center gap-2 cursor-pointer py-1.5"
                           >
                             <input
                               type="checkbox"
@@ -1065,172 +1237,31 @@ function MatchFormModal({
                 )}
                 {errors.reporterAccess && (
                   <p className="mt-2 text-[11px] text-red-500">{errors.reporterAccess}</p>
-                )}
-              </div>
+        )}
+      </div>
             </section>
           )}
 
-          {/* Step 5: Result & Stats */}
+          {/* Step 5: Event Timeline */}
           {step === 5 && (
             <section className="space-y-4">
-              <h3 className="text-sm font-semibold text-slate-900">گام ۵ – نتیجه و آمار</h3>
+              <h3 className="text-sm font-semibold text-slate-900">گام ۵ – خط زمانی رویدادها</h3>
               {form.status !== "finished" ? (
                 <div className="rounded-lg border border-dashed border-[var(--border)] bg-slate-50/70 px-3 py-3 sm:px-4 sm:py-4">
                   <p className="text-sm text-slate-600 text-center">
-                    ثبت نتیجه و آمار فقط برای مسابقات پایان یافته امکان‌پذیر است.
+                    ثبت رویدادها فقط برای مسابقات پایان یافته امکان‌پذیر است.
                   </p>
                 </div>
               ) : (
-                <div className="space-y-4">
-                  <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                    <div>
-                      <label className="mb-1.5 block text-xs font-medium text-slate-700">
-                        گل تیم میزبان
-                      </label>
-                      <input
-                        type="number"
-                        min={0}
-                        value={form.stats?.homeGoals || 0}
-                        disabled={isView}
-                        onChange={(e) => {
-                          const value = Number(e.target.value) || 0;
-                          setForm((prev) => ({
-                            ...prev,
-                            stats: {
-                              homeGoals: value,
-                              awayGoals: prev.stats?.awayGoals || 0,
-                              homeYellowCards: prev.stats?.homeYellowCards || 0,
-                              homeRedCards: prev.stats?.homeRedCards || 0,
-                              awayYellowCards: prev.stats?.awayYellowCards || 0,
-                              awayRedCards: prev.stats?.awayRedCards || 0,
-                              homeGoalsConceded: prev.stats?.awayGoals || 0,
-                              awayGoalsConceded: value,
-                            },
-                          }));
-                        }}
-                        className="w-full rounded-lg border border-[var(--border)] px-3 py-2.5 text-sm focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/40 disabled:bg-slate-50"
-                      />
-                    </div>
-                    <div>
-                      <label className="mb-1.5 block text-xs font-medium text-slate-700">
-                        گل تیم میهمان
-                      </label>
-                      <input
-                        type="number"
-                        min={0}
-                        value={form.stats?.awayGoals || 0}
-                        disabled={isView}
-                        onChange={(e) => {
-                          const value = Number(e.target.value) || 0;
-                          setForm((prev) => ({
-                            ...prev,
-                            stats: {
-                              homeGoals: prev.stats?.homeGoals || 0,
-                              awayGoals: value,
-                              homeYellowCards: prev.stats?.homeYellowCards || 0,
-                              homeRedCards: prev.stats?.homeRedCards || 0,
-                              awayYellowCards: prev.stats?.awayYellowCards || 0,
-                              awayRedCards: prev.stats?.awayRedCards || 0,
-                              homeGoalsConceded: value,
-                              awayGoalsConceded: prev.stats?.homeGoals || 0,
-                            },
-                          }));
-                        }}
-                        className="w-full rounded-lg border border-[var(--border)] px-3 py-2.5 text-sm focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/40 disabled:bg-slate-50"
-                      />
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
-                    <div>
-                      <label className="mb-1.5 block text-xs font-medium text-slate-700">
-                        کارت زرد میزبان
-                      </label>
-                      <input
-                        type="number"
-                        min={0}
-                        value={form.stats?.homeYellowCards || 0}
-                        disabled={isView}
-                        onChange={(e) =>
-                          setForm((prev) => ({
-                            ...prev,
-                            stats: {
-                              ...prev.stats!,
-                              homeYellowCards: Number(e.target.value) || 0,
-                            },
-                          }))
-                        }
-                        className="w-full rounded-lg border border-[var(--border)] px-3 py-2.5 text-sm focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/40 disabled:bg-slate-50"
-                      />
-                    </div>
-                    <div>
-                      <label className="mb-1.5 block text-xs font-medium text-slate-700">
-                        کارت قرمز میزبان
-                      </label>
-                      <input
-                        type="number"
-                        min={0}
-                        value={form.stats?.homeRedCards || 0}
-                        disabled={isView}
-                        onChange={(e) =>
-                          setForm((prev) => ({
-                            ...prev,
-                            stats: {
-                              ...prev.stats!,
-                              homeRedCards: Number(e.target.value) || 0,
-                            },
-                          }))
-                        }
-                        className="w-full rounded-lg border border-[var(--border)] px-3 py-2.5 text-sm focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/40 disabled:bg-slate-50"
-                      />
-                    </div>
-                    <div>
-                      <label className="mb-1.5 block text-xs font-medium text-slate-700">
-                        کارت زرد میهمان
-                      </label>
-                      <input
-                        type="number"
-                        min={0}
-                        value={form.stats?.awayYellowCards || 0}
-                        disabled={isView}
-                        onChange={(e) =>
-                          setForm((prev) => ({
-                            ...prev,
-                            stats: {
-                              ...prev.stats!,
-                              awayYellowCards: Number(e.target.value) || 0,
-                            },
-                          }))
-                        }
-                        className="w-full rounded-lg border border-[var(--border)] px-3 py-2.5 text-sm focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/40 disabled:bg-slate-50"
-                      />
-                    </div>
-                    <div>
-                      <label className="mb-1.5 block text-xs font-medium text-slate-700">
-                        کارت قرمز میهمان
-                      </label>
-                      <input
-                        type="number"
-                        min={0}
-                        value={form.stats?.awayRedCards || 0}
-                        disabled={isView}
-                        onChange={(e) =>
-                          setForm((prev) => ({
-                            ...prev,
-                            stats: {
-                              ...prev.stats!,
-                              awayRedCards: Number(e.target.value) || 0,
-                            },
-                          }))
-                        }
-                        className="w-full rounded-lg border border-[var(--border)] px-3 py-2.5 text-sm focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/40 disabled:bg-slate-50"
-                      />
-                    </div>
-                  </div>
-                </div>
-              )}
-              {errors.stats && (
-                <p className="mt-1 text-[11px] text-red-500">{errors.stats}</p>
+                <EventTimelineEditor
+                  events={form.events || []}
+                  homeTeamId={form.homeTeamId}
+                  awayTeamId={form.awayTeamId}
+                  onEventsChange={(events) =>
+                    setForm((prev) => ({ ...prev, events }))
+                  }
+                  disabled={isView}
+                />
               )}
             </section>
           )}

@@ -3,455 +3,228 @@
 import { useMemo, useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { PageHeader } from "@/components/admin/PageHeader";
-import { DataTable, Column } from "@/components/admin/DataTable";
-import { Badge } from "@/components/admin/Badge";
-import { Toggle } from "@/components/admin/Toggle";
-import { Toast } from "@/components/admin/Toast";
-import { StandingEditModal } from "@/components/admin/StandingEditModal";
-import { getAvailableSports, getSportConfig, SportType } from "@/types/matches";
-import {
-  StandingRow,
-  TableConfig,
-  mockTableConfigs,
-  mockStandings,
-} from "@/lib/admin/standingsData";
-import { mockCompetitions } from "@/lib/admin/matchesData";
+import { LeagueContextSelector } from "@/components/admin/LeagueContextSelector";
+import { useLeagueContext } from "@/contexts/LeagueContext";
+import { mockLeagues } from "@/lib/admin/leaguesData";
 import { mockMatches } from "@/lib/admin/matchesData";
-import {
-  calculateStandingsFromMatches,
-  sortStandings,
-  getZoneIndicator,
-  DEFAULT_POINTS_CONFIG,
-} from "@/lib/admin/standingsCalculation";
+import type { League } from "@/types/leagues";
+import type { Match, MatchStatus } from "@/types/matches";
+
+// Standings row interface
+interface StandingRow {
+  rank: number;
+  team: string;
+  teamId?: string;
+  played: number;
+  wins: number;
+  draws: number;
+  losses: number;
+  goalsFor: number;
+  goalsAgainst: number;
+  goalDifference: number;
+  points: number;
+}
+
+// Calculate standings from finished matches
+function calculateStandings(
+  matches: Match[],
+  pointsConfig: { win: number; draw: number; loss: number }
+): StandingRow[] {
+  const standingsMap = new Map<string, StandingRow>();
+
+  // Process only finished matches
+  const finishedMatches = matches.filter(
+    (m) => m.status === "finished" && m.homeScore !== null && m.awayScore !== null
+  );
+
+  finishedMatches.forEach((match) => {
+    const homeScore = match.homeScore!;
+    const awayScore = match.awayScore!;
+
+    // Home team
+    const homeKey = match.homeTeamId || match.homeTeam;
+    if (!standingsMap.has(homeKey)) {
+      standingsMap.set(homeKey, {
+        rank: 0,
+        team: match.homeTeam,
+        teamId: match.homeTeamId,
+        played: 0,
+        wins: 0,
+        draws: 0,
+        losses: 0,
+        goalsFor: 0,
+        goalsAgainst: 0,
+        goalDifference: 0,
+        points: 0,
+      });
+    }
+
+    // Away team
+    const awayKey = match.awayTeamId || match.awayTeam;
+    if (!standingsMap.has(awayKey)) {
+      standingsMap.set(awayKey, {
+        rank: 0,
+        team: match.awayTeam,
+        teamId: match.awayTeamId,
+        played: 0,
+        wins: 0,
+        draws: 0,
+        losses: 0,
+        goalsFor: 0,
+        goalsAgainst: 0,
+        goalDifference: 0,
+        points: 0,
+      });
+    }
+
+    const homeStanding = standingsMap.get(homeKey)!;
+    const awayStanding = standingsMap.get(awayKey)!;
+
+    // Update stats
+    homeStanding.played++;
+    homeStanding.goalsFor += homeScore;
+    homeStanding.goalsAgainst += awayScore;
+
+    awayStanding.played++;
+    awayStanding.goalsFor += awayScore;
+    awayStanding.goalsAgainst += homeScore;
+
+    // Determine result
+    if (homeScore > awayScore) {
+      homeStanding.wins++;
+      homeStanding.points += pointsConfig.win;
+      awayStanding.losses++;
+    } else if (awayScore > homeScore) {
+      awayStanding.wins++;
+      awayStanding.points += pointsConfig.win;
+      homeStanding.losses++;
+    } else {
+      homeStanding.draws++;
+      homeStanding.points += pointsConfig.draw;
+      awayStanding.draws++;
+      awayStanding.points += pointsConfig.draw;
+    }
+  });
+
+  // Calculate goal difference and sort
+  const standings = Array.from(standingsMap.values()).map((s) => ({
+    ...s,
+    goalDifference: s.goalsFor - s.goalsAgainst,
+  }));
+
+  // Sort by: Points (desc), Goal Difference (desc), Goals For (desc), Team name (asc)
+  standings.sort((a, b) => {
+    if (b.points !== a.points) return b.points - a.points;
+    if (b.goalDifference !== a.goalDifference) return b.goalDifference - a.goalDifference;
+    if (b.goalsFor !== a.goalsFor) return b.goalsFor - a.goalsFor;
+    return a.team.localeCompare(b.team);
+  });
+
+  // Assign ranks
+  standings.forEach((s, index) => {
+    s.rank = index + 1;
+  });
+
+  return standings;
+}
 
 export default function StandingsClient() {
   const router = useRouter();
-  const [standings, setStandings] = useState<StandingRow[]>(mockStandings);
-  const [tableConfigs, setTableConfigs] = useState<TableConfig[]>(mockTableConfigs);
-  const [editingStanding, setEditingStanding] = useState<StandingRow | null>(null);
-  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
-  const [toast, setToast] = useState<{
-    message: string;
-    type: "success" | "error" | "info" | "warning";
-  } | null>(null);
+  const { selectedLeague: contextLeague } = useLeagueContext();
+  const [selectedSeason, setSelectedSeason] = useState<string>("");
 
-  // Filter states
-  const [sportFilter, setSportFilter] = useState<SportType | "">("");
-  const [competitionFilter, setCompetitionFilter] = useState("");
-  const [seasonFilter, setSeasonFilter] = useState("");
-  const [autoCalculate, setAutoCalculate] = useState(true); // Auto-calculate from matches
-
-  const availableSports = useMemo(() => {
-    return getAvailableSports();
+  // Get available leagues (only active leagues with standings table)
+  const availableLeagues = useMemo(() => {
+    return mockLeagues.filter(
+      (l) => l.status === "active" && l.hasStandingsTable && l.competitionType === "league"
+    );
   }, []);
 
-  const availableCompetitions = useMemo(() => {
-    if (!sportFilter) return mockCompetitions;
-    return mockCompetitions.filter((c) => c.sport === sportFilter);
-  }, [sportFilter]);
+  // Use league from context, fallback to first available
+  const selectedLeague = useMemo(() => {
+    if (contextLeague && contextLeague.hasStandingsTable && contextLeague.competitionType === "league") {
+      return contextLeague;
+    }
+    return availableLeagues.length > 0 ? availableLeagues[0] : null;
+  }, [contextLeague, availableLeagues]);
 
+  const selectedLeagueId = selectedLeague?.id || "";
+
+  // Get unique seasons from available leagues
   const availableSeasons = useMemo(() => {
-    if (!competitionFilter) return [];
-    const competition = mockCompetitions.find((c) => c.id === competitionFilter);
-    return competition?.seasons || [];
-  }, [competitionFilter]);
+    const seasons = new Set<string>();
+    availableLeagues.forEach((l) => seasons.add(l.season));
+    return Array.from(seasons).sort().reverse();
+  }, [availableLeagues]);
 
-  // Calculate standings from matches when auto-calculate is enabled
-  useEffect(() => {
-    if (!autoCalculate) return;
-
-    setStandings((prevStandings) => {
-      const calculatedStandings: StandingRow[] = [];
-      const processedKeys = new Set<string>();
-
-      // Process each competition/season combination
-      mockCompetitions.forEach((competition) => {
-        competition.seasons.forEach((season) => {
-          const key = `${competition.id}-${season.id}`;
-          if (processedKeys.has(key)) return;
-          processedKeys.add(key);
-
-          // Get matches for this competition/season
-          const relevantMatches = mockMatches.filter(
-            (m) => m.competitionId === competition.id && m.seasonId === season.id
-          );
-
-          if (relevantMatches.length === 0) return;
-
-          // Get table config
-          const config =
-            tableConfigs.find(
-              (c) => c.competitionId === competition.id && c.seasonId === season.id
-            ) || {
-              competitionId: competition.id,
-              seasonId: season.id,
-              isLocked: false,
-              pointsConfig: DEFAULT_POINTS_CONFIG[competition.sport],
-            };
-
-          // Skip if locked
-          if (config.isLocked) {
-            // Keep existing standings for locked tables
-            const existing = prevStandings.filter(
-              (s) => s.competitionId === competition.id && s.seasonId === season.id
-            );
-            calculatedStandings.push(...existing);
-            return;
-          }
-
-        // Calculate from matches
-        const pointsConfig = config.pointsConfig || DEFAULT_POINTS_CONFIG[competition.sport];
-        const calculated = calculateStandingsFromMatches(relevantMatches, pointsConfig);
-        const sorted = sortStandings(Array.from(calculated.values()));
-
-          // Convert to StandingRow format
-          sorted.forEach((calc, index) => {
-            const existing = prevStandings.find(
-              (s) =>
-                s.competitionId === competition.id &&
-                s.seasonId === season.id &&
-                (s.teamId === calc.teamId || s.team === calc.team)
-            );
-
-          const position = index + 1;
-          const totalTeams = sorted.length;
-          const zone = getZoneIndicator(
-            position,
-            totalTeams,
-            config.promotionZones,
-            config.relegationZones
-          );
-
-          // Apply manual overrides if they exist
-          const basePoints = calc.points;
-          const deduction = existing?.manualOverrides?.pointsDeduction ?? 0;
-          const manualPoints = existing?.manualOverrides?.points;
-          // `manualPoints` is `number | undefined` — ensure `finalPoints` is always a number
-          const finalPoints =
-            manualPoints != null ? manualPoints : basePoints - deduction;
-
-          calculatedStandings.push({
-            id: existing?.id || `stand-${competition.id}-${season.id}-${position}`,
-            team: calc.team,
-            teamId: calc.teamId,
-            sport: competition.sport,
-            competitionId: competition.id,
-            competitionName: competition.name,
-            seasonId: season.id,
-            seasonName: season.name,
-            position,
-            played: calc.played,
-            won: calc.won,
-            drawn: calc.drawn,
-            lost: calc.lost,
-            goalsFor: calc.goalsFor,
-            goalsAgainst: calc.goalsAgainst,
-            goalDifference: calc.goalDifference,
-            points: finalPoints,
-            form: calc.form,
-            isLocked: false,
-            manualOverrides: existing?.manualOverrides,
-            zone,
-          });
-          });
-        });
-      });
-
-      // Merge with manually maintained standings (for competitions without matches)
-      const manualStandings = prevStandings.filter((s) => {
-        const key = `${s.competitionId}-${s.seasonId}`;
-        return !processedKeys.has(key);
-      });
-
-      return [...calculatedStandings, ...manualStandings];
-    });
-  }, [autoCalculate, tableConfigs]);
-
-  // Filtered standings
-  const filteredStandings = useMemo(() => {
-    let result = standings.filter((standing) => {
-      const matchesSport = sportFilter === "" || standing.sport === sportFilter;
-      const matchesCompetition =
-        competitionFilter === "" || standing.competitionId === competitionFilter;
-      const matchesSeason = seasonFilter === "" || standing.seasonId === seasonFilter;
-
-      return matchesSport && matchesCompetition && matchesSeason;
-    });
-
-    // Sort by competition, then position
-    result = [...result].sort((a, b) => {
-      if (a.competitionId !== b.competitionId) {
-        return a.competitionId.localeCompare(b.competitionId);
-      }
-      return a.position - b.position;
-    });
-
-    return result;
-  }, [standings, sportFilter, competitionFilter, seasonFilter]);
-
-  const handleToggleLock = (competitionId: string, seasonId: string) => {
-    setIsLoading(true);
-    setTimeout(() => {
-      setTableConfigs((prev) =>
-        prev.map((config) =>
-          config.competitionId === competitionId && config.seasonId === seasonId
-            ? { ...config, isLocked: !config.isLocked }
-            : config
-        )
-      );
-      setToast({
-        message: "وضعیت قفل جدول تغییر کرد",
-        type: "success",
-      });
-      setIsLoading(false);
-    }, 300);
-  };
-
-  const handleEditStanding = (standing: StandingRow) => {
-    setEditingStanding(standing);
-    setIsEditModalOpen(true);
-  };
-
-  const handleSaveStanding = (
-    standing: StandingRow,
-    overrides: StandingRow["manualOverrides"]
-  ) => {
-    setIsLoading(true);
-    setTimeout(() => {
-      setStandings((prev) =>
-        prev.map((s) => {
-          if (s.id === standing.id) {
-            const basePoints = s.points;
-            const deduction = overrides?.pointsDeduction ?? 0;
-            const manualPoints = overrides?.points;
-            // `manualPoints` is `number | undefined` — ensure `finalPoints` is always a number
-            const finalPoints =
-              manualPoints != null ? manualPoints : basePoints - deduction;
-
-            return {
-              ...s,
-              manualOverrides: {
-                ...overrides,
-                points: manualPoints,
-                pointsDeduction: deduction > 0 ? deduction : undefined,
-                pointsDeductionReason: overrides?.pointsDeductionReason,
-              },
-              points: finalPoints,
-            };
-          }
-          return s;
-        })
-      );
-      setIsEditModalOpen(false);
-      setEditingStanding(null);
-      setToast({
-        message: "رکورد تیم با موفقیت به‌روزرسانی شد",
-        type: "success",
-      });
-      setIsLoading(false);
-    }, 500);
-  };
-
-  const getFormBadge = (form: string[]) => {
-    return (
-      <div className="flex items-center gap-1">
-        {form.map((result, index) => {
-          const variants: Record<string, "success" | "danger" | "warning" | "default"> = {
-            W: "success",
-            L: "danger",
-            D: "warning",
-          };
-          return (
-            <Badge
-              key={index}
-              variant={variants[result] || "default"}
-              className="!px-1.5 !py-0.5 text-xs"
-            >
-              {result === "W" ? "ب" : result === "L" ? "ش" : "ت"}
-            </Badge>
-          );
-        })}
-      </div>
+  // Filter matches by selected league and season
+  const relevantMatches = useMemo(() => {
+    if (!selectedLeague) return [];
+    return mockMatches.filter(
+      (m) =>
+        m.leagueId === selectedLeague.id &&
+        m.status === "finished" &&
+        (selectedSeason === "" || selectedLeague.season === selectedSeason)
     );
-  };
+  }, [selectedLeague, selectedSeason]);
 
-  const getPositionBadge = (position: number, zone?: StandingRow["zone"]) => {
-    if (zone === "champion") {
+  // Calculate standings
+  const standings = useMemo(() => {
+    if (!selectedLeague || relevantMatches.length === 0) return [];
+
+    const pointsConfig = {
+      win: selectedLeague.pointsSystem?.winPoints ?? 3,
+      draw: selectedLeague.pointsSystem?.drawPoints ?? 1,
+      loss: selectedLeague.pointsSystem?.lossPoints ?? 0,
+    };
+
+    return calculateStandings(relevantMatches, pointsConfig);
+  }, [selectedLeague, relevantMatches]);
+
+  // Auto-select season when league changes
+  useEffect(() => {
+    if (selectedLeague) {
+      setSelectedSeason(selectedLeague.season);
+    }
+  }, [selectedLeague]);
+
+  const getRankBadge = (rank: number) => {
+    if (rank === 1) {
       return (
         <span className="flex items-center justify-center w-8 h-8 rounded-full bg-yellow-500 text-white font-bold text-sm shadow-md">
-          {position}
+          {rank}
         </span>
       );
     }
-    if (position <= 3) {
+    if (rank <= 3) {
       return (
         <span className="flex items-center justify-center w-8 h-8 rounded-full bg-brand text-white font-bold text-sm">
-          {position}
+          {rank}
         </span>
       );
     }
-    return <span className="text-sm font-medium text-slate-700">{position}</span>;
+    return <span className="text-sm font-medium text-slate-700">{rank}</span>;
   };
 
-  const getRowClassName = (standing: StandingRow) => {
-    if (standing.zone === "champion") {
-      return "bg-yellow-50 border-yellow-200";
-    }
-    if (standing.zone === "promotion") {
+  const getRowClassName = (rank: number, totalTeams: number) => {
+    if (rank === 1) return "bg-yellow-50 border-yellow-200";
+    if (selectedLeague?.promotionSpots && rank <= selectedLeague.promotionSpots && rank > 1) {
       return "bg-green-50 border-green-200";
     }
-    if (standing.zone === "relegation") {
+    if (
+      selectedLeague?.relegationSpots &&
+      rank > totalTeams - selectedLeague.relegationSpots
+    ) {
       return "bg-red-50 border-red-200";
     }
     return "";
   };
 
-  const columns: readonly Column<StandingRow>[] = [
-    {
-      key: "position",
-      label: "رتبه",
-      render: (row) => (
-        <div className="flex items-center justify-center min-w-[40px]">
-          {getPositionBadge(row.position, row.zone)}
-        </div>
-      ),
-    },
-    {
-      key: "team",
-      label: "تیم",
-      render: (row) => (
-        <div className="font-medium text-slate-900 min-w-[150px] flex items-center gap-2">
-          {row.team}
-          {row.zone === "champion" && (
-            <span className="text-yellow-600" title="قهرمان">
-              👑
-            </span>
-          )}
-          {row.manualOverrides?.pointsDeduction && (
-            <Badge variant="danger" className="!px-1.5 !py-0.5 text-xs">
-              -{row.manualOverrides.pointsDeduction}
-            </Badge>
-          )}
-        </div>
-      ),
-    },
-    {
-      key: "played",
-      label: "بازی",
-      render: (row) => (
-        <div className="text-center text-sm text-slate-700">{row.played}</div>
-      ),
-    },
-    {
-      key: "won",
-      label: "برد",
-      render: (row) => (
-        <div className="text-center text-sm font-medium text-green-600">{row.won}</div>
-      ),
-    },
-    {
-      key: "drawn",
-      label: "مساوی",
-      render: (row) => (
-        <div className="text-center text-sm font-medium text-yellow-600">{row.drawn}</div>
-      ),
-    },
-    {
-      key: "lost",
-      label: "باخت",
-      render: (row) => (
-        <div className="text-center text-sm font-medium text-red-600">{row.lost}</div>
-      ),
-    },
-    {
-      key: "goalsFor",
-      label: "گل زده",
-      render: (row) => (
-        <div className="text-center text-sm text-slate-700">{row.goalsFor}</div>
-      ),
-    },
-    {
-      key: "goalsAgainst",
-      label: "گل خورده",
-      render: (row) => (
-        <div className="text-center text-sm text-slate-700">{row.goalsAgainst}</div>
-      ),
-    },
-    {
-      key: "goalDifference",
-      label: "تفاضل",
-      render: (row) => (
-        <div
-          className={`text-center text-sm font-medium ${
-            row.goalDifference >= 0 ? "text-green-600" : "text-red-600"
-          }`}
-        >
-          {row.goalDifference > 0 ? "+" : ""}
-          {row.goalDifference}
-        </div>
-      ),
-    },
-    {
-      key: "points",
-      label: "امتیاز",
-      render: (row) => (
-        <div className="text-center text-base font-bold text-slate-900">{row.points}</div>
-      ),
-    },
-    {
-      key: "form",
-      label: "فرم",
-      render: (row) => getFormBadge(row.form),
-    },
-    {
-      key: "id",
-      label: "عملیات",
-      render: (row) => (
-        <div className="flex items-center gap-2">
-          <button
-            onClick={() => handleEditStanding(row)}
-            className="rounded-lg p-2 text-slate-600 hover:bg-slate-100 transition-colors"
-            title="ویرایش"
-            aria-label="ویرایش رکورد تیم"
-          >
-            <svg
-              className="h-4 w-4"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
-              />
-            </svg>
-          </button>
-        </div>
-      ),
-    },
-  ];
-
-  // Group standings by competition
-  const groupedStandings = useMemo(() => {
-    const groups: Record<string, StandingRow[]> = {};
-    filteredStandings.forEach((standing) => {
-      const key = `${standing.competitionId}-${standing.seasonId}`;
-      if (!groups[key]) {
-        groups[key] = [];
-      }
-      groups[key].push(standing);
-    });
-    return groups;
-  }, [filteredStandings]);
-
   return (
     <div className="space-y-6" dir="rtl">
       <PageHeader
-        title="مدیریت جدول لیگ"
-        subtitle="محاسبه و مدیریت جدول رده‌بندی از نتایج مسابقات"
+        title="موتور محاسبه جدول رده‌بندی"
+        subtitle="محاسبه خودکار جدول از نتایج مسابقات پایان یافته"
         action={
           <button
             onClick={() => router.push("/admin/matches")}
@@ -462,79 +235,35 @@ export default function StandingsClient() {
         }
       />
 
-      {/* Auto-calculate toggle */}
-      <div className="rounded-xl border border-[var(--border)] bg-white p-4 shadow-sm">
-        <div className="flex items-center justify-between">
-          <div>
-            <h3 className="text-sm font-semibold text-slate-900 mb-1">
-              محاسبه خودکار از نتایج
-            </h3>
-            <p className="text-xs text-slate-600">
-              جدول به صورت خودکار از نتایج مسابقات محاسبه می‌شود
-            </p>
-          </div>
-          <Toggle checked={autoCalculate} onChange={setAutoCalculate} />
-        </div>
-      </div>
+      {/* League Context Selector */}
+      <LeagueContextSelector />
 
       {/* Filters */}
       <div className="rounded-xl border border-[var(--border)] bg-white p-4 sm:p-6 shadow-sm">
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-          {/* Sport Filter */}
-          <div>
-            <label className="block text-xs font-medium text-slate-700 mb-2">ورزش</label>
-            <select
-              value={sportFilter}
-              onChange={(e) => {
-                setSportFilter(e.target.value as SportType | "");
-                setCompetitionFilter("");
-                setSeasonFilter("");
-              }}
-              className="w-full rounded-lg border border-[var(--border)] px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand/50 focus:border-brand"
-            >
-              <option value="">همه ورزش‌ها</option>
-              {availableSports.map((sport) => (
-                <option key={sport.id} value={sport.id}>
-                  {sport.label}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          {/* Competition Filter */}
-          <div>
-            <label className="block text-xs font-medium text-slate-700 mb-2">مسابقات</label>
-            <select
-              value={competitionFilter}
-              onChange={(e) => {
-                setCompetitionFilter(e.target.value);
-                setSeasonFilter("");
-              }}
-              disabled={!sportFilter}
-              className="w-full rounded-lg border border-[var(--border)] px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand/50 focus:border-brand disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              <option value="">همه مسابقات</option>
-              {availableCompetitions.map((comp) => (
-                <option key={comp.id} value={comp.id}>
-                  {comp.name}
-                </option>
-              ))}
-            </select>
-          </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          {/* League Info (read-only, selected from context) */}
+          {selectedLeague && (
+            <div>
+              <label className="block text-xs font-medium text-slate-700 mb-2">لیگ فعال</label>
+              <div className="rounded-lg border border-[var(--border)] bg-slate-50 px-3 py-2 text-sm font-medium text-slate-900">
+                {selectedLeague.title} ({selectedLeague.season})
+              </div>
+            </div>
+          )}
 
           {/* Season Filter */}
           <div>
             <label className="block text-xs font-medium text-slate-700 mb-2">فصل</label>
             <select
-              value={seasonFilter}
-              onChange={(e) => setSeasonFilter(e.target.value)}
-              disabled={!competitionFilter}
+              value={selectedSeason}
+              onChange={(e) => setSelectedSeason(e.target.value)}
+              disabled={!selectedLeagueId}
               className="w-full rounded-lg border border-[var(--border)] px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand/50 focus:border-brand disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <option value="">همه فصل‌ها</option>
               {availableSeasons.map((season) => (
-                <option key={season.id} value={season.id}>
-                  {season.name}
+                <option key={season} value={season}>
+                  {season}
                 </option>
               ))}
             </select>
@@ -542,135 +271,199 @@ export default function StandingsClient() {
         </div>
       </div>
 
-      {/* Standings Tables */}
-      <div className="space-y-6">
-        {Object.entries(groupedStandings).map(([key, groupStandings]) => {
-          const firstStanding = groupStandings[0];
-          const competition = mockCompetitions.find((c) => c.id === firstStanding.competitionId);
-          const sportConfig = getSportConfig(firstStanding.sport);
-          const tableConfig = tableConfigs.find(
-            (c) => c.competitionId === firstStanding.competitionId && c.seasonId === firstStanding.seasonId
-          );
-
-          return (
-            <div
-              key={key}
-              className="rounded-xl border border-[var(--border)] bg-white overflow-hidden shadow-sm"
-            >
-              {/* Table Header */}
-              <div className="bg-slate-50 px-6 py-4 border-b border-[var(--border)]">
-                <div className="flex items-center justify-between flex-wrap gap-4">
-                  <div className="flex items-center gap-3">
-                    <span className="text-xl">{sportConfig.icon}</span>
-                    <div>
-                      <h3 className="text-lg font-bold text-slate-900">
-                        {firstStanding.competitionName}
-                      </h3>
-                      <p className="text-sm text-slate-600">{firstStanding.seasonName}</p>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <Badge variant="info">{sportConfig.label}</Badge>
-                    <div className="flex items-center gap-2">
-                      <span className="text-xs text-slate-600">قفل جدول:</span>
-                      <Toggle
-                        checked={tableConfig?.isLocked || false}
-                        onChange={() =>
-                          handleToggleLock(firstStanding.competitionId, firstStanding.seasonId)
-                        }
-                        disabled={isLoading}
-                      />
-                    </div>
-                  </div>
-                </div>
-
-                {/* Zone Legend */}
-                <div className="mt-4 flex flex-wrap gap-4 text-xs">
-                  {tableConfig?.promotionZones && (
-                    <div className="flex items-center gap-2">
-                      <div className="w-3 h-3 rounded bg-green-500"></div>
-                      <span className="text-slate-600">
-                        {tableConfig.promotionZones} تیم اول (صعود)
-                      </span>
-                    </div>
-                  )}
-                  {tableConfig?.relegationZones && (
-                    <div className="flex items-center gap-2">
-                      <div className="w-3 h-3 rounded bg-red-500"></div>
-                      <span className="text-slate-600">
-                        {tableConfig.relegationZones} تیم آخر (سقوط)
-                      </span>
-                    </div>
-                  )}
-                  <div className="flex items-center gap-2">
-                    <div className="w-3 h-3 rounded bg-yellow-500"></div>
-                    <span className="text-slate-600">قهرمان</span>
-                  </div>
-                </div>
+      {/* Standings Table */}
+      {selectedLeague && selectedLeague.hasStandingsTable && standings.length > 0 && (
+        <div className="rounded-xl border border-[var(--border)] bg-white overflow-hidden shadow-sm">
+          {/* Header */}
+          <div className="bg-slate-50 px-4 sm:px-6 py-4 border-b border-[var(--border)]">
+            <div className="flex items-center justify-between flex-wrap gap-4">
+              <div>
+                <h3 className="text-lg font-bold text-slate-900">{selectedLeague.title}</h3>
+                <p className="text-sm text-slate-600">{selectedLeague.season}</p>
               </div>
-
-              {/* Table */}
-              <div className="overflow-x-auto">
-                <table className="w-full text-sm">
-                  <thead className="bg-slate-50">
-                    <tr>
-                      {columns.map((col) => (
-                        <th
-                          key={String(col.key)}
-                          className="px-4 py-3 text-right font-semibold text-slate-700"
-                        >
-                          {col.label}
-                        </th>
-                      ))}
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {groupStandings.map((row) => (
-                      <tr
-                        key={row.id}
-                        className={`border-t hover:bg-slate-50 transition-colors ${getRowClassName(row)}`}
-                      >
-                        {columns.map((col) => (
-                          <td key={String(col.key)} className="px-4 py-2">
-                            {col.render ? col.render(row) : String(row[col.key] ?? "-")}
-                          </td>
-                        ))}
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+              <div className="flex items-center gap-2 text-xs text-slate-600">
+                <span>تعداد مسابقات: {relevantMatches.length}</span>
               </div>
             </div>
-          );
-        })}
 
-        {Object.keys(groupedStandings).length === 0 && (
-          <div className="rounded-xl border border-[var(--border)] bg-white p-12 text-center">
-            <p className="text-slate-500 text-sm">هیچ جدولی یافت نشد</p>
+            {/* Zone Legend */}
+            {(selectedLeague.promotionSpots || selectedLeague.relegationSpots) && (
+              <div className="mt-4 flex flex-wrap gap-4 text-xs">
+                {selectedLeague.promotionSpots && selectedLeague.promotionSpots > 0 && (
+                  <div className="flex items-center gap-2">
+                    <div className="w-3 h-3 rounded bg-green-500"></div>
+                    <span className="text-slate-600">
+                      {selectedLeague.promotionSpots} تیم اول (صعود)
+                    </span>
+                  </div>
+                )}
+                {selectedLeague.relegationSpots && selectedLeague.relegationSpots > 0 && (
+                  <div className="flex items-center gap-2">
+                    <div className="w-3 h-3 rounded bg-red-500"></div>
+                    <span className="text-slate-600">
+                      {selectedLeague.relegationSpots} تیم آخر (سقوط)
+                    </span>
+                  </div>
+                )}
+                <div className="flex items-center gap-2">
+                  <div className="w-3 h-3 rounded bg-yellow-500"></div>
+                  <span className="text-slate-600">قهرمان</span>
+                </div>
+              </div>
+            )}
           </div>
-        )}
-      </div>
 
-      {/* Edit Modal */}
-      <StandingEditModal
-        open={isEditModalOpen}
-        standing={editingStanding}
-        onClose={() => {
-          setIsEditModalOpen(false);
-          setEditingStanding(null);
-        }}
-        onSave={handleSaveStanding}
-        isLoading={isLoading}
-      />
+          {/* Desktop Table */}
+          <div className="hidden md:block overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead className="bg-slate-50">
+                <tr>
+                  <th className="px-4 py-3 text-right font-semibold text-slate-700">رتبه</th>
+                  <th className="px-4 py-3 text-right font-semibold text-slate-700">تیم</th>
+                  <th className="px-4 py-3 text-center font-semibold text-slate-700">بازی</th>
+                  <th className="px-4 py-3 text-center font-semibold text-slate-700">برد</th>
+                  <th className="px-4 py-3 text-center font-semibold text-slate-700">مساوی</th>
+                  <th className="px-4 py-3 text-center font-semibold text-slate-700">باخت</th>
+                  <th className="px-4 py-3 text-center font-semibold text-slate-700">گل زده</th>
+                  <th className="px-4 py-3 text-center font-semibold text-slate-700">گل خورده</th>
+                  <th className="px-4 py-3 text-center font-semibold text-slate-700">تفاضل</th>
+                  <th className="px-4 py-3 text-center font-semibold text-slate-700">امتیاز</th>
+                </tr>
+              </thead>
+              <tbody>
+                {standings.map((row) => (
+                  <tr
+                    key={row.teamId || row.team}
+                    className={`border-t hover:bg-slate-50 transition-colors ${getRowClassName(
+                      row.rank,
+                      standings.length
+                    )}`}
+                  >
+                    <td className="px-4 py-3">
+                      <div className="flex items-center justify-center">
+                        {getRankBadge(row.rank)}
+                      </div>
+                    </td>
+                    <td className="px-4 py-3">
+                      <div className="font-medium text-slate-900 min-w-[150px]">
+                        {row.rank === 1 && (
+                          <span className="ml-2 text-yellow-600" title="قهرمان">
+                            👑
+                          </span>
+                        )}
+                        {row.team}
+                      </div>
+                    </td>
+                    <td className="px-4 py-3 text-center text-slate-700">{row.played}</td>
+                    <td className="px-4 py-3 text-center font-medium text-green-600">
+                      {row.wins}
+                    </td>
+                    <td className="px-4 py-3 text-center font-medium text-yellow-600">
+                      {row.draws}
+                    </td>
+                    <td className="px-4 py-3 text-center font-medium text-red-600">
+                      {row.losses}
+                    </td>
+                    <td className="px-4 py-3 text-center text-slate-700">{row.goalsFor}</td>
+                    <td className="px-4 py-3 text-center text-slate-700">{row.goalsAgainst}</td>
+                    <td
+                      className={`px-4 py-3 text-center font-medium ${
+                        row.goalDifference >= 0 ? "text-green-600" : "text-red-600"
+                      }`}
+                    >
+                      {row.goalDifference > 0 ? "+" : ""}
+                      {row.goalDifference}
+                    </td>
+                    <td className="px-4 py-3 text-center text-base font-bold text-slate-900">
+                      {row.points}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
 
-      {/* Toast Notification */}
-      {toast && (
-        <Toast
-          message={toast.message}
-          type={toast.type}
-          isVisible={!!toast}
-          onClose={() => setToast(null)}
-        />
+          {/* Mobile Cards */}
+          <div className="md:hidden divide-y divide-[var(--border)]">
+            {standings.map((row) => (
+              <div
+                key={row.teamId || row.team}
+                className={`p-4 ${getRowClassName(row.rank, standings.length)}`}
+              >
+                <div className="flex items-center justify-between mb-3">
+                  <div className="flex items-center gap-3">
+                    {getRankBadge(row.rank)}
+                    <div className="font-medium text-slate-900">
+                      {row.rank === 1 && (
+                        <span className="ml-2 text-yellow-600" title="قهرمان">
+                          👑
+                        </span>
+                      )}
+                      {row.team}
+                    </div>
+                  </div>
+                  <div className="text-left">
+                    <div className="text-base font-bold text-slate-900">{row.points}</div>
+                    <div className="text-xs text-slate-500">امتیاز</div>
+                  </div>
+                </div>
+                <div className="grid grid-cols-4 gap-2 text-xs">
+                  <div className="text-center">
+                    <div className="font-medium text-slate-700">{row.played}</div>
+                    <div className="text-slate-500">بازی</div>
+                  </div>
+                  <div className="text-center">
+                    <div className="font-medium text-green-600">{row.wins}</div>
+                    <div className="text-slate-500">برد</div>
+                  </div>
+                  <div className="text-center">
+                    <div className="font-medium text-yellow-600">{row.draws}</div>
+                    <div className="text-slate-500">مساوی</div>
+                  </div>
+                  <div className="text-center">
+                    <div
+                      className={`font-medium ${
+                        row.goalDifference >= 0 ? "text-green-600" : "text-red-600"
+                      }`}
+                    >
+                      {row.goalDifference > 0 ? "+" : ""}
+                      {row.goalDifference}
+                    </div>
+                    <div className="text-slate-500">تفاضل</div>
+                  </div>
+                </div>
+                <div className="mt-2 grid grid-cols-2 gap-2 text-xs">
+                  <div>
+                    <span className="text-slate-500">گل زده: </span>
+                    <span className="font-medium text-slate-700">{row.goalsFor}</span>
+                  </div>
+                  <div>
+                    <span className="text-slate-500">گل خورده: </span>
+                    <span className="font-medium text-slate-700">{row.goalsAgainst}</span>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Empty State */}
+      {selectedLeague && standings.length === 0 && (
+        <div className="rounded-xl border border-[var(--border)] bg-white p-12 text-center">
+          <p className="text-slate-500 text-sm mb-2">
+            هیچ مسابقه پایان یافته‌ای برای این لیگ یافت نشد
+          </p>
+          <p className="text-xs text-slate-400">
+            جدول رده‌بندی فقط از مسابقات با وضعیت "پایان یافته" محاسبه می‌شود
+          </p>
+        </div>
+      )}
+
+      {!selectedLeague && (
+        <div className="rounded-xl border border-[var(--border)] bg-white p-12 text-center">
+          <p className="text-slate-500 text-sm">لطفاً یک لیگ را انتخاب کنید</p>
+        </div>
       )}
     </div>
   );

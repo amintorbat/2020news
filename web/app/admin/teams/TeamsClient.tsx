@@ -2,6 +2,8 @@
 
 import { useState, useMemo } from "react";
 import { PageHeader } from "@/components/admin/PageHeader";
+import { LeagueContextSelector } from "@/components/admin/LeagueContextSelector";
+import { useLeagueContext } from "@/contexts/LeagueContext";
 import { DataTable, Column } from "@/components/admin/DataTable";
 import { Badge } from "@/components/admin/Badge";
 import { DeleteConfirmationModal } from "@/components/admin/DeleteConfirmationModal";
@@ -34,9 +36,19 @@ export default function TeamsClient() {
     return getAvailableSports();
   }, []);
 
+  const { selectedLeague } = useLeagueContext();
+
   // Filtered teams
   const filteredTeams = useMemo(() => {
     return teams.filter((team) => {
+      // Filter by selected league's sport type
+      if (selectedLeague) {
+        const leagueSport = selectedLeague.sportType === "futsal" ? "futsal" : "beach-soccer";
+        if (team.sport !== leagueSport) {
+          return false;
+        }
+      }
+
       const matchesSearch =
         search === "" ||
         team.name.toLowerCase().includes(search.toLowerCase()) ||
@@ -47,7 +59,7 @@ export default function TeamsClient() {
 
       return matchesSearch && matchesSport && matchesStatus;
     });
-  }, [teams, search, sportFilter, statusFilter]);
+  }, [teams, search, sportFilter, statusFilter, selectedLeague]);
 
   const handleAddClick = () => {
     setEditingTeam(null);
@@ -248,6 +260,9 @@ export default function TeamsClient() {
           </button>
         }
       />
+
+      {/* League Context Selector */}
+      <LeagueContextSelector />
 
       {/* Filters */}
       <div className="rounded-xl border border-[var(--border)] bg-white p-4 sm:p-6 shadow-sm">

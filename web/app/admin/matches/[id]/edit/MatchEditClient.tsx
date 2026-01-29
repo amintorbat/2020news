@@ -1,12 +1,18 @@
 "use client";
 
 import { useState, useMemo } from "react";
+import { Badge } from "@/components/admin/Badge";
 import { useRouter } from "next/navigation";
 import { PageHeader } from "@/components/admin/PageHeader";
 import { Toast } from "@/components/admin/Toast";
 import { PersianDatePicker } from "@/components/admin/PersianDatePicker";
 import { PersianTimePicker } from "@/components/admin/PersianTimePicker";
 import { Match, Competition, MatchEvent, MatchEventType, MatchStatus, getAvailableSports, getSportConfig, MATCH_EVENT_TYPE_LABELS } from "@/types/matches";
+import { getPlayersByTeamAndSport, getPlayerById, type Player } from "@/lib/admin/playersData";
+import { mockTeams } from "@/lib/admin/teamsData";
+import { mockUsers } from "@/lib/admin/mock";
+import { getAssignmentsForMatch, type MatchReporterAssignment } from "@/lib/admin/reporterAssignments";
+import { getAssignmentStatus } from "@/types/reporter";
 
 type Props = {
   match: Match;
@@ -44,6 +50,17 @@ export default function MatchEditClient({ match: initialMatch, competitions }: P
       router.push(`/admin/matches/${match.id}`);
     }, 1500);
   };
+
+  // Get available players for home and away teams
+  const homeTeamPlayers = useMemo(() => {
+    if (!match.homeTeamId) return [];
+    return getPlayersByTeamAndSport(match.homeTeamId, match.sport);
+  }, [match.homeTeamId, match.sport]);
+
+  const awayTeamPlayers = useMemo(() => {
+    if (!match.awayTeamId) return [];
+    return getPlayersByTeamAndSport(match.awayTeamId, match.sport);
+  }, [match.awayTeamId, match.sport]);
 
   const handleAddEvent = () => {
     const newEvent: MatchEvent = {
@@ -306,18 +323,23 @@ export default function MatchEditClient({ match: initialMatch, competitions }: P
             </div>
             <div className="space-y-3">
               {match.events.length > 0 ? (
-                match.events.map((event) => (
-                  <MatchEventEditor
-                    key={event.id}
-                    event={event}
-                    homeTeam={match.homeTeam}
-                    awayTeam={match.awayTeam}
-                    allowedEventTypes={availableEventTypes}
-                    maxMinute={sportConfig.matchDuration}
-                    onUpdate={(updates) => handleUpdateEvent(event.id, updates)}
-                    onRemove={() => handleRemoveEvent(event.id)}
-                  />
-                ))
+                match.events
+                  .sort((a, b) => a.minute - b.minute)
+                  .map((event) => (
+                    <MatchEventEditor
+                      key={event.id}
+                      event={event}
+                      homeTeam={match.homeTeam}
+                      awayTeam={match.awayTeam}
+                      homeTeamId={match.homeTeamId}
+                      awayTeamId={match.awayTeamId}
+                      homeTeamPlayers={homeTeamPlayers}
+                      awayTeamPlayers={awayTeamPlayers}
+                      maxMinute={sportConfig.matchDuration}
+                      onUpdate={(updates) => handleUpdateEvent(event.id, updates)}
+                      onRemove={() => handleRemoveEvent(event.id)}
+                    />
+                  ))
               ) : (
                 <p className="text-sm text-slate-500 text-center py-4">هیچ رویدادی ثبت نشده است</p>
               )}
@@ -327,6 +349,13 @@ export default function MatchEditClient({ match: initialMatch, competitions }: P
 
         {/* Sidebar */}
         <div className="space-y-6">
+          {/* Assigned Reporters */}
+          <AssignedReportersSection
+            matchId={match.id}
+            assignments={reporterAssignments}
+            onAssignmentsChange={setReporterAssignments}
+          />
+
           {/* Additional Info */}
           <div className="rounded-xl border border-[var(--border)] bg-white p-6 shadow-sm">
             <h3 className="text-lg font-bold text-slate-900 mb-4">اطلاعات تکمیلی</h3>
@@ -378,7 +407,10 @@ function MatchEventEditor({
   event,
   homeTeam,
   awayTeam,
-  allowedEventTypes,
+  homeTeamId,
+  awayTeamId,
+  homeTeamPlayers,
+  awayTeamPlayers,
   maxMinute,
   onUpdate,
   onRemove,
@@ -386,24 +418,60 @@ function MatchEventEditor({
   event: MatchEvent;
   homeTeam: string;
   awayTeam: string;
-  allowedEventTypes: MatchEventType[];
+  homeTeamId?: string;
+  awayTeamId?: string;
+  homeTeamPlayers: Player[];
+  awayTeamPlayers: Player[];
   maxMinute: number;
   onUpdate: (updates: Partial<MatchEvent>) => void;
   onRemove: () => void;
 }) {
+  // Only show Goal, Yellow Card, Red Card (Assist is handled via assistPlayerId in goal events)
+  const allowedEventTypes: MatchEventType[] = ["goal", "yellow-card", "red-card"];
+  
   const eventTypes = allowedEventTypes.map((type) => ({
     value: type,
     label: MATCH_EVENT_TYPE_LABELS[type],
   }));
 
+  const currentTeamPlayers = event.team === "home" ? homeTeamPlayers : awayTeamPlayers;
+  const currentTeamName = event.team === "home" ? homeTeam : awayTeam;
+
+  // Get available players for assist (same team as goal scorer)
+  const assistPlayers = event.type === "goal" ? currentTeamPlayers : [];
+
+  const handlePlayerChange = (playerId: string) => {
+    const player = currentTeamPlayers.find((p) => p.id === playerId);
+    onUpdate({
+      playerId: playerId || "",
+      playerName: player?.name || "",
+    });
+  };
+
+  const handleAssistChange = (playerId: string) => {
+    const player = assistPlayers.find((p) => p.id === playerId);
+    onUpdate({
+      assistPlayerId: playerId || undefined,
+      assistPlayerName: player?.name || undefined,
+    });
+  };
+
   return (
-    <div className="p-4 border border-[var(--border)] rounded-lg bg-slate-50">
-      <div className="grid grid-cols-1 sm:grid-cols-5 gap-3">
+    <div className="p-3 sm:p-4 border border-[var(--border)] rounded-lg bg-slate-50 space-y-3">
+      {/* Mobile: Stack vertically, Desktop: Grid */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
         <div>
-          <label className="block text-xs font-medium text-slate-700 mb-1.5">نوع</label>
+          <label className="block text-xs font-medium text-slate-700 mb-1.5">نوع رویداد</label>
           <select
             value={event.type}
-            onChange={(e) => onUpdate({ type: e.target.value as MatchEventType })}
+            onChange={(e) => {
+              const newType = e.target.value as MatchEventType;
+              onUpdate({ type: newType });
+              // Clear assist if not a goal
+              if (newType !== "goal") {
+                onUpdate({ assistPlayerId: undefined, assistPlayerName: undefined });
+              }
+            }}
             className="w-full rounded-lg border border-[var(--border)] px-2 py-1.5 text-xs focus:outline-none focus:ring-2 focus:ring-brand/50"
           >
             {eventTypes.map((type) => (
@@ -420,25 +488,24 @@ function MatchEventEditor({
             min={0}
             max={maxMinute}
             value={event.minute}
-            onChange={(e) => onUpdate({ minute: parseInt(e.target.value) })}
+            onChange={(e) => onUpdate({ minute: parseInt(e.target.value) || 0 })}
             className="w-full rounded-lg border border-[var(--border)] px-2 py-1.5 text-xs focus:outline-none focus:ring-2 focus:ring-brand/50"
-          />
-        </div>
-        <div>
-          <label className="block text-xs font-medium text-slate-700 mb-1.5">بازیکن</label>
-          <input
-            type="text"
-            value={event.playerName}
-            onChange={(e) => onUpdate({ playerName: e.target.value })}
-            className="w-full rounded-lg border border-[var(--border)] px-2 py-1.5 text-xs focus:outline-none focus:ring-2 focus:ring-brand/50"
-            placeholder="نام بازیکن"
           />
         </div>
         <div>
           <label className="block text-xs font-medium text-slate-700 mb-1.5">تیم</label>
           <select
             value={event.team}
-            onChange={(e) => onUpdate({ team: e.target.value as "home" | "away" })}
+            onChange={(e) => {
+              const newTeam = e.target.value as "home" | "away";
+              onUpdate({
+                team: newTeam,
+                playerId: "",
+                playerName: "",
+                assistPlayerId: undefined,
+                assistPlayerName: undefined,
+              });
+            }}
             className="w-full rounded-lg border border-[var(--border)] px-2 py-1.5 text-xs focus:outline-none focus:ring-2 focus:ring-brand/50"
           >
             <option value="home">{homeTeam}</option>
@@ -454,6 +521,54 @@ function MatchEventEditor({
           </button>
         </div>
       </div>
+
+      {/* Player Selection */}
+      <div>
+        <label className="block text-xs font-medium text-slate-700 mb-1.5">بازیکن</label>
+        {currentTeamPlayers.length > 0 ? (
+          <select
+            value={event.playerId || ""}
+            onChange={(e) => handlePlayerChange(e.target.value)}
+            className="w-full rounded-lg border border-[var(--border)] px-2 py-1.5 text-xs focus:outline-none focus:ring-2 focus:ring-brand/50"
+          >
+            <option value="">انتخاب بازیکن</option>
+            {currentTeamPlayers.map((player) => (
+              <option key={player.id} value={player.id}>
+                {player.name} {player.jerseyNumber ? `(${player.jerseyNumber})` : ""}
+              </option>
+            ))}
+          </select>
+        ) : (
+          <input
+            type="text"
+            value={event.playerName}
+            onChange={(e) => onUpdate({ playerName: e.target.value })}
+            className="w-full rounded-lg border border-[var(--border)] px-2 py-1.5 text-xs focus:outline-none focus:ring-2 focus:ring-brand/50"
+            placeholder="نام بازیکن (در صورت عدم وجود در لیست)"
+          />
+        )}
+      </div>
+
+      {/* Assist Selection (only for goals) */}
+      {event.type === "goal" && assistPlayers.length > 0 && (
+        <div>
+          <label className="block text-xs font-medium text-slate-700 mb-1.5">پاس گل (اختیاری)</label>
+          <select
+            value={event.assistPlayerId || ""}
+            onChange={(e) => handleAssistChange(e.target.value)}
+            className="w-full rounded-lg border border-[var(--border)] px-2 py-1.5 text-xs focus:outline-none focus:ring-2 focus:ring-brand/50"
+          >
+            <option value="">بدون پاس گل</option>
+            {assistPlayers
+              .filter((p) => p.id !== event.playerId)
+              .map((player) => (
+                <option key={player.id} value={player.id}>
+                  {player.name} {player.jerseyNumber ? `(${player.jerseyNumber})` : ""}
+                </option>
+              ))}
+          </select>
+        </div>
+      )}
     </div>
   );
 }

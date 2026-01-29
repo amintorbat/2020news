@@ -47,8 +47,14 @@ export type ReporterPermission = "goals" | "cards" | "match-news";
 
 export interface TemporaryReporterAccess {
   enabled: boolean;
-  startDateTime?: string; // ISO datetime string
-  endDateTime?: string; // ISO datetime string
+  reporterId?: string; // ID of the reporter user
+  reporterName?: string; // Name of the reporter user
+  startDate?: string; // Jalali date: YYYY-MM-DD
+  startTime?: string; // Time: HH:MM
+  endDate?: string; // Jalali date: YYYY-MM-DD
+  endTime?: string; // Time: HH:MM
+  startDateTime?: string; // ISO datetime string (legacy)
+  endDateTime?: string; // ISO datetime string (legacy)
   permissions: ReporterPermission[];
 }
 

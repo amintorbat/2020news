@@ -14,6 +14,8 @@ import type {
   LeagueSportType,
   LeagueCompetitionType,
   PointsSystem,
+  RankingRules,
+  RankingPriority,
 } from "@/types/leagues";
 import { generateId } from "@/lib/utils/id";
 
@@ -36,6 +38,7 @@ type CompetitionFormValues = {
   relegationSpots?: number;
   hasGroups?: boolean;
   pointsSystem?: PointsSystem;
+  rankingRules?: RankingRules;
   hasStandingsTable?: boolean;
 
   // Knockout-specific fields
@@ -509,8 +512,9 @@ function mapCompetitionToFormValues(
     promotionSpots: competition.promotionSpots,
     relegationSpots: competition.relegationSpots,
     hasGroups: competition.hasGroups,
-    pointsSystem: competition.pointsSystem,
-    hasStandingsTable: competition.hasStandingsTable,
+      pointsSystem: competition.pointsSystem,
+      rankingRules: competition.rankingRules,
+      hasStandingsTable: competition.hasStandingsTable,
     twoLeggedMatches: competition.twoLeggedMatches,
     hasThirdPlaceMatch: competition.hasThirdPlaceMatch,
   };
@@ -553,6 +557,10 @@ function CompetitionModal({
         winPoints: 3,
         drawPoints: 1,
         lossPoints: 0,
+      },
+      rankingRules: {
+        priorities: ["points", "goalDifference", "goalsFor", "headToHead"],
+        useHeadToHead: true,
       },
       hasStandingsTable: true,
       // Knockout defaults
@@ -915,74 +923,140 @@ function CompetitionModal({
                     </div>
                   </div>
 
-                  {/* Points System */}
-                  <div className="rounded-lg border border-dashed border-[var(--border)] bg-slate-50/70 px-3 py-3 sm:px-4 sm:py-4">
-                    <label className="mb-3 block text-xs font-semibold text-slate-700">
-                      سیستم امتیازدهی
-                    </label>
-                    <div className="grid grid-cols-3 gap-3">
-                      <div>
-                        <label className="mb-1 block text-[11px] text-slate-600">
-                          امتیاز برد
-                        </label>
-                        <input
-                          type="number"
-                          min={0}
-                          value={form.pointsSystem?.winPoints || 3}
-                          disabled={isView}
-                          onChange={(e) =>
-                            setForm((prev) => ({
-                              ...prev,
-                              pointsSystem: {
-                                ...prev.pointsSystem!,
-                                winPoints: Number(e.target.value) || 0,
-                              },
-                            }))
-                          }
-                          className="w-full rounded-lg border border-[var(--border)] bg-white px-2 py-1.5 text-sm focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/40 disabled:bg-slate-50"
-                        />
+                  {/* League Rules Module */}
+                  <div className="space-y-4 rounded-lg border border-[var(--border)] bg-white p-4 shadow-sm">
+                    <h4 className="text-sm font-semibold text-slate-900">قوانین لیگ</h4>
+                    
+                    {/* Points System */}
+                    <div>
+                      <label className="mb-3 block text-xs font-semibold text-slate-700">
+                        سیستم امتیازدهی
+                      </label>
+                      <div className="grid grid-cols-3 gap-3">
+                        <div>
+                          <label className="mb-1 block text-[11px] text-slate-600">
+                            امتیاز برد
+                          </label>
+                          <input
+                            type="number"
+                            min={0}
+                            value={form.pointsSystem?.winPoints || 3}
+                            disabled={isView}
+                            onChange={(e) =>
+                              setForm((prev) => ({
+                                ...prev,
+                                pointsSystem: {
+                                  winPoints: 3,
+                                  drawPoints: 1,
+                                  lossPoints: 0,
+                                  ...prev.pointsSystem,
+                                  winPoints: Number(e.target.value) || 0,
+                                },
+                              }))
+                            }
+                            className="w-full rounded-lg border border-[var(--border)] bg-white px-2 py-1.5 text-sm focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/40 disabled:bg-slate-50"
+                          />
+                        </div>
+                        <div>
+                          <label className="mb-1 block text-[11px] text-slate-600">
+                            امتیاز مساوی
+                          </label>
+                          <input
+                            type="number"
+                            min={0}
+                            value={form.pointsSystem?.drawPoints || 1}
+                            disabled={isView}
+                            onChange={(e) =>
+                              setForm((prev) => ({
+                                ...prev,
+                                pointsSystem: {
+                                  winPoints: 3,
+                                  drawPoints: 1,
+                                  lossPoints: 0,
+                                  ...prev.pointsSystem,
+                                  drawPoints: Number(e.target.value) || 0,
+                                },
+                              }))
+                            }
+                            className="w-full rounded-lg border border-[var(--border)] bg-white px-2 py-1.5 text-sm focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/40 disabled:bg-slate-50"
+                          />
+                        </div>
+                        <div>
+                          <label className="mb-1 block text-[11px] text-slate-600">
+                            امتیاز باخت
+                          </label>
+                          <input
+                            type="number"
+                            min={0}
+                            value={form.pointsSystem?.lossPoints || 0}
+                            disabled={isView}
+                            onChange={(e) =>
+                              setForm((prev) => ({
+                                ...prev,
+                                pointsSystem: {
+                                  winPoints: 3,
+                                  drawPoints: 1,
+                                  lossPoints: 0,
+                                  ...prev.pointsSystem,
+                                  lossPoints: Number(e.target.value) || 0,
+                                },
+                              }))
+                            }
+                            className="w-full rounded-lg border border-[var(--border)] bg-white px-2 py-1.5 text-sm focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/40 disabled:bg-slate-50"
+                          />
+                        </div>
                       </div>
-                      <div>
-                        <label className="mb-1 block text-[11px] text-slate-600">
-                          امتیاز مساوی
-                        </label>
-                        <input
-                          type="number"
-                          min={0}
-                          value={form.pointsSystem?.drawPoints || 1}
-                          disabled={isView}
-                          onChange={(e) =>
-                            setForm((prev) => ({
-                              ...prev,
-                              pointsSystem: {
-                                ...prev.pointsSystem!,
-                                drawPoints: Number(e.target.value) || 0,
-                              },
-                            }))
-                          }
-                          className="w-full rounded-lg border border-[var(--border)] bg-white px-2 py-1.5 text-sm focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/40 disabled:bg-slate-50"
-                        />
-                      </div>
-                      <div>
-                        <label className="mb-1 block text-[11px] text-slate-600">
-                          امتیاز باخت
-                        </label>
-                        <input
-                          type="number"
-                          min={0}
-                          value={form.pointsSystem?.lossPoints || 0}
-                          disabled={isView}
-                          onChange={(e) =>
-                            setForm((prev) => ({
-                              ...prev,
-                              pointsSystem: {
-                                ...prev.pointsSystem!,
-                                lossPoints: Number(e.target.value) || 0,
-                              },
-                            }))
-                          }
-                          className="w-full rounded-lg border border-[var(--border)] bg-white px-2 py-1.5 text-sm focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/40 disabled:bg-slate-50"
-                        />
+                    </div>
+
+                    {/* Ranking Priority */}
+                    <div>
+                      <label className="mb-2 block text-xs font-semibold text-slate-700">
+                        اولویت رده‌بندی
+                      </label>
+                      <p className="mb-3 text-[11px] text-slate-500">
+                        ترتیب معیارهای رده‌بندی تیم‌ها (از مهم‌ترین به کم‌اهمیت‌ترین)
+                      </p>
+                      <div className="space-y-2">
+                        {(form.rankingRules?.priorities || ["points", "goalDifference", "goalsFor", "headToHead"]).map((priority, index) => {
+                          const priorityLabels: Record<RankingPriority, string> = {
+                            points: "امتیاز",
+                            goalDifference: "تفاضل گل",
+                            goalsFor: "گل‌های زده",
+                            goalsAgainst: "گل‌های خورده",
+                            headToHead: "نتایج رو در رو",
+                          };
+                          return (
+                            <div key={index} className="flex items-center gap-2">
+                              <div className="flex h-6 w-6 items-center justify-center rounded bg-slate-100 text-[10px] font-medium text-slate-600">
+                                {index + 1}
+                              </div>
+                              <select
+                                value={priority}
+                                disabled={isView}
+                                onChange={(e) => {
+                                  const newPriorities = [...(form.rankingRules?.priorities || [])];
+                                  newPriorities[index] = e.target.value as RankingPriority;
+                                  setForm((prev) => ({
+                                    ...prev,
+                                    rankingRules: {
+                                      priorities: ["points", "goalDifference", "goalsFor", "headToHead"],
+                                      useHeadToHead: true,
+                                      ...prev.rankingRules,
+                                      priorities: newPriorities,
+                                    },
+                                  }));
+                                }}
+                                className="flex-1 rounded-lg border border-[var(--border)] bg-white px-2 py-1 text-xs focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/40 disabled:bg-slate-50"
+                              >
+                                {Object.entries(priorityLabels).map(([value, label]) => (
+                                  <option key={value} value={value}>
+                                    {label}
+                                  </option>
+                                ))}
+                              </select>
+                            </div>
+                          );
+                        })}
                       </div>
                     </div>
                   </div>
