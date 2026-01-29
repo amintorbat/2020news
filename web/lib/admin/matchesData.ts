@@ -92,8 +92,10 @@ export const mockMatches: Match[] = [
   {
     id: "match-1",
     sport: "futsal",
-    competitionId: "comp-1",
-    competitionName: "لیگ برتر فوتسال",
+    leagueId: "league-1",
+    leagueName: "لیگ برتر فوتسال ایران",
+    competitionId: "comp-1", // Legacy
+    competitionName: "لیگ برتر فوتسال", // Legacy
     seasonId: "season-1",
     seasonName: "فصل ۱۴۰۳-۱۴۰۴",
     homeTeam: "گیتی پسند",
@@ -171,8 +173,10 @@ export const mockMatches: Match[] = [
   {
     id: "match-2",
     sport: "futsal",
-    competitionId: "comp-1",
-    competitionName: "لیگ برتر فوتسال",
+    leagueId: "league-1",
+    leagueName: "لیگ برتر فوتسال ایران",
+    competitionId: "comp-1", // Legacy
+    competitionName: "لیگ برتر فوتسال", // Legacy
     seasonId: "season-1",
     seasonName: "فصل ۱۴۰۳-۱۴۰۴",
     homeTeam: "پالایش نفت",
@@ -193,8 +197,10 @@ export const mockMatches: Match[] = [
   {
     id: "match-3",
     sport: "futsal",
-    competitionId: "comp-2",
-    competitionName: "جام حذفی فوتسال",
+    leagueId: "league-3",
+    leagueName: "جام حذفی فوتسال ایران",
+    competitionId: "comp-2", // Legacy
+    competitionName: "جام حذفی فوتسال", // Legacy
     seasonId: "season-2",
     seasonName: "فصل ۱۴۰۳",
     homeTeam: "ذوب آهن",
@@ -264,8 +270,10 @@ export const mockMatches: Match[] = [
   {
     id: "match-4",
     sport: "beach-soccer",
-    competitionId: "comp-4",
-    competitionName: "لیگ فوتبال ساحلی",
+    leagueId: "league-2",
+    leagueName: "لیگ برتر فوتبال ساحلی ایران",
+    competitionId: "comp-4", // Legacy
+    competitionName: "لیگ فوتبال ساحلی", // Legacy
     seasonId: "season-4",
     seasonName: "فصل ۱۴۰۳",
     homeTeam: "تیم ملی ایران",
@@ -325,8 +333,10 @@ export const mockMatches: Match[] = [
   {
     id: "match-5",
     sport: "beach-soccer",
-    competitionId: "comp-5",
-    competitionName: "جام بین‌المللی فوتبال ساحلی",
+    leagueId: "league-2",
+    leagueName: "لیگ برتر فوتبال ساحلی ایران",
+    competitionId: "comp-5", // Legacy
+    competitionName: "جام بین‌المللی فوتبال ساحلی", // Legacy
     seasonId: "season-5",
     seasonName: "فصل ۱۴۰۳",
     homeTeam: "تیم ملی ایران",
@@ -386,8 +396,10 @@ export const mockMatches: Match[] = [
   {
     id: "match-6",
     sport: "beach-soccer",
-    competitionId: "comp-4",
-    competitionName: "لیگ فوتبال ساحلی",
+    leagueId: "league-2",
+    leagueName: "لیگ برتر فوتبال ساحلی ایران",
+    competitionId: "comp-4", // Legacy
+    competitionName: "لیگ فوتبال ساحلی", // Legacy
     seasonId: "season-4",
     seasonName: "فصل ۱۴۰۳",
     homeTeam: "تیم ملی پرتغال",
@@ -409,8 +421,10 @@ export const mockMatches: Match[] = [
   {
     id: "match-7",
     sport: "futsal",
-    competitionId: "comp-1",
-    competitionName: "لیگ برتر فوتسال",
+    leagueId: "league-1",
+    leagueName: "لیگ برتر فوتسال ایران",
+    competitionId: "comp-1", // Legacy
+    competitionName: "لیگ برتر فوتسال", // Legacy
     seasonId: "season-1",
     seasonName: "فصل ۱۴۰۳-۱۴۰۴",
     homeTeam: "گیتی پسند",
@@ -433,8 +447,10 @@ export const mockMatches: Match[] = [
   {
     id: "match-8",
     sport: "futsal",
-    competitionId: "comp-1",
-    competitionName: "لیگ برتر فوتسال",
+    leagueId: "league-1",
+    leagueName: "لیگ برتر فوتسال ایران",
+    competitionId: "comp-1", // Legacy
+    competitionName: "لیگ برتر فوتسال", // Legacy
     seasonId: "season-1",
     seasonName: "فصل ۱۴۰۳-۱۴۰۴",
     homeTeam: "مس سونگون",
@@ -457,8 +473,10 @@ export const mockMatches: Match[] = [
   {
     id: "match-9",
     sport: "futsal",
-    competitionId: "comp-1",
-    competitionName: "لیگ برتر فوتسال",
+    leagueId: "league-1",
+    leagueName: "لیگ برتر فوتسال ایران",
+    competitionId: "comp-1", // Legacy
+    competitionName: "لیگ برتر فوتسال", // Legacy
     seasonId: "season-1",
     seasonName: "فصل ۱۴۰۳-۱۴۰۴",
     homeTeam: "ذوب آهن",
@@ -482,8 +500,10 @@ export const mockMatches: Match[] = [
   {
     id: "match-10",
     sport: "beach-soccer",
-    competitionId: "comp-4",
-    competitionName: "لیگ فوتبال ساحلی",
+    leagueId: "league-2",
+    leagueName: "لیگ برتر فوتبال ساحلی ایران",
+    competitionId: "comp-4", // Legacy
+    competitionName: "لیگ فوتبال ساحلی", // Legacy
     seasonId: "season-4",
     seasonName: "فصل ۱۴۰۳",
     homeTeam: "تیم ملی برزیل",

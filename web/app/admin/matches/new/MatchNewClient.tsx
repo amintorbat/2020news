@@ -6,15 +6,13 @@ import { PageHeader } from "@/components/admin/PageHeader";
 import { Toast } from "@/components/admin/Toast";
 import { PersianDatePicker } from "@/components/admin/PersianDatePicker";
 import { PersianTimePicker } from "@/components/admin/PersianTimePicker";
-import { Match, Competition, MatchStatus, getAvailableSports, SportType } from "@/types/matches";
+import { Match, MatchStatus, getAvailableSports, SportType } from "@/types/matches";
 import { mockTeams } from "@/lib/admin/teamsData";
+import { mockLeagues } from "@/lib/admin/leaguesData";
 import { generateId } from "@/lib/utils/id";
+import type { League } from "@/types/leagues";
 
-type Props = {
-  competitions: Competition[];
-};
-
-export default function MatchNewClient({ competitions }: Props) {
+export default function MatchNewClient() {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
   const [toast, setToast] = useState<{ message: string; type: "success" | "error" } | null>(null);
@@ -22,8 +20,10 @@ export default function MatchNewClient({ competitions }: Props) {
 
   const [match, setMatch] = useState<Partial<Match> & { homeTeamId?: string; awayTeamId?: string }>({
     sport: "futsal",
-    competitionId: "",
-    competitionName: "",
+    leagueId: "",
+    leagueName: "",
+    competitionId: "", // Legacy
+    competitionName: "", // Legacy
     seasonId: "",
     seasonName: "",
     homeTeamId: "",
@@ -40,14 +40,9 @@ export default function MatchNewClient({ competitions }: Props) {
     isPublished: false,
   });
 
-  const selectedCompetition = useMemo(
-    () => competitions.find((c) => c.id === match.competitionId),
-    [competitions, match.competitionId]
-  );
-
-  const availableSeasons = useMemo(
-    () => selectedCompetition?.seasons || [],
-    [selectedCompetition]
+  const selectedLeague = useMemo(
+    () => mockLeagues.find((l) => l.id === match.leagueId),
+    [match.leagueId]
   );
 
   const availableTeams = useMemo(
@@ -61,8 +56,7 @@ export default function MatchNewClient({ competitions }: Props) {
   const handleSave = async () => {
     if (
       !match.sport ||
-      !match.competitionId ||
-      !match.seasonId ||
+      !match.leagueId ||
       !match.homeTeamId ||
       !match.awayTeamId ||
       !match.date ||
@@ -80,17 +74,24 @@ export default function MatchNewClient({ competitions }: Props) {
     const homeTeam = availableTeams.find((t) => t.id === match.homeTeamId);
     const awayTeam = availableTeams.find((t) => t.id === match.awayTeamId);
 
+    if (!selectedLeague) {
+      setToast({ message: "لطفاً لیگ یا جام را انتخاب کنید", type: "error" });
+      return;
+    }
+
     setIsLoading(true);
     await new Promise((resolve) => setTimeout(resolve, 800));
 
     try {
       const newMatch: Match = {
         id: generateId(),
+        leagueId: match.leagueId!,
+        leagueName: selectedLeague.title,
         sport: match.sport || "futsal",
-        competitionId: match.competitionId!,
-        competitionName: match.competitionName!,
-        seasonId: match.seasonId!,
-        seasonName: match.seasonName!,
+        competitionId: match.leagueId!, // Legacy
+        competitionName: selectedLeague.title, // Legacy
+        seasonId: selectedLeague.season, // Legacy
+        seasonName: selectedLeague.season, // Legacy
         homeTeam: homeTeam?.name || "",
         homeTeamId: homeTeam?.id,
         awayTeam: awayTeam?.name || "",
@@ -213,58 +214,53 @@ export default function MatchNewClient({ competitions }: Props) {
 
               <div>
                 <label className="block text-xs font-medium text-slate-700 mb-1.5">
-                  مسابقات <span className="text-red-500">*</span>
+                  لیگ یا جام <span className="text-red-500">*</span>
                 </label>
                 <select
-                  value={match.competitionId}
+                  value={match.leagueId}
                   onChange={(e) => {
-                    const comp = competitions.find((c) => c.id === e.target.value);
+                    const league = mockLeagues.find((l) => l.id === e.target.value);
                     setMatch((prev) => ({
                       ...prev,
-                      competitionId: e.target.value,
-                      competitionName: comp?.name || "",
-                      seasonId: comp?.seasons[0]?.id || "",
-                      seasonName: comp?.seasons[0]?.name || "",
+                      leagueId: e.target.value,
+                      leagueName: league?.title || "",
+                      competitionId: e.target.value, // Legacy
+                      competitionName: league?.title || "", // Legacy
+                      seasonId: league?.season || "", // Legacy
+                      seasonName: league?.season || "", // Legacy
                     }));
                   }}
                   className="w-full rounded-lg border border-[var(--border)] px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand/50 focus:border-brand"
                 >
-                  <option value="">انتخاب مسابقات</option>
-                  {competitions
-                    .filter((c) => c.sport === match.sport)
-                    .map((comp) => (
-                      <option key={comp.id} value={comp.id}>
-                        {comp.name}
+                  <option value="">انتخاب لیگ یا جام</option>
+                  {mockLeagues
+                    .filter((l) => l.status === "active" && l.sportType === (match.sport === "futsal" ? "futsal" : "beach_soccer"))
+                    .map((league) => (
+                      <option key={league.id} value={league.id}>
+                        {league.title} ({league.season}) - {league.competitionType === "league" ? "لیگ" : "جام حذفی"}
                       </option>
                     ))}
                 </select>
               </div>
 
-              <div>
-                <label className="block text-xs font-medium text-slate-700 mb-1.5">
-                  فصل <span className="text-red-500">*</span>
-                </label>
-                <select
-                  value={match.seasonId}
-                  onChange={(e) => {
-                    const season = availableSeasons.find((s) => s.id === e.target.value);
-                    setMatch((prev) => ({
-                      ...prev,
-                      seasonId: e.target.value,
-                      seasonName: season?.name || "",
-                    }));
-                  }}
-                  disabled={!match.competitionId}
-                  className="w-full rounded-lg border border-[var(--border)] px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand/50 focus:border-brand disabled:opacity-50"
-                >
-                  <option value="">انتخاب فصل</option>
-                  {availableSeasons.map((season) => (
-                    <option key={season.id} value={season.id}>
-                      {season.name}
-                    </option>
-                  ))}
-                </select>
-              </div>
+              {selectedLeague && (
+                <div className="sm:col-span-2">
+                  <div className="rounded-lg border border-dashed border-[var(--border)] bg-slate-50/70 px-3 py-3 sm:px-4 sm:py-4">
+                    <div className="space-y-2 text-sm">
+                      <div className="flex justify-between">
+                        <span className="text-slate-600">فصل:</span>
+                        <span className="font-medium text-slate-900">{selectedLeague.season}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-slate-600">نوع:</span>
+                        <span className="font-medium text-slate-900">
+                          {selectedLeague.competitionType === "league" ? "لیگ" : "جام حذفی"}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
 
               <div>
                 <label className="block text-xs font-medium text-slate-700 mb-1.5">وضعیت</label>
