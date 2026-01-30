@@ -15,6 +15,7 @@ const statusLabel: Record<PlayerStatus, string> = {
 };
 
 export type PlayerFormValues = {
+  id?: string;
   name: string;
   sport: SportType;
   teamId: string;
@@ -23,6 +24,7 @@ export type PlayerFormValues = {
   status: PlayerStatus;
   photo?: string;
   goals: number;
+  assists: number;
   goalsConceded: number;
   yellowCards: number;
   redCards: number;
@@ -58,6 +60,7 @@ export function PlayerFormModal({
       jerseyNumber: undefined,
       status: "active",
       goals: 0,
+      assists: 0,
       goalsConceded: 0,
       yellowCards: 0,
       redCards: 0,
@@ -88,6 +91,7 @@ export function PlayerFormModal({
           jerseyNumber: undefined,
           status: "active",
           goals: 0,
+          assists: 0,
           goalsConceded: 0,
           yellowCards: 0,
           redCards: 0,
