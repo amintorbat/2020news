@@ -11,8 +11,8 @@ import { Match, Competition, MatchEvent, MatchEventType, MatchStatus, getAvailab
 import { getPlayersByTeamAndSport, getPlayerById, type Player } from "@/lib/admin/playersData";
 import { mockTeams } from "@/lib/admin/teamsData";
 import { mockUsers } from "@/lib/admin/mock";
-import { getAssignmentsForMatch, type MatchReporterAssignment } from "@/lib/admin/reporterAssignments";
-import { getAssignmentStatus } from "@/types/reporter";
+import { getAssignmentsForMatch } from "@/lib/admin/reporterAssignments";
+import { getAssignmentStatus, type MatchReporterAssignment } from "@/types/reporter";
 
 type Props = {
   match: Match;
