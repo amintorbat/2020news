@@ -7,11 +7,13 @@ import { LeagueContextSelector } from "@/components/admin/LeagueContextSelector"
 import { useLeagueContext } from "@/contexts/LeagueContext";
 import { DataTable, Column } from "@/components/admin/DataTable";
 import { Badge } from "@/components/admin/Badge";
+import { PlayerFormModal, type PlayerFormValues } from "@/components/admin/PlayerFormModal";
 import { mockTeams } from "@/lib/admin/teamsData";
 import { mockMatches } from "@/lib/admin/matchesData";
 import { mockLeagues } from "@/lib/admin/leaguesData";
-import { mockPlayers } from "@/lib/admin/playersData";
+import { mockPlayers as initialMockPlayers, type Player } from "@/lib/admin/playersData";
 import { calculatePlayerStatistics, type PlayerStatistics } from "@/lib/admin/playerStatsCalculation";
+import { generateId } from "@/lib/utils/id";
 import type { SportType } from "@/types/matches";
 import type { PlayerPosition } from "@/lib/admin/playersData";
 
@@ -37,23 +39,101 @@ export default function PlayersClient() {
   const [leagueFilter, setLeagueFilter] = useState<string>("");
   const [teamFilter, setTeamFilter] = useState<string>("");
 
+  // Player management states
+  const [players, setPlayers] = useState<Player[]>(initialMockPlayers);
+  const [showPlayerModal, setShowPlayerModal] = useState(false);
+  const [editingPlayer, setEditingPlayer] = useState<PlayerFormValues | undefined>(undefined);
+  const [isSavingPlayer, setIsSavingPlayer] = useState(false);
+
   // Calculate player statistics from match events
   const allPlayerStats = useMemo(() => {
-    const statsMap = calculatePlayerStatistics(mockMatches, mockPlayers);
+    const statsMap = calculatePlayerStatistics(mockMatches, players);
     return Array.from(statsMap.values());
-  }, []);
+  }, [players]);
 
   // Enrich stats with player info (position, jersey number)
   const enrichedStats = useMemo(() => {
     return allPlayerStats.map((stat) => {
-      const player = mockPlayers.find((p) => p.id === stat.playerId);
+      const player = players.find((p) => p.id === stat.playerId);
       return {
         ...stat,
         position: player?.position,
         jerseyNumber: player?.jerseyNumber,
       };
     });
-  }, [allPlayerStats]);
+  }, [allPlayerStats, players]);
+
+  const handleAddPlayer = () => {
+    setEditingPlayer(undefined);
+    setShowPlayerModal(true);
+  };
+
+  const handleEditPlayer = (playerId: string) => {
+    const player = players.find((p) => p.id === playerId);
+    if (player) {
+      const stats = enrichedStats.find((s) => s.playerId === playerId);
+      setEditingPlayer({
+        id: player.id,
+        name: player.name,
+        sport: player.sport,
+        teamId: player.teamId,
+        position: player.position,
+        jerseyNumber: player.jerseyNumber,
+        status: player.status,
+        photo: player.photo,
+        goals: stats?.goals || 0,
+        assists: stats?.assists || 0,
+        yellowCards: stats?.yellowCards || 0,
+        redCards: stats?.redCards || 0,
+        goalsConceded: stats?.goalsConceded || 0,
+        cleanSheets: stats?.cleanSheets || 0,
+        matchesPlayed: stats?.matchesPlayed || 0,
+      });
+      setShowPlayerModal(true);
+    }
+  };
+
+  const handleSavePlayer = async (formValues: PlayerFormValues) => {
+    setIsSavingPlayer(true);
+    await new Promise((resolve) => setTimeout(resolve, 500));
+
+    if (formValues.id) {
+      // Update existing player
+      setPlayers((prev) =>
+        prev.map((p) =>
+          p.id === formValues.id
+            ? {
+                ...p,
+                name: formValues.name,
+                sport: formValues.sport,
+                teamId: formValues.teamId,
+                position: formValues.position,
+                jerseyNumber: formValues.jerseyNumber,
+                status: formValues.status,
+                photo: formValues.photo,
+              }
+            : p
+        )
+      );
+    } else {
+      // Add new player
+      const newPlayer: Player = {
+        id: generateId(),
+        name: formValues.name,
+        sport: formValues.sport,
+        teamId: formValues.teamId,
+        position: formValues.position,
+        status: formValues.status,
+        jerseyNumber: formValues.jerseyNumber,
+        photo: formValues.photo,
+      };
+      setPlayers((prev) => [...prev, newPlayer]);
+    }
+
+    setIsSavingPlayer(false);
+    setShowPlayerModal(false);
+    setEditingPlayer(undefined);
+  };
 
   // Filter teams by sport
   const availableTeams = useMemo(() => {
@@ -103,9 +183,9 @@ export default function PlayersClient() {
       const leagueMatches = mockMatches.filter(
         (m) => m.leagueId === selectedLeague.id && m.status === "finished"
       );
-      const leagueStats = calculatePlayerStatistics(leagueMatches, mockPlayers);
+      const leagueStats = calculatePlayerStatistics(leagueMatches, players);
       const leagueStatsArray = Array.from(leagueStats.values()).map((stat) => {
-        const player = mockPlayers.find((p) => p.id === stat.playerId);
+        const player = players.find((p) => p.id === stat.playerId);
         return {
           ...stat,
           position: player?.position,
@@ -122,9 +202,9 @@ export default function PlayersClient() {
       const leagueMatches = mockMatches.filter(
         (m) => m.leagueId === leagueFilter && m.status === "finished"
       );
-      const leagueStats = calculatePlayerStatistics(leagueMatches, mockPlayers);
+      const leagueStats = calculatePlayerStatistics(leagueMatches, players);
       const leagueStatsArray = Array.from(leagueStats.values()).map((stat) => {
-        const player = mockPlayers.find((p) => p.id === stat.playerId);
+        const player = players.find((p) => p.id === stat.playerId);
         return {
           ...stat,
           position: player?.position,
@@ -144,7 +224,7 @@ export default function PlayersClient() {
     });
 
     return result;
-  }, [enrichedStats, search, sportFilter, teamFilter, leagueFilter, selectedLeague]);
+  }, [enrichedStats, search, sportFilter, teamFilter, leagueFilter, selectedLeague, players]);
 
   const columns: readonly Column<PlayerRow>[] = [
     {
@@ -244,15 +324,23 @@ export default function PlayersClient() {
   return (
     <div className="space-y-6" dir="rtl">
       <PageHeader
-        title="آمار بازیکنان"
-        subtitle="محاسبه خودکار آمار از رویدادهای مسابقات"
+        title="مدیریت بازیکنان"
+        subtitle="افزودن، ویرایش و مشاهده آمار بازیکنان (آمار به صورت خودکار از مسابقات محاسبه می‌شود)"
         action={
-          <button
-            onClick={() => router.push("/admin/matches")}
-            className="rounded-lg px-4 py-2 text-sm font-medium text-white bg-brand hover:bg-brand/90 transition-colors"
-          >
-            مشاهده مسابقات
-          </button>
+          <div className="flex gap-2">
+            <button
+              onClick={handleAddPlayer}
+              className="rounded-lg px-4 py-2 text-sm font-medium text-white bg-brand hover:bg-brand/90 transition-colors"
+            >
+              + افزودن بازیکن
+            </button>
+            <button
+              onClick={() => router.push("/admin/matches")}
+              className="rounded-lg px-4 py-2 text-sm font-medium text-slate-700 bg-white border border-[var(--border)] hover:bg-slate-50 transition-colors"
+            >
+              مشاهده مسابقات
+            </button>
+          </div>
         }
       />
 
@@ -263,7 +351,7 @@ export default function PlayersClient() {
       <div className="rounded-xl border border-blue-200 bg-blue-50 p-4">
         <p className="text-sm text-blue-800">
           <strong>نکته:</strong> آمار بازیکنان به صورت خودکار از رویدادهای مسابقات پایان یافته محاسبه می‌شود.
-          برای ویرایش آمار، لطفاً رویدادهای مسابقه را در صفحه ویرایش مسابقه تغییر دهید.
+          برای ویرایش آمار، لطفاً رویدادهای مسابقه را در صفحه ویرایش مسابقه تغییر دهید. می‌توانید بازیکنان جدید را اضافه کنید و اطلاعات آن‌ها را ویرایش کنید.
         </p>
       </div>
 
@@ -344,6 +432,14 @@ export default function PlayersClient() {
             columns={columns}
             data={filteredStats}
             keyExtractor={(row) => row.playerId}
+            actions={(row) => (
+              <button
+                onClick={() => handleEditPlayer(row.playerId)}
+                className="rounded-lg border border-[var(--border)] bg-white px-3 py-1.5 text-xs font-medium text-slate-700 hover:bg-slate-50 transition-colors"
+              >
+                ویرایش
+              </button>
+            )}
           />
         ) : (
           <div className="p-12 text-center">
@@ -385,7 +481,7 @@ export default function PlayersClient() {
                   <div className="text-xs text-slate-500">گل</div>
                 </div>
               </div>
-              <div className="grid grid-cols-2 gap-3 text-xs">
+              <div className="grid grid-cols-2 gap-3 text-xs mb-3">
                 <div>
                   <span className="text-slate-500">بازی: </span>
                   <span className="font-medium text-slate-700">{stat.matchesPlayed}</span>
@@ -411,6 +507,12 @@ export default function PlayersClient() {
                   <span className="font-medium text-red-600">{stat.redCards}</span>
                 </div>
               </div>
+              <button
+                onClick={() => handleEditPlayer(stat.playerId)}
+                className="w-full rounded-lg border border-[var(--border)] bg-white px-4 py-2 text-xs font-medium text-slate-700 hover:bg-slate-50 transition-colors"
+              >
+                ویرایش بازیکن
+              </button>
             </div>
           ))
         ) : (
@@ -422,6 +524,19 @@ export default function PlayersClient() {
           </div>
         )}
       </div>
+
+      {/* Player Form Modal */}
+      <PlayerFormModal
+        open={showPlayerModal}
+        onClose={() => {
+          setShowPlayerModal(false);
+          setEditingPlayer(undefined);
+        }}
+        onSubmit={handleSavePlayer}
+        initialValues={editingPlayer}
+        isLoading={isSavingPlayer}
+        teams={mockTeams}
+      />
     </div>
   );
 }
