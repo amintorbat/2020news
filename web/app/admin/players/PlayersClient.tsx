@@ -85,8 +85,8 @@ export default function PlayersClient() {
         assists: stats?.assists || 0,
         yellowCards: stats?.yellowCards || 0,
         redCards: stats?.redCards || 0,
-        goalsConceded: stats?.goalsConceded || 0,
-        cleanSheets: stats?.cleanSheets || 0,
+        goalsConceded: 0, // Not available in PlayerStatistics
+        cleanSheets: 0, // Not available in PlayerStatistics
         matchesPlayed: stats?.matchesPlayed || 0,
       });
       setShowPlayerModal(true);
@@ -319,6 +319,18 @@ export default function PlayersClient() {
         <span className="text-slate-600 text-sm">{row.assistsPerMatch}</span>
       ),
     },
+    {
+      key: "playerId",
+      label: "عملیات",
+      render: (row: PlayerRow) => (
+        <button
+          onClick={() => handleEditPlayer(row.playerId)}
+          className="rounded-lg border border-[var(--border)] bg-white px-3 py-1.5 text-xs font-medium text-slate-700 hover:bg-slate-50 transition-colors"
+        >
+          ویرایش
+        </button>
+      ),
+    },
   ];
 
   return (
@@ -432,14 +444,6 @@ export default function PlayersClient() {
             columns={columns}
             data={filteredStats}
             keyExtractor={(row) => row.playerId}
-            actions={(row) => (
-              <button
-                onClick={() => handleEditPlayer(row.playerId)}
-                className="rounded-lg border border-[var(--border)] bg-white px-3 py-1.5 text-xs font-medium text-slate-700 hover:bg-slate-50 transition-colors"
-              >
-                ویرایش
-              </button>
-            )}
           />
         ) : (
           <div className="p-12 text-center">

@@ -143,3 +143,17 @@ export interface ReportBlockContent {
     content: string;
   }[];
 }
+
+// ACS News Detail (for external news scraping)
+export interface NewsDetail {
+  slug: string;
+  title: string;
+  category: string;
+  publishedAt: string;
+  lead: string;
+  imageUrl: string | null;
+  bodyHtml: string;
+  sourceUrl: string;
+  tags: string[];
+  teams: string[];
+}
