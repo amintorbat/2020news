@@ -984,8 +984,9 @@ function CompetitionModal({
                               setForm((prev) => ({
                                 ...prev,
                                 pointsSystem: {
-                                  ...prev.pointsSystem,
                                   winPoints: Number(e.target.value) || 0,
+                                  drawPoints: prev.pointsSystem?.drawPoints ?? 1,
+                                  lossPoints: prev.pointsSystem?.lossPoints ?? 0,
                                 },
                               }))
                             }
@@ -1005,8 +1006,9 @@ function CompetitionModal({
                               setForm((prev) => ({
                                 ...prev,
                                 pointsSystem: {
-                                  ...prev.pointsSystem,
+                                  winPoints: prev.pointsSystem?.winPoints ?? 3,
                                   drawPoints: Number(e.target.value) || 0,
+                                  lossPoints: prev.pointsSystem?.lossPoints ?? 0,
                                 },
                               }))
                             }
@@ -1026,7 +1028,8 @@ function CompetitionModal({
                               setForm((prev) => ({
                                 ...prev,
                                 pointsSystem: {
-                                  ...prev.pointsSystem,
+                                  winPoints: prev.pointsSystem?.winPoints ?? 3,
+                                  drawPoints: prev.pointsSystem?.drawPoints ?? 1,
                                   lossPoints: Number(e.target.value) || 0,
                                 },
                               }))
