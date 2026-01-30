@@ -1071,10 +1071,8 @@ function CompetitionModal({
                                   setForm((prev) => ({
                                     ...prev,
                                     rankingRules: {
-                                      priorities: ["points", "goalDifference", "goalsFor", "headToHead"],
-                                      useHeadToHead: true,
-                                      ...prev.rankingRules,
                                       priorities: newPriorities,
+                                      useHeadToHead: prev.rankingRules?.useHeadToHead ?? true,
                                     },
                                   }));
                                 }}
