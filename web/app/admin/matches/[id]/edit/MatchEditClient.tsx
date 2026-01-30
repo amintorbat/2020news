@@ -350,11 +350,55 @@ export default function MatchEditClient({ match: initialMatch, competitions }: P
         {/* Sidebar */}
         <div className="space-y-6">
           {/* Assigned Reporters */}
-          <AssignedReportersSection
-            matchId={match.id}
-            assignments={reporterAssignments}
-            onAssignmentsChange={setReporterAssignments}
-          />
+          <div className="rounded-xl border border-[var(--border)] bg-white p-6 shadow-sm">
+            <h3 className="text-lg font-bold text-slate-900 mb-4">خبرنگاران اختصاص‌یافته</h3>
+            <div className="space-y-3">
+              {getAssignmentsForMatch(match.id).length === 0 ? (
+                <p className="text-sm text-slate-500 text-center py-4">
+                  خبرنگاری اختصاص نیافته است
+                </p>
+              ) : (
+                getAssignmentsForMatch(match.id).map((assignment) => (
+                  <div
+                    key={assignment.id}
+                    className="rounded-lg border border-[var(--border)] p-3"
+                  >
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-sm font-medium text-slate-900">
+                        {assignment.userName}
+                      </span>
+                      <Badge
+                        variant={
+                          assignment.status === "active"
+                            ? "success"
+                            : assignment.status === "expired"
+                            ? "danger"
+                            : "default"
+                        }
+                      >
+                        {assignment.status === "active"
+                          ? "فعال"
+                          : assignment.status === "expired"
+                          ? "منقضی شده"
+                          : assignment.status === "scheduled"
+                          ? "زمان‌بندی شده"
+                          : "غیرفعال"}
+                      </Badge>
+                    </div>
+                    <div className="text-xs text-slate-500 space-y-1">
+                      <div>ایمیل: {assignment.userEmail}</div>
+                      <div>
+                        از: {new Date(assignment.startDateTime).toLocaleString("fa-IR")}
+                      </div>
+                      <div>
+                        تا: {new Date(assignment.endDateTime).toLocaleString("fa-IR")}
+                      </div>
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
+          </div>
 
           {/* Additional Info */}
           <div className="rounded-xl border border-[var(--border)] bg-white p-6 shadow-sm">
