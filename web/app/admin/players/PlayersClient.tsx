@@ -55,7 +55,7 @@ export default function PlayersClient() {
   const enrichedStats = useMemo(() => {
     return allPlayerStats.map((stat) => {
       const player = players.find((p) => p.id === stat.playerId);
-      return {
+        return {
         ...stat,
         position: player?.position,
         jerseyNumber: player?.jerseyNumber,
@@ -99,11 +99,11 @@ export default function PlayersClient() {
 
     if (formValues.id) {
       // Update existing player
-      setPlayers((prev) =>
-        prev.map((p) =>
+        setPlayers((prev) =>
+          prev.map((p) =>
           p.id === formValues.id
-            ? {
-                ...p,
+              ? {
+                  ...p,
                 name: formValues.name,
                 sport: formValues.sport,
                 teamId: formValues.teamId,
@@ -111,14 +111,14 @@ export default function PlayersClient() {
                 jerseyNumber: formValues.jerseyNumber,
                 status: formValues.status,
                 photo: formValues.photo,
-              }
-            : p
-        )
-      );
-    } else {
+                }
+              : p
+          )
+        );
+      } else {
       // Add new player
-      const newPlayer: Player = {
-        id: generateId(),
+        const newPlayer: Player = {
+          id: generateId(),
         name: formValues.name,
         sport: formValues.sport,
         teamId: formValues.teamId,
@@ -126,8 +126,8 @@ export default function PlayersClient() {
         status: formValues.status,
         jerseyNumber: formValues.jerseyNumber,
         photo: formValues.photo,
-      };
-      setPlayers((prev) => [...prev, newPlayer]);
+        };
+        setPlayers((prev) => [...prev, newPlayer]);
     }
 
     setIsSavingPlayer(false);
@@ -233,9 +233,9 @@ export default function PlayersClient() {
       render: (row) => (
         <div className="flex items-center gap-3">
           <div className="h-10 w-10 rounded-full bg-slate-200 flex items-center justify-center overflow-hidden flex-shrink-0">
-            <span className="text-slate-500 text-sm font-medium">
+              <span className="text-slate-500 text-sm font-medium">
               {row.playerName.charAt(0)}
-            </span>
+              </span>
           </div>
           <div className="flex flex-col">
             <span className="font-medium text-slate-900">{row.playerName}</span>
@@ -250,12 +250,12 @@ export default function PlayersClient() {
       key: "teamName",
       label: "تیم",
       render: (row) => (
-        <div className="flex flex-col text-xs">
+          <div className="flex flex-col text-xs">
           <span className="font-medium text-slate-900">{row.teamName}</span>
-          <span className="text-slate-500">
-            {row.sport === "futsal" ? "فوتسال" : "فوتبال ساحلی"}
-          </span>
-        </div>
+            <span className="text-slate-500">
+              {row.sport === "futsal" ? "فوتسال" : "فوتبال ساحلی"}
+            </span>
+          </div>
       ),
     },
     {
@@ -263,12 +263,12 @@ export default function PlayersClient() {
       label: "پست",
       render: (row) =>
         row.position ? (
-          <Badge variant="info" className="text-[11px]">
-            {positionLabel[row.position]}
-          </Badge>
+        <Badge variant="info" className="text-[11px]">
+          {positionLabel[row.position]}
+        </Badge>
         ) : (
           <span className="text-slate-400 text-xs">—</span>
-        ),
+      ),
     },
     {
       key: "matchesPlayed",
@@ -323,12 +323,12 @@ export default function PlayersClient() {
       key: "playerId",
       label: "عملیات",
       render: (row: PlayerRow) => (
-        <button
+          <button
           onClick={() => handleEditPlayer(row.playerId)}
           className="rounded-lg border border-[var(--border)] bg-white px-3 py-1.5 text-xs font-medium text-slate-700 hover:bg-slate-50 transition-colors"
         >
           ویرایش
-        </button>
+          </button>
       ),
     },
   ];
@@ -340,10 +340,10 @@ export default function PlayersClient() {
         subtitle="افزودن، ویرایش و مشاهده آمار بازیکنان (آمار به صورت خودکار از مسابقات محاسبه می‌شود)"
         action={
           <div className="flex gap-2">
-            <button
-              onClick={handleAddPlayer}
-              className="rounded-lg px-4 py-2 text-sm font-medium text-white bg-brand hover:bg-brand/90 transition-colors"
-            >
+          <button
+            onClick={handleAddPlayer}
+            className="rounded-lg px-4 py-2 text-sm font-medium text-white bg-brand hover:bg-brand/90 transition-colors"
+          >
               + افزودن بازیکن
             </button>
             <button
@@ -351,7 +351,7 @@ export default function PlayersClient() {
               className="rounded-lg px-4 py-2 text-sm font-medium text-slate-700 bg-white border border-[var(--border)] hover:bg-slate-50 transition-colors"
             >
               مشاهده مسابقات
-            </button>
+          </button>
           </div>
         }
       />
@@ -365,7 +365,7 @@ export default function PlayersClient() {
           <strong>نکته:</strong> آمار بازیکنان به صورت خودکار از رویدادهای مسابقات پایان یافته محاسبه می‌شود.
           برای ویرایش آمار، لطفاً رویدادهای مسابقه را در صفحه ویرایش مسابقه تغییر دهید. می‌توانید بازیکنان جدید را اضافه کنید و اطلاعات آن‌ها را ویرایش کنید.
         </p>
-      </div>
+        </div>
 
       {/* Filters */}
       <div className="rounded-xl border border-[var(--border)] bg-white p-4 sm:p-6 shadow-sm">
@@ -373,66 +373,66 @@ export default function PlayersClient() {
           {/* Search */}
           <div className="sm:col-span-2 lg:col-span-1">
             <label className="block text-xs font-medium text-slate-700 mb-2">جستجو</label>
-            <input
-              type="text"
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              placeholder="نام بازیکن یا تیم..."
+                <input
+                  type="text"
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                  placeholder="نام بازیکن یا تیم..."
               className="w-full rounded-lg border border-[var(--border)] px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand/50 focus:border-brand"
-            />
-          </div>
+                />
+            </div>
 
-          {/* Sport Filter */}
-          <div>
+            {/* Sport Filter */}
+            <div>
             <label className="block text-xs font-medium text-slate-700 mb-2">ورزش</label>
-            <select
-              value={sportFilter}
+              <select
+                value={sportFilter}
               onChange={(e) => {
                 setSportFilter(e.target.value as SportType | "");
                 setLeagueFilter("");
                 setTeamFilter("");
               }}
               className="w-full rounded-lg border border-[var(--border)] px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand/50 focus:border-brand"
-            >
-              <option value="">همه ورزش‌ها</option>
-              <option value="futsal">فوتسال</option>
-              <option value="beach-soccer">فوتبال ساحلی</option>
-            </select>
-          </div>
+              >
+                <option value="">همه ورزش‌ها</option>
+                <option value="futsal">فوتسال</option>
+                <option value="beach-soccer">فوتبال ساحلی</option>
+              </select>
+            </div>
 
           {/* League Filter */}
-          <div>
+            <div>
             <label className="block text-xs font-medium text-slate-700 mb-2">لیگ</label>
-            <select
+              <select
               value={leagueFilter}
               onChange={(e) => setLeagueFilter(e.target.value)}
               disabled={!sportFilter}
               className="w-full rounded-lg border border-[var(--border)] px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand/50 focus:border-brand disabled:opacity-50 disabled:cursor-not-allowed"
-            >
+              >
               <option value="">همه لیگ‌ها</option>
               {availableLeagues.map((league) => (
                 <option key={league.id} value={league.id}>
                   {league.title}
-                </option>
-              ))}
-            </select>
-          </div>
+                  </option>
+                ))}
+              </select>
+            </div>
 
           {/* Team Filter */}
-          <div>
+            <div>
             <label className="block text-xs font-medium text-slate-700 mb-2">تیم</label>
-            <select
+              <select
               value={teamFilter}
               onChange={(e) => setTeamFilter(e.target.value)}
               className="w-full rounded-lg border border-[var(--border)] px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand/50 focus:border-brand"
-            >
+              >
               <option value="">همه تیم‌ها</option>
               {availableTeams.map((team) => (
                 <option key={team.id} value={team.id}>
                   {team.name}
                 </option>
               ))}
-            </select>
+              </select>
           </div>
         </div>
       </div>
@@ -540,7 +540,7 @@ export default function PlayersClient() {
         initialValues={editingPlayer}
         isLoading={isSavingPlayer}
         teams={mockTeams}
-      />
+        />
     </div>
   );
 }

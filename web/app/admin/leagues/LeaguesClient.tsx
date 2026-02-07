@@ -31,7 +31,7 @@ type CompetitionFormValues = {
   competitionType: LeagueCompetitionType;
   season: string;
   status: LeagueStatus;
-  numberOfTeams: number;
+    numberOfTeams: number;
   startDate: string;
   endDate: string;
   description?: string;
@@ -180,11 +180,11 @@ export default function LeaguesClient() {
       key: "sportType",
       label: "رشته",
       render: (row) => (
-        <span className="text-sm text-slate-700">
+          <span className="text-sm text-slate-700">
           {sportTypeLabel[row.sportType] ?? row.sportType}
-        </span>
+          </span>
       ),
-    },
+      },
     {
       key: "competitionType",
       label: "نوع رقابت",
@@ -261,17 +261,17 @@ export default function LeaguesClient() {
   const renderMobileCards = () => (
     <div className="space-y-3 md:hidden">
       {filteredCompetitions.map((competition) => (
-        <div
+          <div
           key={competition.id}
           className="flex flex-col gap-2 rounded-xl border border-[var(--border)] bg-white p-3 shadow-sm"
-        >
-          <div className="flex items-start justify-between gap-2">
-            <div className="space-y-0.5">
+          >
+            <div className="flex items-start justify-between gap-2">
+              <div className="space-y-0.5">
               <h3 className="text-sm font-bold text-slate-900">
                 {competition.title}
               </h3>
               <p className="text-[11px] text-slate-500">{competition.season}</p>
-            </div>
+              </div>
             <Badge
               variant={
                 competition.status === "active"
@@ -281,15 +281,15 @@ export default function LeaguesClient() {
                   : "default"
               }
               className="px-2 py-0.5 text-[10px]"
-            >
+              >
               {statusLabel[competition.status]}
             </Badge>
-          </div>
+            </div>
 
-          <div className="flex items-center justify-between text-[11px] text-slate-600">
+            <div className="flex items-center justify-between text-[11px] text-slate-600">
             <span>{sportTypeLabel[competition.sportType]}</span>
             <span>{competitionTypeLabel[competition.competitionType]}</span>
-          </div>
+            </div>
 
           <div className="flex items-center justify-between pt-1 text-[10px] text-slate-500">
             <span>تیم‌ها: {competition.numberOfTeams}</span>
@@ -302,10 +302,10 @@ export default function LeaguesClient() {
           </div>
 
           <div className="flex justify-end gap-2 pt-1">
-            <button
+              <button
               onClick={() => handleViewCompetition(competition)}
-              className="rounded-lg border border-[var(--border)] px-3 py-1 text-[11px] text-slate-700 hover:bg-slate-50"
-            >
+                className="rounded-lg border border-[var(--border)] px-3 py-1 text-[11px] text-slate-700 hover:bg-slate-50"
+              >
               مشاهده
             </button>
             <button
@@ -313,9 +313,9 @@ export default function LeaguesClient() {
               className="rounded-lg border border-[var(--border)] px-3 py-1 text-[11px] text-slate-700 hover:bg-slate-50"
             >
               ویرایش
-            </button>
+              </button>
+            </div>
           </div>
-        </div>
       ))}
     </div>
   );
@@ -677,27 +677,27 @@ function CompetitionModal({
       {["اطلاعات پایه", "ساختار مسابقات", "برنامه زمانی"].map(
         (label, index) => {
           const current = (index + 1) as FormStep;
-          const active = step === current;
+        const active = step === current;
           const completed = step > current;
-          return (
-            <button
-              key={current}
-              type="button"
+        return (
+          <button
+            key={current}
+            type="button"
               onClick={() => !isView && setStep(current)}
-              className={
+            className={
                 "flex-1 rounded-md px-1 py-1.5 text-[9px] font-medium transition-all sm:text-[10px] md:text-xs " +
                 (active
                   ? "bg-white text-slate-900 shadow-sm"
                   : completed
                   ? "text-slate-700 hover:bg-slate-100"
                   : "text-slate-500")
-              }
+            }
               disabled={isView}
             >
               <span className="hidden sm:inline">{current}. </span>
               {label}
-            </button>
-          );
+          </button>
+        );
         }
       )}
     </div>
@@ -885,49 +885,49 @@ function CompetitionModal({
               </p>
 
               {/* Common: Number of Teams */}
-              <div>
+                <div>
                 <label className="mb-1.5 block text-xs font-medium text-slate-700">
                   تعداد تیم‌ها <span className="text-red-500">*</span>
-                </label>
-                <input
-                  type="number"
-                  min={2}
+                  </label>
+                  <input
+                    type="number"
+                    min={2}
                   value={form.numberOfTeams}
                   disabled={isView}
-                  onChange={(e) =>
-                    setForm((prev) => ({
-                      ...prev,
-                      numberOfTeams: Number(e.target.value) || 0,
-                    }))
-                  }
+                    onChange={(e) =>
+                      setForm((prev) => ({
+                        ...prev,
+                          numberOfTeams: Number(e.target.value) || 0,
+                      }))
+                    }
                   className="w-full rounded-lg border border-[var(--border)] px-3 py-2.5 text-sm focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/40 disabled:bg-slate-50"
-                />
+                  />
                 {errors.numberOfTeams && (
                   <p className="mt-1 text-[11px] text-red-500">
                     {errors.numberOfTeams}
                   </p>
                 )}
-              </div>
+                </div>
 
               {/* League-specific fields */}
               {isLeague && (
                 <>
                   <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                    <div>
+                <div>
                       <label className="mb-1.5 block text-xs font-medium text-slate-700">
                         سهمیه‌های صعود
-                      </label>
+                  </label>
                       <input
                         type="number"
                         min={0}
                         value={form.promotionSpots || 0}
                         disabled={isView}
-                        onChange={(e) =>
-                          setForm((prev) => ({
-                            ...prev,
+                    onChange={(e) =>
+                      setForm((prev) => ({
+                        ...prev,
                             promotionSpots: Number(e.target.value) || 0,
-                          }))
-                        }
+                      }))
+                    }
                         className="w-full rounded-lg border border-[var(--border)] px-3 py-2.5 text-sm focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/40 disabled:bg-slate-50"
                       />
                       {errors.promotionSpots && (
@@ -935,109 +935,109 @@ function CompetitionModal({
                           {errors.promotionSpots}
                         </p>
                       )}
-                    </div>
-                    <div>
+                </div>
+                <div>
                       <label className="mb-1.5 block text-xs font-medium text-slate-700">
                         سهمیه‌های سقوط
-                      </label>
-                      <input
-                        type="number"
+                  </label>
+                  <input
+                    type="number"
                         min={0}
                         value={form.relegationSpots || 0}
                         disabled={isView}
-                        onChange={(e) =>
-                          setForm((prev) => ({
-                            ...prev,
+                    onChange={(e) =>
+                      setForm((prev) => ({
+                        ...prev,
                             relegationSpots: Number(e.target.value) || 0,
-                          }))
-                        }
+                      }))
+                    }
                         className="w-full rounded-lg border border-[var(--border)] px-3 py-2.5 text-sm focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/40 disabled:bg-slate-50"
-                      />
+                  />
                       {errors.relegationSpots && (
                         <p className="mt-1 text-[11px] text-red-500">
                           {errors.relegationSpots}
                         </p>
                       )}
-                    </div>
-                  </div>
+                </div>
+              </div>
 
                   {/* League Rules Module */}
                   <div className="space-y-4 rounded-lg border border-[var(--border)] bg-white p-4 shadow-sm">
                     <h4 className="text-sm font-semibold text-slate-900">قوانین لیگ</h4>
                     
                     {/* Points System */}
-                    <div>
+                <div>
                       <label className="mb-3 block text-xs font-semibold text-slate-700">
                         سیستم امتیازدهی
                       </label>
                       <div className="grid grid-cols-3 gap-3">
                         <div>
                           <label className="mb-1 block text-[11px] text-slate-600">
-                            امتیاز برد
-                          </label>
-                          <input
-                            type="number"
-                            min={0}
+                    امتیاز برد
+                  </label>
+                  <input
+                    type="number"
+                    min={0}
                             value={form.pointsSystem?.winPoints || 3}
                             disabled={isView}
-                            onChange={(e) =>
-                              setForm((prev) => ({
-                                ...prev,
-                                pointsSystem: {
-                                  winPoints: Number(e.target.value) || 0,
+                    onChange={(e) =>
+                      setForm((prev) => ({
+                        ...prev,
+                        pointsSystem: {
+                          winPoints: Number(e.target.value) || 0,
                                   drawPoints: prev.pointsSystem?.drawPoints ?? 1,
                                   lossPoints: prev.pointsSystem?.lossPoints ?? 0,
-                                },
-                              }))
-                            }
+                        },
+                      }))
+                    }
                             className="w-full rounded-lg border border-[var(--border)] bg-white px-2 py-1.5 text-sm focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/40 disabled:bg-slate-50"
-                          />
-                        </div>
-                        <div>
+                  />
+                </div>
+                <div>
                           <label className="mb-1 block text-[11px] text-slate-600">
-                            امتیاز مساوی
-                          </label>
-                          <input
-                            type="number"
-                            min={0}
+                    امتیاز مساوی
+                  </label>
+                  <input
+                    type="number"
+                    min={0}
                             value={form.pointsSystem?.drawPoints || 1}
                             disabled={isView}
-                            onChange={(e) =>
-                              setForm((prev) => ({
-                                ...prev,
-                                pointsSystem: {
+                    onChange={(e) =>
+                      setForm((prev) => ({
+                        ...prev,
+                        pointsSystem: {
                                   winPoints: prev.pointsSystem?.winPoints ?? 3,
-                                  drawPoints: Number(e.target.value) || 0,
+                          drawPoints: Number(e.target.value) || 0,
                                   lossPoints: prev.pointsSystem?.lossPoints ?? 0,
-                                },
-                              }))
-                            }
+                        },
+                      }))
+                    }
                             className="w-full rounded-lg border border-[var(--border)] bg-white px-2 py-1.5 text-sm focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/40 disabled:bg-slate-50"
-                          />
-                        </div>
-                        <div>
+                  />
+                </div>
+                <div>
                           <label className="mb-1 block text-[11px] text-slate-600">
-                            امتیاز باخت
-                          </label>
-                          <input
-                            type="number"
-                            min={0}
+                    امتیاز باخت
+                  </label>
+                  <input
+                    type="number"
+                    min={0}
                             value={form.pointsSystem?.lossPoints || 0}
                             disabled={isView}
-                            onChange={(e) =>
-                              setForm((prev) => ({
-                                ...prev,
-                                pointsSystem: {
+                    onChange={(e) =>
+                      setForm((prev) => ({
+                        ...prev,
+                        pointsSystem: {
                                   winPoints: prev.pointsSystem?.winPoints ?? 3,
                                   drawPoints: prev.pointsSystem?.drawPoints ?? 1,
-                                  lossPoints: Number(e.target.value) || 0,
-                                },
-                              }))
-                            }
+                          lossPoints: Number(e.target.value) || 0,
+                        },
+                      }))
+                    }
                             className="w-full rounded-lg border border-[var(--border)] bg-white px-2 py-1.5 text-sm focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/40 disabled:bg-slate-50"
-                          />
-                        </div>
-                      </div>
+                  />
+                </div>
+              </div>
                     </div>
 
                     {/* Ranking Priority */}
@@ -1047,17 +1047,17 @@ function CompetitionModal({
                       </label>
                       <p className="mb-3 text-[11px] text-slate-500">
                         ترتیب معیارهای رده‌بندی تیم‌ها (از مهم‌ترین به کم‌اهمیت‌ترین)
-                      </p>
+              </p>
                       <div className="space-y-2">
                         {(form.rankingRules?.priorities || ["points", "goalDifference", "goalsFor", "headToHead"]).map((priority, index) => {
                           const priorityLabels: Record<RankingPriority, string> = {
-                            points: "امتیاز",
+                    points: "امتیاز",
                             goalDifference: "تفاضل گل",
                             goalsFor: "گل‌های زده",
                             goalsAgainst: "گل‌های خورده",
                             headToHead: "نتایج رو در رو",
-                          };
-                          return (
+                  };
+                  return (
                             <div key={index} className="flex items-center gap-2">
                               <div className="flex h-6 w-6 items-center justify-center rounded bg-slate-100 text-[10px] font-medium text-slate-600">
                                 {index + 1}
@@ -1069,15 +1069,15 @@ function CompetitionModal({
                                   const newPriorities = [...(form.rankingRules?.priorities || [])];
                                   newPriorities[index] = e.target.value as RankingPriority;
                                   setForm((prev) => ({
-                                    ...prev,
+                              ...prev,
                                     rankingRules: {
                                       priorities: newPriorities,
                                       useHeadToHead: prev.rankingRules?.useHeadToHead ?? true,
-                                    },
+                            },
                                   }));
-                                }}
+                      }}
                                 className="flex-1 rounded-lg border border-[var(--border)] bg-white px-2 py-1 text-xs focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/40 disabled:bg-slate-50"
-                              >
+                    >
                                 {Object.entries(priorityLabels).map(([value, label]) => (
                                   <option key={value} value={value}>
                                     {label}
@@ -1085,9 +1085,9 @@ function CompetitionModal({
                                 ))}
                               </select>
                             </div>
-                          );
-                        })}
-                      </div>
+                  );
+                })}
+              </div>
                     </div>
                   </div>
 
@@ -1299,16 +1299,16 @@ function CompetitionModal({
                   rows={3}
                   value={form.description ?? ""}
                   disabled={isView}
-                  onChange={(e) =>
-                    setForm((prev) => ({
-                      ...prev,
+                    onChange={(e) =>
+                      setForm((prev) => ({
+                        ...prev,
                       description: e.target.value,
-                    }))
-                  }
+                      }))
+                    }
                   placeholder="توضیحات کوتاه درباره ساختار مسابقات..."
                   className="w-full resize-none rounded-lg border border-[var(--border)] px-3 py-2.5 text-sm focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/40 disabled:bg-slate-50"
-                />
-              </div>
+                  />
+                </div>
             </section>
           )}
         </div>
@@ -1322,23 +1322,23 @@ function CompetitionModal({
           {/* Action buttons */}
           <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-end sm:gap-3">
             {!isView && step > 1 && (
-              <button
-                type="button"
-                onClick={handlePrev}
-                disabled={isLoading}
-                className="order-2 w-full rounded-lg border border-[var(--border)] bg-white px-4 py-2.5 text-sm font-medium text-slate-700 transition-colors hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50 sm:order-1 sm:w-auto"
-              >
-                مرحله قبل
-              </button>
-            )}
             <button
               type="button"
-              onClick={onClose}
+                onClick={handlePrev}
               disabled={isLoading}
-              className="order-3 w-full rounded-lg border border-[var(--border)] bg-white px-4 py-2.5 text-sm font-medium text-slate-700 transition-colors hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50 sm:order-2 sm:w-auto"
+                className="order-2 w-full rounded-lg border border-[var(--border)] bg-white px-4 py-2.5 text-sm font-medium text-slate-700 transition-colors hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50 sm:order-1 sm:w-auto"
             >
-              بستن
+                مرحله قبل
             </button>
+            )}
+              <button
+                type="button"
+              onClick={onClose}
+                disabled={isLoading}
+              className="order-3 w-full rounded-lg border border-[var(--border)] bg-white px-4 py-2.5 text-sm font-medium text-slate-700 transition-colors hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50 sm:order-2 sm:w-auto"
+              >
+              بستن
+              </button>
             {!isView && step < 3 && (
               <button
                 type="button"

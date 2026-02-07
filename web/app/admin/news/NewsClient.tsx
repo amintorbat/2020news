@@ -133,7 +133,7 @@ export default function NewsClient() {
         >
           + خبر جدید
         </Link>
-      </div>
+          </div>
 
       {/* News List */}
       {filteredNews.length === 0 ? (
@@ -228,12 +228,12 @@ export default function NewsClient() {
                     >
                       ویرایش
                     </Link>
-                    <Link
+          <Link
                       href={`/admin/news/${item.id}/view`}
                       className="inline-flex items-center justify-center rounded-lg border border-slate-200 bg-white px-4 py-2 text-xs font-medium text-slate-700 transition-all hover:bg-slate-50 active:scale-[0.98] whitespace-nowrap"
-                    >
-                      مشاهده
-                    </Link>
+          >
+            مشاهده
+          </Link>
                     {item.status !== "published" && (
                       <select
                         value={item.status}
@@ -252,7 +252,7 @@ export default function NewsClient() {
                     <button
                       onClick={() => handleDelete(item.id)}
                       className="inline-flex items-center justify-center rounded-lg border border-red-200 bg-red-50 px-4 py-2 text-xs font-medium text-red-700 transition-all hover:bg-red-100 active:scale-[0.98] whitespace-nowrap"
-                    >
+          >
                       حذف
                     </button>
                   </div>
@@ -272,6 +272,6 @@ export default function NewsClient() {
           onClose={() => setToast(null)}
         />
       )}
-    </div>
+      </div>
   );
 }

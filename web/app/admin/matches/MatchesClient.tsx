@@ -1147,8 +1147,8 @@ function MatchFormModal({
                           disabled={isView}
                           className="w-full"
                         />
-                      </div>
-                    </div>
+        </div>
+      </div>
 
                     {/* End Date & Time */}
                     <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
@@ -1171,7 +1171,7 @@ function MatchFormModal({
                           disabled={isView}
                           className="w-full"
                         />
-                      </div>
+          </div>
                       <div>
                         <label className="mb-1.5 block text-xs font-medium text-slate-700">
                           زمان پایان دسترسی <span className="text-red-500">*</span>
@@ -1192,7 +1192,7 @@ function MatchFormModal({
                           className="w-full"
                         />
                       </div>
-                    </div>
+      </div>
 
                     {/* Permissions */}
                     <div>

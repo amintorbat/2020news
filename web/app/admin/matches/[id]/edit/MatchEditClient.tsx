@@ -326,20 +326,20 @@ export default function MatchEditClient({ match: initialMatch, competitions }: P
                 match.events
                   .sort((a, b) => a.minute - b.minute)
                   .map((event) => (
-                    <MatchEventEditor
-                      key={event.id}
-                      event={event}
-                      homeTeam={match.homeTeam}
-                      awayTeam={match.awayTeam}
+                  <MatchEventEditor
+                    key={event.id}
+                    event={event}
+                    homeTeam={match.homeTeam}
+                    awayTeam={match.awayTeam}
                       homeTeamId={match.homeTeamId}
                       awayTeamId={match.awayTeamId}
                       homeTeamPlayers={homeTeamPlayers}
                       awayTeamPlayers={awayTeamPlayers}
-                      maxMinute={sportConfig.matchDuration}
-                      onUpdate={(updates) => handleUpdateEvent(event.id, updates)}
-                      onRemove={() => handleRemoveEvent(event.id)}
-                    />
-                  ))
+                    maxMinute={sportConfig.matchDuration}
+                    onUpdate={(updates) => handleUpdateEvent(event.id, updates)}
+                    onRemove={() => handleRemoveEvent(event.id)}
+                  />
+                ))
               ) : (
                 <p className="text-sm text-slate-500 text-center py-4">هیچ رویدادی ثبت نشده است</p>
               )}

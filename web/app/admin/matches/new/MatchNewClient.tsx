@@ -259,7 +259,7 @@ export default function MatchNewClient() {
                       </div>
                     </div>
                   </div>
-                </div>
+              </div>
               )}
 
               <div>

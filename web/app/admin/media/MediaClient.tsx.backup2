@@ -180,7 +180,6 @@ export default function MediaClient() {
       {activeTab === "gallery" ? (
         <GalleryManager />
       ) : (
-        <>
         <button
           onClick={() => setActiveTab("public-galleries")}
           className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors whitespace-nowrap ${

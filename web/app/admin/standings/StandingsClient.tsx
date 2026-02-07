@@ -243,12 +243,12 @@ export default function StandingsClient() {
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           {/* League Info (read-only, selected from context) */}
           {selectedLeague && (
-            <div>
+          <div>
               <label className="block text-xs font-medium text-slate-700 mb-2">لیگ فعال</label>
               <div className="rounded-lg border border-[var(--border)] bg-slate-50 px-3 py-2 text-sm font-medium text-slate-900">
                 {selectedLeague.title} ({selectedLeague.season})
-              </div>
-            </div>
+          </div>
+          </div>
           )}
 
           {/* Season Filter */}
@@ -276,48 +276,48 @@ export default function StandingsClient() {
         <div className="rounded-xl border border-[var(--border)] bg-white overflow-hidden shadow-sm">
           {/* Header */}
           <div className="bg-slate-50 px-4 sm:px-6 py-4 border-b border-[var(--border)]">
-            <div className="flex items-center justify-between flex-wrap gap-4">
-              <div>
+                <div className="flex items-center justify-between flex-wrap gap-4">
+                    <div>
                 <h3 className="text-lg font-bold text-slate-900">{selectedLeague.title}</h3>
                 <p className="text-sm text-slate-600">{selectedLeague.season}</p>
-              </div>
+                    </div>
               <div className="flex items-center gap-2 text-xs text-slate-600">
                 <span>تعداد مسابقات: {relevantMatches.length}</span>
-              </div>
-            </div>
-
-            {/* Zone Legend */}
-            {(selectedLeague.promotionSpots || selectedLeague.relegationSpots) && (
-              <div className="mt-4 flex flex-wrap gap-4 text-xs">
-                {selectedLeague.promotionSpots && selectedLeague.promotionSpots > 0 && (
-                  <div className="flex items-center gap-2">
-                    <div className="w-3 h-3 rounded bg-green-500"></div>
-                    <span className="text-slate-600">
-                      {selectedLeague.promotionSpots} تیم اول (صعود)
-                    </span>
                   </div>
-                )}
-                {selectedLeague.relegationSpots && selectedLeague.relegationSpots > 0 && (
-                  <div className="flex items-center gap-2">
-                    <div className="w-3 h-3 rounded bg-red-500"></div>
-                    <span className="text-slate-600">
-                      {selectedLeague.relegationSpots} تیم آخر (سقوط)
-                    </span>
-                  </div>
-                )}
-                <div className="flex items-center gap-2">
-                  <div className="w-3 h-3 rounded bg-yellow-500"></div>
-                  <span className="text-slate-600">قهرمان</span>
                 </div>
-              </div>
+
+                {/* Zone Legend */}
+            {(selectedLeague.promotionSpots || selectedLeague.relegationSpots) && (
+                <div className="mt-4 flex flex-wrap gap-4 text-xs">
+                {selectedLeague.promotionSpots && selectedLeague.promotionSpots > 0 && (
+                    <div className="flex items-center gap-2">
+                      <div className="w-3 h-3 rounded bg-green-500"></div>
+                      <span className="text-slate-600">
+                      {selectedLeague.promotionSpots} تیم اول (صعود)
+                      </span>
+                    </div>
+                  )}
+                {selectedLeague.relegationSpots && selectedLeague.relegationSpots > 0 && (
+                    <div className="flex items-center gap-2">
+                      <div className="w-3 h-3 rounded bg-red-500"></div>
+                      <span className="text-slate-600">
+                      {selectedLeague.relegationSpots} تیم آخر (سقوط)
+                      </span>
+                    </div>
+                  )}
+                  <div className="flex items-center gap-2">
+                    <div className="w-3 h-3 rounded bg-yellow-500"></div>
+                    <span className="text-slate-600">قهرمان</span>
+                  </div>
+                </div>
             )}
-          </div>
+              </div>
 
           {/* Desktop Table */}
           <div className="hidden md:block overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead className="bg-slate-50">
-                <tr>
+                <table className="w-full text-sm">
+                  <thead className="bg-slate-50">
+                    <tr>
                   <th className="px-4 py-3 text-right font-semibold text-slate-700">رتبه</th>
                   <th className="px-4 py-3 text-right font-semibold text-slate-700">تیم</th>
                   <th className="px-4 py-3 text-center font-semibold text-slate-700">بازی</th>
@@ -328,17 +328,17 @@ export default function StandingsClient() {
                   <th className="px-4 py-3 text-center font-semibold text-slate-700">گل خورده</th>
                   <th className="px-4 py-3 text-center font-semibold text-slate-700">تفاضل</th>
                   <th className="px-4 py-3 text-center font-semibold text-slate-700">امتیاز</th>
-                </tr>
-              </thead>
-              <tbody>
+                    </tr>
+                  </thead>
+                  <tbody>
                 {standings.map((row) => (
-                  <tr
+                      <tr
                     key={row.teamId || row.team}
                     className={`border-t hover:bg-slate-50 transition-colors ${getRowClassName(
                       row.rank,
                       standings.length
                     )}`}
-                  >
+                      >
                     <td className="px-4 py-3">
                       <div className="flex items-center justify-center">
                         {getRankBadge(row.rank)}
@@ -376,11 +376,11 @@ export default function StandingsClient() {
                     </td>
                     <td className="px-4 py-3 text-center text-base font-bold text-slate-900">
                       {row.points}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+                          </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
           </div>
 
           {/* Mobile Cards */}
@@ -441,12 +441,12 @@ export default function StandingsClient() {
                     <span className="text-slate-500">گل خورده: </span>
                     <span className="font-medium text-slate-700">{row.goalsAgainst}</span>
                   </div>
-                </div>
               </div>
+            </div>
             ))}
           </div>
-        </div>
-      )}
+          </div>
+        )}
 
       {/* Empty State */}
       {selectedLeague && standings.length === 0 && (
@@ -457,7 +457,7 @@ export default function StandingsClient() {
           <p className="text-xs text-slate-400">
             جدول رده‌بندی فقط از مسابقات با وضعیت "پایان یافته" محاسبه می‌شود
           </p>
-        </div>
+      </div>
       )}
 
       {!selectedLeague && (
