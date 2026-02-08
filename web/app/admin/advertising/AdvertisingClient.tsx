@@ -7,6 +7,7 @@ import { FilterBar, FilterSelect } from "@/components/admin/FilterBar";
 import { Toast } from "@/components/admin/Toast";
 import { PersianDatePicker } from "@/components/admin/PersianDatePicker";
 import { PersianTimePicker } from "@/components/admin/PersianTimePicker";
+import { Toggle } from "@/components/admin/Toggle";
 import {
   getAllAds,
   getAdById,
@@ -219,7 +220,7 @@ export function AdvertisingClient() {
 
       {formOpen && (
         <AdFormModal
-          ad={editing}
+          ad={editing ?? null}
           onClose={() => {
             setFormOpen(false);
             setEditingId(null);

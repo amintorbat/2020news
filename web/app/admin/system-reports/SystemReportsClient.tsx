@@ -16,7 +16,6 @@ import {
 import type {
   SystemReport,
   EventType,
-  ActorRole,
   Module,
   SeverityLevel,
 } from "@/types/systemReports";
@@ -358,7 +357,6 @@ export default function SystemReportsClient() {
               <tbody className="divide-y divide-[var(--border)]">
                 {paginatedReports.length > 0 ? (
                   paginatedReports.map((r) => {
-                    const sev = SEVERITY_CONFIG[r.severity];
                     const isEditing = editingNoteId === r.id;
                     return (
                       <tr key={r.id} className="hover:bg-slate-50/80">

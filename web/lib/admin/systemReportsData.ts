@@ -33,7 +33,7 @@ function saveNotes(notes: Record<string, string>) {
   if (typeof window === "undefined") return;
   try {
     localStorage.setItem(STORAGE_KEY_NOTES, JSON.stringify(notes));
-  } catch (_) {}
+  } catch { /* ignore */ }
 }
 
 /** Get audit log with persisted admin notes merged in */
