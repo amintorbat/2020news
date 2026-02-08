@@ -93,7 +93,7 @@ export const MODULE_TO_PATH: Record<ModuleKey, string> = {
   matches: "/admin/matches",
   leagues: "/admin/leagues",
   players: "/admin/players",
-  ads: "/admin/ads",
+  ads: "/admin/advertising",
   settings: "/admin/settings",
   reports: "/admin/audit",
   users: "/admin/users",
