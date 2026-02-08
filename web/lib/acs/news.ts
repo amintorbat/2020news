@@ -63,6 +63,21 @@ export async function getNewsDetail(slug: string): Promise<NewsDetail> {
 
   try {
     const res = await fetchWithRetry(`/fullcontent/${articleId}/`);
+    if (!res) {
+      logWarnOnce("news-detail", "ACS fetch skipped; returning minimal fallback.");
+      return {
+        slug,
+        title: "گزارش ویژه",
+        category: "اخبار",
+        publishedAt: new Date().toLocaleDateString("fa-IR"),
+        lead: "",
+        imageUrl: null,
+        bodyHtml: "<p>متن در حال بارگذاری است یا در دسترس نیست.</p>",
+        sourceUrl: `${ACS_BASE_URL}/fullcontent/${articleId}/`,
+        tags: [],
+        teams: [],
+      };
+    }
     const html = await res.text();
     const $ = load(html);
 

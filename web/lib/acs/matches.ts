@@ -53,6 +53,7 @@ async function loadMatches() {
 
   matchesLoading = (async () => {
     const response = await fetchWithRetry("/Live-Score");
+    if (!response) throw new Error("ACS_SKIP");
     const html = await response.text();
     const $ = load(html);
     const matchesBySport = parseMatchesBySport($);

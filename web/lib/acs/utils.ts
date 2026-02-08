@@ -4,11 +4,15 @@ function delay(ms: number) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-export async function fetchWithRetry(path: string, init?: RequestInit & { revalidate?: number }) {
+/** در بیلد یا وقتی ACS_SKIP=1 فرچ انجام نمی‌شود و null برمی‌گردد تا caller بدون throw به fallback برود */
+export async function fetchWithRetry(
+  path: string,
+  init?: RequestInit & { revalidate?: number }
+): Promise<Response | null> {
   const url = path.startsWith("http") ? path : `${ACS_BASE_URL}${path.startsWith("/") ? path : `/${path}`}`;
   const revalidate = init?.revalidate ?? ACS_REVALIDATE_SECONDS;
   if (process.env.ACS_SKIP === "1") {
-    throw new Error(`ACS fetch skipped during local build for ${url}`);
+    return null;
   }
 
   let attempt = 0;

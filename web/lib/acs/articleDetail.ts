@@ -20,6 +20,17 @@ export async function getArticleDetail(slug: string): Promise<ArticleDetail> {
 
   try {
     const response = await fetchWithRetry(`/fullcontent/${articleId}/`);
+    if (!response) {
+      logWarnOnce("article-detail", `ACS fetch skipped for ${slug}; returning minimal fallback.`);
+      return {
+        slug,
+        title: "گزارش ویژه",
+        category: "اخبار",
+        publishedAt: new Date().toLocaleDateString("fa-IR"),
+        imageUrl: ACS_FALLBACK_IMAGE,
+        paragraphs: ["متن در حال بارگذاری است یا در دسترس نیست."],
+      };
+    }
     const html = await response.text();
     const $ = load(html);
     const title = cleanText($(".Title").first().text()) || cleanText($("h1").first().text());

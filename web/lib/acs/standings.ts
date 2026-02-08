@@ -53,6 +53,7 @@ async function loadStandingsRows() {
 
   standingsLoading = (async () => {
     const response = await fetchWithRetry("/");
+    if (!response) throw new Error("ACS_SKIP");
     const html = await response.text();
     const $ = load(html);
     const rowsBySport = extractStandingsBySport($);

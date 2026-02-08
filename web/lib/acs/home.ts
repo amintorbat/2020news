@@ -32,6 +32,18 @@ export async function getHomeContent(): Promise<HomeAcsPayload> {
 async function loadHomeContent(): Promise<HomeAcsPayload> {
   try {
     const response = await fetchWithRetry("/");
+    if (!response) {
+      logWarnOnce("home", "ACS fetch skipped (e.g. build); using fallback.");
+      const fallbackPayload = getFallbackHomePayload();
+      const localFallbackNews = mapLocalNews(localNews);
+      const fallbackHeroes = collectValidSlides(fallbackPayload.heroSlides ?? []);
+      return {
+        ...fallbackPayload,
+        heroSlides: fallbackHeroes.slice(0, 5),
+        latestNews: ensureMinimumArticles(fallbackPayload.latestNews, localFallbackNews, 12, 30),
+        source: "fallback",
+      };
+    }
     const html = await response.text();
     const $ = load(html);
     const heroSlides = dedupeArticles(parseHeroSlides($));
