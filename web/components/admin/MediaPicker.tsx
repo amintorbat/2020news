@@ -8,7 +8,6 @@ import {
   searchMedia,
   formatFileSize,
   formatDuration,
-  type Media as MediaType,
 } from "@/lib/admin/mediaData";
 import type { Media, MediaType as MediaTypeEnum } from "@/types/media";
 
