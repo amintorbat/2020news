@@ -1,10 +1,12 @@
 import Link from "next/link";
 import { Footer } from "@/components/layout/Footer";
 import { leagueOptions, matchSeasons, type LeagueKey } from "@/lib/data";
+import { getBracketLeagueForSport } from "@/lib/data/knockoutBrackets";
 import { mockMatches, type MatchItem, type MatchStatusFilter, type TimeRange, type CompetitionType } from "@/lib/data/matches";
 import { filterAndSortMatches, type MatchFilters as FilterType } from "@/lib/matches/filtering";
 import { MatchFilters } from "@/components/matches/MatchFilters";
 import { MatchCard } from "@/components/matches/MatchCard";
+import { BracketCTA } from "@/components/bracket/BracketCTA";
 
 type MatchesPageProps = {
   searchParams?: { 
@@ -74,6 +76,14 @@ export default function MatchesPage({ searchParams }: MatchesPageProps) {
               <span className="font-semibold text-slate-900">{filteredMatches.length}</span> مسابقه یافت شد
             </div>
           </section>
+        )}
+
+        {/* نمای چارت برای مسابقات حذفی — وقتی نوع مسابقه جام است یا «همه» و برای این رشته لیگ حذفی داریم */}
+        {(filters.competitionType === "cup" || filters.competitionType === "all") &&
+          getBracketLeagueForSport(filters.league) && (
+            <section className="container" dir="rtl">
+              <BracketCTA leagueKey={filters.league} variant="full" />
+            </section>
         )}
 
         {/* Matches List */}

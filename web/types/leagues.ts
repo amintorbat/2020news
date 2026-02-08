@@ -6,6 +6,10 @@ export type LeagueSportType = "futsal" | "beach_soccer";
 
 export type LeagueCompetitionType = "league" | "knockout";
 
+/** فرمت تفصیلی مسابقات (Part 3) */
+import type { CompetitionFormat } from "./bracket";
+export type { CompetitionFormat };
+
 export type LeagueStatus = "active" | "draft" | "archived";
 
 /**
@@ -106,5 +110,10 @@ export interface League {
    * آیا مسابقه رده‌بندی (مقام سوم) برگزار می‌شود؟ (فقط برای جام حذفی)
    */
   hasThirdPlaceMatch?: boolean;
+
+  /**
+   * فرمت تفصیلی (لیگ، حذفی، گروهی، گروه+حذفی، پلی‌آف، رده‌بندی)
+   */
+  competitionFormat?: CompetitionFormat;
 }
 

@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import Link from "next/link";
 import { PageHeader } from "@/components/admin/PageHeader";
 import { DataTable, type Column } from "@/components/admin/DataTable";
 import { EmptyState } from "@/components/admin/EmptyState";
@@ -20,6 +21,8 @@ import type {
   RankingRules,
   RankingPriority,
 } from "@/types/leagues";
+import type { CompetitionFormat } from "@/types/bracket";
+import { FORMAT_LABELS } from "@/types/bracket";
 import { generateId } from "@/lib/utils/id";
 
 type CompetitionMode = "create" | "edit" | "view";
@@ -29,6 +32,8 @@ type CompetitionFormValues = {
   title: string;
   sportType: LeagueSportType;
   competitionType: LeagueCompetitionType;
+  /** فرمت تفصیلی: لیگ، حذفی، گروهی، گروه+حذفی، پلی‌آف، رده‌بندی */
+  competitionFormat: CompetitionFormat;
   season: string;
   status: LeagueStatus;
     numberOfTeams: number;
@@ -67,6 +72,25 @@ const competitionTypeLabel: Record<LeagueCompetitionType, string> = {
   league: "لیگ (دوره‌ای)",
   knockout: "جام حذفی",
 };
+
+/** توضیح کوتاه هر فرمت برای کارت‌های انتخاب در فرم */
+const FORMAT_DESCRIPTIONS: Record<CompetitionFormat, string> = {
+  league: "مناسب رقابت‌های رفت و برگشت با جدول رده‌بندی",
+  knockout: "مناسب رقابت‌های تک‌حذفی یا چند مرحله‌ای",
+  group_stage: "فقط مرحله گروهی؛ جدول هر گروه",
+  group_knockout: "مرحله گروهی سپس حذفی (سبک جام جهانی)",
+  playoff: "پلی‌آف بین رتبه‌ها",
+  classification: "مسابقات رده‌بندی (مقام‌ها)",
+};
+
+const FORMAT_ORDER: CompetitionFormat[] = [
+  "league",
+  "knockout",
+  "group_stage",
+  "group_knockout",
+  "playoff",
+  "classification",
+];
 
 export default function LeaguesClient() {
   const [competitions, setCompetitions] = useState<League[]>(mockLeagues);
@@ -190,7 +214,9 @@ export default function LeaguesClient() {
       label: "نوع رقابت",
       render: (row) => (
         <span className="text-xs text-slate-700">
-          {competitionTypeLabel[row.competitionType] ?? row.competitionType}
+          {row.competitionFormat
+            ? FORMAT_LABELS[row.competitionFormat]
+            : competitionTypeLabel[row.competitionType] ?? row.competitionType}
         </span>
       ),
     },
@@ -240,7 +266,16 @@ export default function LeaguesClient() {
       key: "id",
       label: "عملیات",
       render: (row) => (
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 flex-wrap">
+          {(row.competitionType === "knockout" ||
+            (row.competitionFormat && ["knockout", "group_knockout", "playoff"].includes(row.competitionFormat))) && (
+            <Link
+              href={`/admin/leagues/bracket/${row.id}`}
+              className="rounded-lg border border-brand/40 bg-brand/5 px-3 py-1.5 text-xs font-medium text-brand hover:bg-brand/10"
+            >
+              چارت
+            </Link>
+          )}
           <button
             onClick={() => handleViewCompetition(row)}
             className="rounded-lg border border-[var(--border)] px-3 py-1.5 text-xs font-medium text-slate-700 hover:bg-slate-50"
@@ -288,7 +323,11 @@ export default function LeaguesClient() {
 
             <div className="flex items-center justify-between text-[11px] text-slate-600">
             <span>{sportTypeLabel[competition.sportType]}</span>
-            <span>{competitionTypeLabel[competition.competitionType]}</span>
+            <span>
+              {competition.competitionFormat
+                ? FORMAT_LABELS[competition.competitionFormat]
+                : competitionTypeLabel[competition.competitionType]}
+            </span>
             </div>
 
           <div className="flex items-center justify-between pt-1 text-[10px] text-slate-500">
@@ -301,7 +340,16 @@ export default function LeaguesClient() {
             )}
           </div>
 
-          <div className="flex justify-end gap-2 pt-1">
+          <div className="flex justify-end gap-2 pt-1 flex-wrap">
+            {(competition.competitionType === "knockout" ||
+              (competition.competitionFormat && ["knockout", "group_knockout", "playoff"].includes(competition.competitionFormat))) && (
+              <Link
+                href={`/admin/leagues/bracket/${competition.id}`}
+                className="rounded-lg border border-brand/40 bg-brand/5 px-3 py-1 text-[11px] font-medium text-brand hover:bg-brand/10"
+              >
+                چارت
+              </Link>
+            )}
               <button
               onClick={() => handleViewCompetition(competition)}
                 className="rounded-lg border border-[var(--border)] px-3 py-1 text-[11px] text-slate-700 hover:bg-slate-50"
@@ -313,7 +361,7 @@ export default function LeaguesClient() {
               className="rounded-lg border border-[var(--border)] px-3 py-1 text-[11px] text-slate-700 hover:bg-slate-50"
             >
               ویرایش
-              </button>
+            </button>
             </div>
           </div>
       ))}
@@ -500,13 +548,23 @@ export default function LeaguesClient() {
   );
 }
 
+function formatToCompetitionType(format: CompetitionFormat): LeagueCompetitionType {
+  return format === "knockout" || format === "group_knockout" || format === "playoff"
+    ? "knockout"
+    : "league";
+}
+
 function mapCompetitionToFormValues(
   competition: League
 ): CompetitionFormValues {
+  const format: CompetitionFormat =
+    competition.competitionFormat ??
+    (competition.competitionType === "knockout" ? "knockout" : "league");
   return {
     title: competition.title,
     sportType: competition.sportType,
     competitionType: competition.competitionType,
+    competitionFormat: format,
     season: competition.season,
     status: competition.status,
     numberOfTeams: competition.numberOfTeams,
@@ -548,6 +606,7 @@ function CompetitionModal({
       title: "",
       sportType: "futsal",
       competitionType: "league",
+      competitionFormat: "league",
       season: "",
       status: "draft",
       numberOfTeams: 8,
@@ -821,51 +880,35 @@ function CompetitionModal({
                   <label className="mb-1.5 block text-xs font-medium text-slate-700">
                     نوع رقابت <span className="text-red-500">*</span>
                   </label>
-                  <div className="grid grid-cols-2 gap-3 text-xs sm:text-sm">
-                    <button
-                      type="button"
-                      disabled={isView}
-                      onClick={() =>
-                        setForm((prev) => ({
-                          ...prev,
-                          competitionType: "league",
-                        }))
-                      }
-                      className={
-                        "rounded-lg border px-3 py-2 text-right " +
-                        (form.competitionType === "league"
-                          ? "border-brand bg-brand/5 text-brand"
-                          : "border-[var(--border)] text-slate-700") +
-                        (isView ? " cursor-default opacity-75" : "")
-                      }
-                    >
-                      <span className="block font-semibold">لیگ (دوره‌ای)</span>
-                      <span className="mt-1 block text-[11px] text-slate-500">
-                        مناسب رقابت‌های رفت و برگشت با جدول رده‌بندی
-                      </span>
-                    </button>
-                    <button
-                      type="button"
-                      disabled={isView}
-                      onClick={() =>
-                        setForm((prev) => ({
-                          ...prev,
-                          competitionType: "knockout",
-                        }))
-                      }
-                      className={
-                        "rounded-lg border px-3 py-2 text-right " +
-                        (form.competitionType === "knockout"
-                          ? "border-brand bg-brand/5 text-brand"
-                          : "border-[var(--border)] text-slate-700") +
-                        (isView ? " cursor-default opacity-75" : "")
-                      }
-                    >
-                      <span className="block font-semibold">جام حذفی</span>
-                      <span className="mt-1 block text-[11px] text-slate-500">
-                        مناسب رقابت‌های تک‌حذفی یا چندمرحله‌ای
-                      </span>
-                    </button>
+                  <div className="grid grid-cols-2 gap-3 text-xs sm:text-sm lg:grid-cols-3">
+                    {FORMAT_ORDER.map((format) => (
+                      <button
+                        key={format}
+                        type="button"
+                        disabled={isView}
+                        onClick={() =>
+                          setForm((prev) => ({
+                            ...prev,
+                            competitionFormat: format,
+                            competitionType: formatToCompetitionType(format),
+                          }))
+                        }
+                        className={
+                          "rounded-lg border px-3 py-2 text-right " +
+                          (form.competitionFormat === format
+                            ? "border-brand bg-brand/5 text-brand"
+                            : "border-[var(--border)] text-slate-700") +
+                          (isView ? " cursor-default opacity-75" : "")
+                        }
+                      >
+                        <span className="block font-semibold">
+                          {FORMAT_LABELS[format]}
+                        </span>
+                        <span className="mt-1 block text-[11px] text-slate-500">
+                          {FORMAT_DESCRIPTIONS[format]}
+                        </span>
+                      </button>
+                    ))}
                   </div>
                 </div>
               </div>
