@@ -1,4 +1,4 @@
-import type { Media, Gallery } from "@/types/media";
+import type { Media, Gallery, MediaStatus } from "@/types/media";
 import type { PhotoAlbum, PhotoItem } from "@/lib/data/gallery";
 import type { VideoItem } from "@/lib/data/videos";
 import type { LeagueKey } from "@/lib/data";
