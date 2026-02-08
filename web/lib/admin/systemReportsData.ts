@@ -1,8 +1,151 @@
-import type { SystemReport, EventType, ActorRole, Module, SeverityLevel } from "@/types/systemReports";
+import jalaali from "jalaali-js";
+import type {
+  SystemReport,
+  SystemWarning,
+  EventType,
+  ActorRole,
+  Module,
+  SeverityLevel,
+} from "@/types/systemReports";
+import { mockMatches } from "@/lib/admin/matchesData";
+import { mockLeagues } from "@/lib/admin/leaguesData";
+import { getAllAds } from "@/lib/admin/adsData";
+import { mockPlayers } from "@/lib/admin/playersData";
+import { mockTeams } from "@/lib/admin/teamsData";
+import { mockReporterAssignments } from "@/lib/admin/reporterAssignments";
+import { getAssignmentStatus } from "@/types/reporter";
 
-// Mock system reports data
+const STORAGE_KEY_NOTES = "2020news_audit_log_notes";
+
+function loadNotes(): Record<string, string> {
+  if (typeof window === "undefined") return {};
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY_NOTES);
+    if (!raw) return {};
+    const parsed = JSON.parse(raw) as Record<string, string>;
+    return typeof parsed === "object" && parsed !== null ? parsed : {};
+  } catch {
+    return {};
+  }
+}
+
+function saveNotes(notes: Record<string, string>) {
+  if (typeof window === "undefined") return;
+  try {
+    localStorage.setItem(STORAGE_KEY_NOTES, JSON.stringify(notes));
+  } catch (_) {}
+}
+
+/** Get audit log with persisted admin notes merged in */
+export function getAuditLogs(): SystemReport[] {
+  const notes = typeof window !== "undefined" ? loadNotes() : {};
+  return mockSystemReports.map((r) => ({
+    ...r,
+    adminNote: notes[r.id] ?? r.adminNote,
+  }));
+}
+
+/** Update admin note for a log entry (persisted in localStorage) */
+export function updateAuditLogNote(id: string, adminNote: string): void {
+  const notes = loadNotes();
+  if (adminNote.trim()) {
+    notes[id] = adminNote.trim();
+  } else {
+    delete notes[id];
+  }
+  saveNotes(notes);
+}
+
+// Normalize Persian/Arabic for search (optional: strip tatweel, normalize spaces)
+function normalizeForSearch(s: string): string {
+  return s.replace(/\s+/g, " ").trim();
+}
+
+/** Full-text search: matches if query appears in description, resourceName, actorName, adminNote */
+function matchesSearch(report: SystemReport, query: string, notes: Record<string, string>): boolean {
+  if (!query || !query.trim()) return true;
+  const q = normalizeForSearch(query.trim());
+  const haystack = [
+    report.description,
+    report.resourceName ?? "",
+    report.actorName,
+    report.systemMessage ?? "",
+    notes[report.id] ?? report.adminNote ?? "",
+  ]
+    .join(" ")
+    .replace(/\s+/g, " ");
+  return haystack.includes(q);
+}
+
+/** Parse Jalali YYYY-MM-DD to start-of-day and end-of-day in local time for comparison with ISO timestamps */
+function jalaliDayToRange(jalaliDate: string): { start: number; end: number } | null {
+  if (!jalaliDate || jalaliDate.length < 10) return null;
+  try {
+    const [jy, jm, jd] = jalaliDate.slice(0, 10).split("-").map(Number);
+    const { gy, gm, gd } = jalaali.toGregorian(jy, jm, jd);
+    const start = new Date(gy, gm - 1, gd, 0, 0, 0, 0).getTime();
+    const end = new Date(gy, gm - 1, gd, 23, 59, 59, 999).getTime();
+    return { start, end };
+  } catch {
+    return null;
+  }
+}
+
+export function getFilteredReports(filters: {
+  eventType?: EventType;
+  actorRole?: ActorRole;
+  actorName?: string;
+  module?: Module;
+  severity?: SeverityLevel;
+  startDate?: string;
+  endDate?: string;
+  searchQuery?: string;
+}): SystemReport[] {
+  const notes = typeof window !== "undefined" ? loadNotes() : {};
+  let filtered = getAuditLogs();
+
+  if (filters.eventType) {
+    filtered = filtered.filter((r) => r.eventType === filters.eventType);
+  }
+  if (filters.actorRole) {
+    filtered = filtered.filter((r) => r.actorRole === filters.actorRole);
+  }
+  if (filters.actorName) {
+    filtered = filtered.filter((r) => r.actorName === filters.actorName);
+  }
+  if (filters.module) {
+    filtered = filtered.filter((r) => r.module === filters.module);
+  }
+  if (filters.severity) {
+    filtered = filtered.filter((r) => r.severity === filters.severity);
+  }
+  if (filters.searchQuery) {
+    filtered = filtered.filter((r) => matchesSearch(r, filters.searchQuery!, notes));
+  }
+  if (filters.startDate) {
+    const range = jalaliDayToRange(filters.startDate);
+    if (range) {
+      filtered = filtered.filter((r) => new Date(r.timestamp).getTime() >= range.start);
+    }
+  }
+  if (filters.endDate) {
+    const range = jalaliDayToRange(filters.endDate);
+    if (range) {
+      filtered = filtered.filter((r) => new Date(r.timestamp).getTime() <= range.end);
+    }
+  }
+
+  return filtered.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
+}
+
+/** Unique actor names for filter dropdown */
+export function getUniqueActorNames(): string[] {
+  const names = new Set(getAuditLogs().map((r) => r.actorName));
+  return Array.from(names).sort((a, b) => a.localeCompare(b, "fa"));
+}
+
+// ---------- Mock audit log entries ----------
 export const mockSystemReports: SystemReport[] = [
-  // Leagues module
   {
     id: "log-1",
     eventType: "create",
@@ -31,7 +174,6 @@ export const mockSystemReports: SystemReport[] = [
     timestamp: "2024-12-11T14:30:00Z",
     ipAddress: "192.168.1.1",
   },
-  // Matches module
   {
     id: "log-3",
     eventType: "create",
@@ -56,7 +198,7 @@ export const mockSystemReports: SystemReport[] = [
     module: "Matches",
     resourceId: "match-1",
     resourceName: "گیتی پسند vs مس سونگون",
-    description: "افزودن رویداد مسابقه: گل توسط مهدی جاوید (دقیقه 12)",
+    description: "افزودن رویداد مسابقه: گل توسط مهدی جاوید (دقیقه ۱۲)",
     timestamp: "2024-12-15T18:12:00Z",
     ipAddress: "192.168.1.3",
   },
@@ -70,7 +212,7 @@ export const mockSystemReports: SystemReport[] = [
     module: "Matches",
     resourceId: "match-1",
     resourceName: "گیتی پسند vs مس سونگون",
-    description: "افزودن رویداد مسابقه: کارت زرد برای قدرت بهادری (دقیقه 30)",
+    description: "افزودن رویداد مسابقه: کارت زرد برای قدرت بهادری (دقیقه ۳۰)",
     timestamp: "2024-12-15T18:30:00Z",
     ipAddress: "192.168.1.3",
   },
@@ -84,11 +226,10 @@ export const mockSystemReports: SystemReport[] = [
     module: "Matches",
     resourceId: "match-1",
     resourceName: "گیتی پسند vs مس سونگون",
-    description: "تغییر وضعیت مسابقه از 'زنده' به 'پایان یافته'",
+    description: "تغییر وضعیت مسابقه از «زنده» به «پایان یافته»",
     timestamp: "2024-12-15T20:00:00Z",
     ipAddress: "192.168.1.2",
   },
-  // Teams module
   {
     id: "log-7",
     eventType: "create",
@@ -117,7 +258,6 @@ export const mockSystemReports: SystemReport[] = [
     timestamp: "2024-12-05T11:20:00Z",
     ipAddress: "192.168.1.2",
   },
-  // Players module
   {
     id: "log-9",
     eventType: "create",
@@ -132,7 +272,6 @@ export const mockSystemReports: SystemReport[] = [
     timestamp: "2024-12-08T15:45:00Z",
     ipAddress: "192.168.1.2",
   },
-  // News module
   {
     id: "log-10",
     eventType: "create",
@@ -143,7 +282,7 @@ export const mockSystemReports: SystemReport[] = [
     module: "News",
     resourceId: "news-1",
     resourceName: "گزارش مسابقه گیتی پسند vs مس سونگون",
-    description: "ایجاد خبر جدید مرتبط با مسابقه: گزارش مسابقه گیتی پسند vs مس سونگون",
+    description: "ایجاد خبر جدید مرتبط با مسابقه",
     timestamp: "2024-12-15T20:30:00Z",
     ipAddress: "192.168.1.3",
   },
@@ -161,7 +300,6 @@ export const mockSystemReports: SystemReport[] = [
     timestamp: "2024-12-16T09:00:00Z",
     ipAddress: "192.168.1.2",
   },
-  // Users module
   {
     id: "log-12",
     eventType: "create",
@@ -190,7 +328,21 @@ export const mockSystemReports: SystemReport[] = [
     timestamp: "2024-12-14T16:00:00Z",
     ipAddress: "192.168.1.1",
   },
-  // System module
+  {
+    id: "log-13b",
+    eventType: "revoke",
+    severity: "Important",
+    actorRole: "Admin",
+    actorName: "مدیر کل",
+    actorId: "1",
+    module: "Users",
+    resourceId: "4",
+    resourceName: "رضا خبرنگار",
+    description: "لغو دسترسی گزارشگر برای مسابقه",
+    systemMessage: "دسترسی به‌درخواست مدیر لغو شد.",
+    timestamp: "2024-12-14T17:00:00Z",
+    ipAddress: "192.168.1.1",
+  },
   {
     id: "log-14",
     eventType: "error",
@@ -240,46 +392,203 @@ export const mockSystemReports: SystemReport[] = [
     timestamp: "2024-12-13T14:00:00Z",
     ipAddress: "192.168.1.1",
   },
+  {
+    id: "log-18",
+    eventType: "create",
+    severity: "Normal",
+    actorRole: "Admin",
+    actorName: "علی رضایی",
+    actorId: "2",
+    module: "Media",
+    resourceId: "album-1",
+    resourceName: "گالری مسابقه گیتی پسند و مس سونگون",
+    description: "ایجاد آلبوم رسانه جدید",
+    timestamp: "2024-12-16T10:00:00Z",
+    ipAddress: "192.168.1.2",
+  },
+  {
+    id: "log-19",
+    eventType: "create",
+    severity: "Normal",
+    actorRole: "Admin",
+    actorName: "مدیر کل",
+    actorId: "1",
+    module: "Ads",
+    resourceId: "ad-1",
+    resourceName: "بنر نمونه صفحه اصلی",
+    description: "ایجاد تبلیغ جدید: بنر نمونه صفحه اصلی",
+    timestamp: "2024-12-09T11:00:00Z",
+    ipAddress: "192.168.1.1",
+  },
+  {
+    id: "log-20",
+    eventType: "expire",
+    severity: "Normal",
+    actorRole: "System",
+    actorName: "سیستم",
+    module: "Users",
+    resourceId: "3",
+    resourceName: "احمد محمدی",
+    description: "انقضای دسترسی گزارشگر برای مسابقه",
+    systemMessage: "بازه زمانی دسترسی به پایان رسید.",
+    timestamp: "2024-12-15T20:01:00Z",
+    ipAddress: "192.168.1.1",
+  },
 ];
 
-// Helper to get filtered reports
-export function getFilteredReports(filters: {
-  eventType?: EventType;
-  actorRole?: ActorRole;
-  module?: Module;
-  severity?: SeverityLevel;
-  startDate?: string;
-  endDate?: string;
-}): SystemReport[] {
-  let filtered = [...mockSystemReports];
+// ---------- System Warnings (computed from current data) ----------
+function getSystemWarningsImpl(): SystemWarning[] {
+  const warnings: SystemWarning[] = [];
+  const teamIds = new Set(mockTeams.map((t) => t.id));
+  const now = Date.now();
 
-  if (filters.eventType) {
-    filtered = filtered.filter((r) => r.eventType === filters.eventType);
+  // Match without result: status finished but score null
+  for (const m of mockMatches) {
+    if (
+      m.status === "finished" &&
+      (m.homeScore == null || m.awayScore == null)
+    ) {
+      warnings.push({
+        id: `w-match-result-${m.id}`,
+        kind: "match_without_result",
+        entityId: m.id,
+        title: "مسابقه بدون نتیجه",
+        description: `مسابقه «${m.homeTeam} - ${m.awayTeam}» به پایان رسیده اما نتیجه ثبت نشده است.`,
+        link: "/admin/matches",
+        severity: "warning",
+      });
+    }
   }
 
-  if (filters.actorRole) {
-    filtered = filtered.filter((r) => r.actorRole === filters.actorRole);
+  // League without teams: league has no matches
+  for (const league of mockLeagues) {
+    const hasMatch = mockMatches.some((m) => m.leagueId === league.id);
+    if (!hasMatch) {
+      warnings.push({
+        id: `w-league-teams-${league.id}`,
+        kind: "league_without_teams",
+        entityId: league.id,
+        title: "لیگ بدون تیم",
+        description: `لیگ «${league.title}» هنوز هیچ مسابقه‌ای ندارد؛ در عمل تیمی به آن اختصاص نیافته است.`,
+        link: "/admin/leagues",
+        severity: "warning",
+      });
+    }
   }
 
-  if (filters.module) {
-    filtered = filtered.filter((r) => r.module === filters.module);
+  // Journalist/reporter with expired access
+  for (const a of mockReporterAssignments) {
+    const status = getAssignmentStatus(a);
+    if (status === "expired") {
+      warnings.push({
+        id: `w-reporter-expired-${a.userId}-${a.matchId}`,
+        kind: "journalist_expired",
+        entityId: a.matchId,
+        title: "دسترسی گزارشگر منقضی شده",
+        description: `دسترسی «${a.userName}» برای این مسابقه منقضی شده است. در صورت نیاز مجدداً اختصاص دهید.`,
+        link: "/admin/reporter",
+        severity: "warning",
+      });
+    }
   }
 
-  if (filters.severity) {
-    filtered = filtered.filter((r) => r.severity === filters.severity);
+  // Ad active but outside date range
+  for (const ad of getAllAds()) {
+    if (!ad.isActive) continue;
+    const start = new Date(ad.startDate).getTime();
+    const end = new Date(ad.endDate).getTime();
+    if (now < start || now > end) {
+      warnings.push({
+        id: `w-ad-range-${ad.id}`,
+        kind: "ad_outside_range",
+        entityId: ad.id,
+        title: "تبلیغ خارج از بازه زمانی",
+        description: `تبلیغ «${ad.title}» فعال است اما خارج از بازه نمایش (تاریخ شروع/پایان) قرار دارد.`,
+        link: "/admin/advertising",
+        severity: "error",
+      });
+    }
   }
 
-  if (filters.startDate) {
-    const start = new Date(filters.startDate);
-    filtered = filtered.filter((r) => new Date(r.timestamp) >= start);
+  // Player without team
+  for (const p of mockPlayers) {
+    if (!p.teamId || !teamIds.has(p.teamId)) {
+      warnings.push({
+        id: `w-player-team-${p.id}`,
+        kind: "player_without_team",
+        entityId: p.id,
+        title: "بازیکن بدون تیم",
+        description: `بازیکن «${p.name}» به هیچ تیم معتبری اختصاص داده نشده است.`,
+        link: "/admin/players",
+        severity: "warning",
+      });
+    }
   }
 
-  if (filters.endDate) {
-    const end = new Date(filters.endDate);
-    end.setHours(23, 59, 59, 999); // End of day
-    filtered = filtered.filter((r) => new Date(r.timestamp) <= end);
+  // League rules incomplete (league type but missing points or standings rules)
+  for (const league of mockLeagues) {
+    if (league.competitionType !== "league") continue;
+    const missingPoints = !league.pointsSystem;
+    const missingStandings = league.hasStandingsTable === true && !league.rankingRules;
+    if (missingPoints || missingStandings) {
+      warnings.push({
+        id: `w-league-rules-${league.id}`,
+        kind: "league_rules_incomplete",
+        entityId: league.id,
+        title: "قوانین لیگ ناقص",
+        description: `لیگ «${league.title}» از نوع دوره‌ای است اما سیستم امتیاز یا قوانین رده‌بندی ناقص است.`,
+        link: "/admin/leagues",
+        severity: "warning",
+      });
+    }
   }
 
-  // Sort by timestamp (newest first)
-  return filtered.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
+  return warnings;
+}
+
+let cachedWarnings: SystemWarning[] | null = null;
+export function getSystemWarnings(): SystemWarning[] {
+  if (typeof window === "undefined") return [];
+  if (cachedWarnings === null) cachedWarnings = getSystemWarningsImpl();
+  return cachedWarnings;
+}
+
+export function invalidateWarningsCache(): void {
+  cachedWarnings = null;
+}
+
+// ---------- Timeline: group by day (Persian date) ----------
+export interface TimelineDay {
+  dateKey: string;
+  dateLabel: string;
+  entries: SystemReport[];
+}
+
+function toPersianDateLabel(isoTimestamp: string): string {
+  try {
+    const d = new Date(isoTimestamp);
+    const j = jalaali.toJalaali(d.getFullYear(), d.getMonth() + 1, d.getDate());
+    return `${j.jy}/${String(j.jm).padStart(2, "0")}/${String(j.jd).padStart(2, "0")}`;
+  } catch {
+    return isoTimestamp.slice(0, 10);
+  }
+}
+
+export function getTimelineGroups(reports: SystemReport[]): TimelineDay[] {
+  const byDay = new Map<string, SystemReport[]>();
+  for (const r of reports) {
+    const key = toPersianDateLabel(r.timestamp);
+    if (!byDay.has(key)) byDay.set(key, []);
+    byDay.get(key)!.push(r);
+  }
+  const sorted = Array.from(byDay.entries()).sort((a, b) => {
+    const t1 = a[1][0] ? new Date(a[1][0].timestamp).getTime() : 0;
+    const t2 = b[1][0] ? new Date(b[1][0].timestamp).getTime() : 0;
+    return t2 - t1;
+  });
+  return sorted.map(([dateKey, entries]) => ({
+    dateKey,
+    dateLabel: dateKey,
+    entries: entries.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()),
+  }));
 }
