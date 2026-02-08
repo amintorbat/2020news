@@ -4,6 +4,7 @@ import { useState, useMemo } from "react";
 import { PageHeader } from "@/components/admin/PageHeader";
 import { Badge } from "@/components/admin/Badge";
 import { Toast } from "@/components/admin/Toast";
+import { FilterBar, FilterSearch, FilterSelect } from "@/components/admin/FilterBar";
 import {
   getAllMedia,
   filterMedia,
@@ -201,51 +202,36 @@ export default function MediaClient() {
         >
           ویدیوهای عمومی (/videos)
         </button>
-          <div className="flex items-center gap-2 flex-wrap">
-            <input
-              type="text"
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              placeholder="جستجو..."
-              className="h-8 flex-1 min-w-[150px] rounded-md border border-slate-200 bg-white px-3 py-1.5 text-xs text-slate-900 placeholder:text-slate-400 focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand/20"
-            />
-            <select
+          <FilterBar>
+            <FilterSearch value={search} onChange={setSearch} placeholder="جستجو در رسانه..." className="min-w-[180px] sm:min-w-[220px]" />
+            <FilterSelect
+              label="نوع"
               value={typeFilter}
-              onChange={(e) => setTypeFilter(e.target.value as MediaTypeEnum | "")}
-              className="h-8 rounded-md border border-slate-200 bg-white px-3 py-1.5 text-xs text-slate-700 focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand/20"
-            >
-              <option value="">همه انواع</option>
-              {Object.entries(typeLabels).map(([value, label]) => (
-                <option key={value} value={value}>
-                  {label}
-                </option>
-              ))}
-            </select>
-            <select
+              options={Object.entries(typeLabels).map(([value, label]) => ({ value: value as MediaTypeEnum, label }))}
+              onChange={(v) => setTypeFilter(v)}
+              placeholder="همه انواع"
+            />
+            <FilterSelect
+              label="وضعیت"
               value={statusFilter}
-              onChange={(e) => setStatusFilter(e.target.value as MediaStatus | "")}
-              className="h-8 rounded-md border border-slate-200 bg-white px-3 py-1.5 text-xs text-slate-700 focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand/20"
-            >
-              <option value="">همه وضعیت‌ها</option>
-              <option value="active">فعال</option>
-              <option value="archived">آرشیو شده</option>
-            </select>
-            <select
+              options={[
+                { value: "active" as MediaStatus, label: "فعال" },
+                { value: "archived" as MediaStatus, label: "آرشیو شده" },
+              ]}
+              onChange={(v) => setStatusFilter(v)}
+              placeholder="همه وضعیت‌ها"
+            />
+            <FilterSelect
+              label="برچسب"
               value={tagFilter}
-              onChange={(e) => setTagFilter(e.target.value)}
-              className="h-8 rounded-md border border-slate-200 bg-white px-3 py-1.5 text-xs text-slate-700 focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand/20"
-            >
-              <option value="">همه برچسب‌ها</option>
-              {allTags.map((tag) => (
-                <option key={tag} value={tag}>
-                  {tag}
-                </option>
-              ))}
-            </select>
-            <div className="flex items-center gap-2">
+              options={allTags.map((t) => ({ value: t, label: t }))}
+              onChange={setTagFilter}
+              placeholder="همه برچسب‌ها"
+            />
+            <div className="flex items-center gap-2 shrink-0">
               <button
                 onClick={() => setViewMode("grid")}
-                className={`h-8 w-8 rounded-md border flex items-center justify-center transition-colors ${
+                className={`h-9 w-9 rounded-xl border flex items-center justify-center transition-colors ${
                   viewMode === "grid"
                     ? "border-brand bg-brand text-white"
                     : "border-slate-200 bg-white text-slate-700 hover:bg-slate-50"
@@ -258,7 +244,7 @@ export default function MediaClient() {
               </button>
               <button
                 onClick={() => setViewMode("list")}
-                className={`h-8 w-8 rounded-md border flex items-center justify-center transition-colors ${
+                className={`h-9 w-9 rounded-xl border flex items-center justify-center transition-colors ${
                   viewMode === "list"
                     ? "border-brand bg-brand text-white"
                     : "border-slate-200 bg-white text-slate-700 hover:bg-slate-50"
@@ -270,7 +256,7 @@ export default function MediaClient() {
                 </svg>
               </button>
             </div>
-          </div>
+          </FilterBar>
 
           {selectedIds.size > 0 && (
             <div className="flex items-center gap-2 rounded-lg border border-blue-200 bg-blue-50 p-3">

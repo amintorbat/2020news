@@ -1,30 +1,36 @@
 "use client";
 
 import { useMemo, useState, useEffect } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useAuth } from "@/contexts/AuthContext";
 import { mockMatches } from "@/lib/admin/matchesData";
-import { getActiveAssignmentsForUser, getAssignmentForUserAndMatch } from "@/lib/admin/reporterAssignments";
-import { canAccessMatch, canEditMatchEvents, canCreateMatchNews } from "@/lib/admin/reporterPermissions";
-import { isReporterAssignmentActive } from "@/types/reporter";
-
-// Mock: Current user ID (in real app, this would come from auth context)
-const CURRENT_USER_ID = "3"; // احمد محمدی (reporter)
+import { getScopedAssignmentsForUser, getAllScopedAssignments, getAllUsers } from "@/lib/admin/usersData";
+import { getScopedAssignmentStatus } from "@/lib/admin/rbac";
 
 export default function ReporterDashboardClient() {
   const router = useRouter();
+  const { currentUser } = useAuth();
   const [selectedMatchId, setSelectedMatchId] = useState<string>("");
 
-  // Get active assignments for current user
-  const activeAssignments = useMemo(() => {
-    return getActiveAssignmentsForUser(CURRENT_USER_ID);
-  }, []);
+  const isAdmin = currentUser?.role === "super_admin" || currentUser?.role === "editor";
+  const isMatchReporter = currentUser?.role === "match_reporter";
 
-  // Get matches for active assignments
-  const assignedMatches = useMemo(() => {
-    return mockMatches.filter((match) =>
-      activeAssignments.some((assignment) => assignment.matchId === match.id)
+  // برای گزارشگر: دسترسی‌های محدود نوع مسابقه و فعال
+  const reporterScopedMatches = useMemo(() => {
+    if (!currentUser?.id || !isMatchReporter) return [];
+    const list = getScopedAssignmentsForUser(currentUser.id).filter(
+      (a) => a.scopeType === "match" && a.enabled
     );
-  }, [activeAssignments]);
+    return list;
+  }, [currentUser?.id, isMatchReporter]);
+
+  const assignedMatches = useMemo(() => {
+    if (isAdmin) return [];
+    return mockMatches.filter((m) =>
+      reporterScopedMatches.some((a) => a.scopeId === m.id)
+    );
+  }, [isAdmin, reporterScopedMatches]);
 
   // Auto-select first match if available
   useEffect(() => {
@@ -33,48 +39,118 @@ export default function ReporterDashboardClient() {
     }
   }, [selectedMatchId, assignedMatches]);
 
-  // Get selected match and its assignment
-  const selectedMatch = useMemo(() => {
-    return assignedMatches.find((m) => m.id === selectedMatchId);
-  }, [assignedMatches, selectedMatchId]);
+  const selectedMatch = useMemo(() => assignedMatches.find((m) => m.id === selectedMatchId), [assignedMatches, selectedMatchId]);
+  const selectedAssignment = useMemo(
+    () => (selectedMatchId ? reporterScopedMatches.find((a) => a.scopeId === selectedMatchId) : undefined),
+    [selectedMatchId, reporterScopedMatches]
+  );
 
-  const selectedAssignment = useMemo(() => {
-    if (!selectedMatchId) return undefined;
-    return getAssignmentForUserAndMatch(CURRENT_USER_ID, selectedMatchId);
-  }, [selectedMatchId]);
+  const isAssignmentActive = selectedAssignment ? getScopedAssignmentStatus(selectedAssignment) === "active" : false;
+  const canEditEvents = !!(selectedMatch && selectedAssignment && isAssignmentActive);
+  const canCreateNews = !!(selectedMatch && selectedAssignment && isAssignmentActive);
 
-  // Check permissions
-  const accessCheck = useMemo(() => {
-    if (!selectedMatch || !selectedAssignment) {
-      return { allowed: false, reason: "مسابقه انتخاب نشده است" };
-    }
-    return canAccessMatch(CURRENT_USER_ID, selectedMatch.id, selectedAssignment);
-  }, [selectedMatch, selectedAssignment]);
-
-  const canEditEvents = useMemo(() => {
-    if (!selectedMatch || !selectedAssignment) return false;
-    return canEditMatchEvents(CURRENT_USER_ID, selectedMatch.id, selectedAssignment).allowed;
-  }, [selectedMatch, selectedAssignment]);
-
-  const canCreateNews = useMemo(() => {
-    if (!selectedMatch || !selectedAssignment) return false;
-    return canCreateMatchNews(CURRENT_USER_ID, selectedMatch.id, selectedAssignment).allowed;
-  }, [selectedMatch, selectedAssignment]);
-
-  // Calculate time remaining
   const timeRemaining = useMemo(() => {
     if (!selectedAssignment) return null;
-    const now = new Date();
-    const end = new Date(selectedAssignment.endDateTime);
-    const diff = end.getTime() - now.getTime();
-    
+    const now = Date.now();
+    const end = new Date(selectedAssignment.endDateTime).getTime();
+    const diff = end - now;
     if (diff <= 0) return "منقضی شده";
-    
     const hours = Math.floor(diff / (1000 * 60 * 60));
     const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
     return `${hours} ساعت و ${minutes} دقیقه`;
   }, [selectedAssignment]);
 
+  // بدون کاربر لاگین‌شده
+  if (!currentUser) {
+    return (
+      <div className="min-h-[40vh] flex items-center justify-center p-6" dir="rtl">
+        <div className="rounded-xl border border-amber-200 bg-amber-50 p-6 text-center max-w-md">
+          <p className="text-slate-700">لطفاً از منوی بالا یک کاربر انتخاب کنید.</p>
+        </div>
+      </div>
+    );
+  }
+
+  // نمای مدیریت برای مدیر کل و ویراستار
+  if (isAdmin) {
+    const allScoped = getAllScopedAssignments().filter((a) => a.scopeType === "match");
+    const users = getAllUsers();
+
+    return (
+      <div className="space-y-6" dir="rtl">
+        <div>
+          <h1 className="text-xl font-bold text-slate-900">پنل گزارشگر — نمای مدیریت</h1>
+          <p className="mt-1 text-sm text-slate-600">
+            برای تنظیم دسترسی گزارشگران به مسابقات، از بخش کاربران نقش و دسترسی محدود (زمان‌دار) را تعیین کنید.
+          </p>
+          <Link
+            href="/admin/users"
+            className="mt-3 inline-flex items-center gap-2 rounded-lg bg-brand px-4 py-2 text-sm font-medium text-white hover:bg-brand/90"
+          >
+            رفتن به مدیریت کاربران
+          </Link>
+        </div>
+
+        {allScoped.length > 0 ? (
+          <div className="rounded-xl border border-slate-200 bg-white overflow-hidden">
+            <h2 className="px-4 py-3 text-base font-semibold text-slate-800 border-b border-slate-200">دسترسی‌های گزارشگران به مسابقات</h2>
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead className="bg-slate-50">
+                  <tr>
+                    <th className="px-4 py-3 text-right font-semibold text-slate-700">کاربر</th>
+                    <th className="px-4 py-3 text-right font-semibold text-slate-700">مسابقه</th>
+                    <th className="px-4 py-3 text-right font-semibold text-slate-700">شروع</th>
+                    <th className="px-4 py-3 text-right font-semibold text-slate-700">پایان</th>
+                    <th className="px-4 py-3 text-right font-semibold text-slate-700">وضعیت</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {allScoped.map((a) => {
+                    const user = users.find((u) => u.id === a.userId);
+                    const match = mockMatches.find((m) => m.id === a.scopeId);
+                    const status = getScopedAssignmentStatus(a);
+                    const statusLabel = status === "active" ? "فعال" : status === "scheduled" ? "زمان‌بندی شده" : status === "expired" ? "منقضی" : "غیرفعال";
+                    return (
+                      <tr key={a.id} className="border-t border-slate-100 hover:bg-slate-50/50">
+                        <td className="px-4 py-3 font-medium text-slate-800">{user?.name ?? a.userId}</td>
+                        <td className="px-4 py-3 text-slate-700">{match ? `${match.homeTeam} – ${match.awayTeam}` : a.scopeId}</td>
+                        <td className="px-4 py-3 text-slate-600">{new Date(a.startDateTime).toLocaleDateString("fa-IR", { dateStyle: "short" })} {new Date(a.startDateTime).toLocaleTimeString("fa-IR", { hour: "2-digit", minute: "2-digit" })}</td>
+                        <td className="px-4 py-3 text-slate-600">{new Date(a.endDateTime).toLocaleDateString("fa-IR", { dateStyle: "short" })} {new Date(a.endDateTime).toLocaleTimeString("fa-IR", { hour: "2-digit", minute: "2-digit" })}</td>
+                        <td className="px-4 py-3">
+                          <span className={`rounded px-2 py-0.5 text-xs font-medium ${status === "active" ? "bg-green-100 text-green-700" : status === "scheduled" ? "bg-amber-100 text-amber-700" : "bg-slate-100 text-slate-600"}`}>
+                            {statusLabel}
+                          </span>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        ) : (
+          <div className="rounded-xl border border-slate-200 bg-white p-8 text-center">
+            <p className="text-slate-600">هنوز هیچ دسترسی گزارشگری تعریف نشده است.</p>
+            <p className="mt-2 text-sm text-slate-500">از بخش کاربران برای نقش «گزارشگر مسابقه» دسترسی محدود (مسابقه + بازهٔ زمانی) اضافه کنید.</p>
+          </div>
+        )}
+      </div>
+    );
+  }
+
+  // نقش غیر از گزارشگر مسابقه
+  if (!isMatchReporter) {
+    return (
+      <div className="min-h-[40vh] flex items-center justify-center p-6" dir="rtl">
+        <div className="rounded-xl border border-slate-200 bg-white p-6 text-center max-w-md">
+          <p className="text-slate-700">دسترسی به این پنل فقط برای گزارشگر مسابقه و مدیران تعریف شده است.</p>
+        </div>
+      </div>
+    );
+  }
+
+  // گزارشگر مسابقه بدون مسابقهٔ اختصاص‌یافته
   if (assignedMatches.length === 0) {
     return (
       <div className="min-h-screen bg-slate-50 p-4 sm:p-6" dir="rtl">
@@ -118,9 +194,9 @@ export default function ReporterDashboardClient() {
               <h2 className="text-lg font-bold text-slate-900 mb-4">مسابقات اختصاص‌یافته</h2>
               <div className="space-y-2">
                 {assignedMatches.map((match) => {
-                  const assignment = getAssignmentForUserAndMatch(CURRENT_USER_ID, match.id);
-                  const isActive = assignment ? isReporterAssignmentActive(assignment) : false;
-                  
+                  const assignment = reporterScopedMatches.find((a) => a.scopeId === match.id);
+                  const isActive = assignment ? getScopedAssignmentStatus(assignment) === "active" : false;
+
                   return (
                     <button
                       key={match.id}
@@ -163,11 +239,6 @@ export default function ReporterDashboardClient() {
             {!selectedMatch ? (
               <div className="rounded-xl border border-[var(--border)] bg-white p-8 text-center">
                 <p className="text-slate-500">لطفاً یک مسابقه را انتخاب کنید</p>
-              </div>
-            ) : !accessCheck.allowed ? (
-              <div className="rounded-xl border border-red-200 bg-red-50 p-8 text-center">
-                <h2 className="text-lg font-bold text-red-900 mb-2">دسترسی مجاز نیست</h2>
-                <p className="text-sm text-red-700">{accessCheck.reason}</p>
               </div>
             ) : (
               <>
@@ -243,7 +314,7 @@ export default function ReporterDashboardClient() {
                       <div>
                         <div className="text-xs text-slate-500 mb-1">وضعیت</div>
                         <div className="text-sm font-medium text-green-600">
-                          {isReporterAssignmentActive(selectedAssignment) ? "فعال" : "غیرفعال"}
+                          {isAssignmentActive ? "فعال" : "غیرفعال"}
                         </div>
                       </div>
                     </div>

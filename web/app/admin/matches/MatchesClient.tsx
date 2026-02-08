@@ -9,6 +9,7 @@ import { Badge } from "@/components/admin/Badge";
 import { EmptyState } from "@/components/admin/EmptyState";
 import { Toast } from "@/components/admin/Toast";
 import { DeleteConfirmationModal } from "@/components/admin/DeleteConfirmationModal";
+import { FilterBar, FilterSearch, FilterSelect } from "@/components/admin/FilterBar";
 import { Toggle } from "@/components/admin/Toggle";
 import { PersianDatePicker } from "@/components/admin/PersianDatePicker";
 import { PersianTimePicker } from "@/components/admin/PersianTimePicker";
@@ -451,56 +452,29 @@ export default function MatchesClient() {
         </div>
       </div>
 
-      {/* Filters */}
-      <div className="rounded-xl border border-[var(--border)] bg-white shadow-sm overflow-hidden">
-        <div className="bg-slate-50 border-b border-[var(--border)] px-4 py-3">
-          <h3 className="text-sm font-semibold text-slate-900">فیلترها و جستجو</h3>
-        </div>
-        <div className="p-4 sm:p-6">
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            <div className="sm:col-span-2">
-              <label className="block text-xs font-semibold text-slate-700 mb-2">جستجو</label>
-              <input
-                type="text"
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                placeholder="نام تیم یا لیگ/جام..."
-                className="w-full rounded-lg border border-[var(--border)] px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand/50 focus:border-brand"
-              />
-            </div>
-            <div>
-              <label className="block text-xs font-semibold text-slate-700 mb-2">لیگ/جام</label>
-              <select
-                value={leagueFilter}
-                onChange={(e) => setLeagueFilter(e.target.value)}
-                className="w-full rounded-lg border border-[var(--border)] bg-white px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand/50 focus:border-brand"
-              >
-                <option value="">همه لیگ‌ها/جام‌ها</option>
-                {availableLeagues.map((league) => (
-                  <option key={league.id} value={league.id}>
-                    {league.title} ({league.season})
-                  </option>
-                ))}
-              </select>
-            </div>
-            <div>
-              <label className="block text-xs font-semibold text-slate-700 mb-2">وضعیت</label>
-              <select
-                value={statusFilter}
-                onChange={(e) => setStatusFilter(e.target.value as MatchStatus | "")}
-                className="w-full rounded-lg border border-[var(--border)] bg-white px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand/50 focus:border-brand"
-              >
-                <option value="">همه وضعیت‌ها</option>
-                {Object.entries(statusLabel).map(([value, label]) => (
-                  <option key={value} value={value}>
-                    {label}
-                  </option>
-                ))}
-              </select>
-            </div>
-          </div>
-            </div>
-          </div>
+      {/* فیلترها */}
+      <FilterBar>
+        <FilterSearch
+          value={search}
+          onChange={setSearch}
+          placeholder="نام تیم یا لیگ/جام..."
+          className="min-w-[180px] sm:min-w-[220px]"
+        />
+        <FilterSelect
+          label="لیگ/جام"
+          value={leagueFilter}
+          options={availableLeagues.map((l) => ({ value: l.id, label: `${l.title} (${l.season})` }))}
+          onChange={setLeagueFilter}
+          placeholder="همه لیگ‌ها/جام‌ها"
+        />
+        <FilterSelect
+          label="وضعیت"
+          value={statusFilter}
+          options={Object.entries(statusLabel).map(([value, label]) => ({ value: value as MatchStatus, label }))}
+          onChange={(v) => setStatusFilter(v)}
+          placeholder="همه وضعیت‌ها"
+        />
+      </FilterBar>
 
       {/* Mobile list */}
       {renderMobileCards()}
