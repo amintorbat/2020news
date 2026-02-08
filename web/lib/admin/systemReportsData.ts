@@ -16,6 +16,7 @@ import { mockReporterAssignments } from "@/lib/admin/reporterAssignments";
 import { getAssignmentStatus } from "@/types/reporter";
 
 const STORAGE_KEY_NOTES = "2020news_audit_log_notes";
+const STORAGE_KEY_ENTRIES = "2020news_audit_log_entries";
 
 function loadNotes(): Record<string, string> {
   if (typeof window === "undefined") return {};
@@ -36,13 +37,42 @@ function saveNotes(notes: Record<string, string>) {
   } catch { /* ignore */ }
 }
 
-/** Get audit log with persisted admin notes merged in */
+function loadAuditLogEntries(): SystemReport[] {
+  if (typeof window === "undefined") return [];
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY_ENTRIES);
+    if (!raw) return [];
+    const parsed = JSON.parse(raw) as SystemReport[];
+    return Array.isArray(parsed) ? parsed : [];
+  } catch {
+    return [];
+  }
+}
+
+function saveAuditLogEntries(entries: SystemReport[]) {
+  if (typeof window === "undefined") return;
+  try {
+    localStorage.setItem(STORAGE_KEY_ENTRIES, JSON.stringify(entries));
+  } catch { /* ignore */ }
+}
+
+/** Append a new audit log entry (e.g. manual standings override). Call from admin UI. */
+export function appendAuditLog(entry: Omit<SystemReport, "id">): void {
+  const id = `log-${Date.now()}-${Math.random().toString(36).slice(2, 9)}`;
+  const list = loadAuditLogEntries();
+  list.unshift({ ...entry, id });
+  saveAuditLogEntries(list);
+}
+
+/** Get audit log: mock + persisted entries, with notes merged, sorted by time desc */
 export function getAuditLogs(): SystemReport[] {
   const notes = typeof window !== "undefined" ? loadNotes() : {};
-  return mockSystemReports.map((r) => ({
-    ...r,
-    adminNote: notes[r.id] ?? r.adminNote,
-  }));
+  const appended = loadAuditLogEntries();
+  const combined = [
+    ...mockSystemReports.map((r) => ({ ...r, adminNote: notes[r.id] ?? r.adminNote })),
+    ...appended.map((r) => ({ ...r, adminNote: notes[r.id] ?? r.adminNote })),
+  ];
+  return combined.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
 }
 
 /** Update admin note for a log entry (persisted in localStorage) */

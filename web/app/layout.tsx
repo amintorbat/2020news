@@ -3,6 +3,7 @@ import "@/app/globals.css";
 import { vazirmatn } from "@/lib/fonts";
 import { Navbar } from "@/components/layout/Navbar";
 import { LiveTicker } from "@/components/layout/LiveTicker";
+import { SettingsGate } from "@/components/SettingsGate";
 
 export const metadata: Metadata = {
   title: "2020news | رسانه تخصصی فوتسال و فوتبال ساحلی",
@@ -25,7 +26,9 @@ export default function RootLayout({
       <body className="min-h-screen bg-[var(--background)] text-[var(--foreground)] antialiased font-sans">
         <LiveTicker />
         <Navbar />
-        <main className="pb-16">{children}</main>
+        <main className="pb-16">
+          <SettingsGate>{children}</SettingsGate>
+        </main>
       </body>
     </html>
   );
