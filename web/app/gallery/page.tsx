@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { Footer } from "@/components/layout/Footer";
 import { leagueOptions, type LeagueKey } from "@/lib/data";
-import { mockAlbums } from "@/lib/data/gallery";
+import { getAllPublicAlbums } from "@/lib/admin/mediaData";
 import { AlbumCard } from "@/components/gallery/AlbumCard";
 
 type GalleryPageProps = {
@@ -13,9 +13,10 @@ export default function GalleryPage({ searchParams }: GalleryPageProps) {
     ? (searchParams?.sport as LeagueKey)
     : undefined;
 
+  const allAlbums = getAllPublicAlbums();
   const filteredAlbums = selectedSport
-    ? mockAlbums.filter((album) => album.sport === selectedSport)
-    : mockAlbums;
+    ? allAlbums.filter((album) => album.sport === selectedSport)
+    : allAlbums;
 
   return (
     <div className="min-h-screen bg-[var(--background)]">

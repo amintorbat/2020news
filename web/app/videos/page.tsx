@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { Footer } from "@/components/layout/Footer";
 import { leagueOptions, type LeagueKey } from "@/lib/data";
-import { mockVideos } from "@/lib/data/videos";
+import { getAllPublicVideos } from "@/lib/admin/mediaData";
 import { VideoCard } from "@/components/videos/VideoCard";
 
 type VideosPageProps = {
@@ -13,9 +13,10 @@ export default function VideosPage({ searchParams }: VideosPageProps) {
     ? (searchParams?.sport as LeagueKey)
     : undefined;
 
+  const allVideos = getAllPublicVideos();
   const filteredVideos = selectedSport
-    ? mockVideos.filter((video) => video.sport === selectedSport)
-    : mockVideos;
+    ? allVideos.filter((video) => video.sport === selectedSport)
+    : allVideos;
 
   return (
     <div className="min-h-screen bg-[var(--background)]">

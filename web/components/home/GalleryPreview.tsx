@@ -6,7 +6,7 @@ import { Swiper, SwiperSlide } from "swiper/react";
 import { Pagination } from "swiper/modules";
 import type { LeagueKey } from "@/lib/data";
 import { leagueOptions } from "@/lib/data";
-import { mockAlbums } from "@/lib/data/gallery";
+import { getAllPublicAlbums } from "@/lib/admin/mediaData";
 import { AlbumCard } from "@/components/gallery/AlbumCard";
 import { cn } from "@/lib/cn";
 import "swiper/css";
@@ -21,10 +21,9 @@ export function GalleryPreview({ container = true, className }: GalleryPreviewPr
   const [selectedSport, setSelectedSport] = useState<LeagueKey | "all">("all");
 
   const filteredAlbums = useMemo(() => {
-    if (selectedSport === "all") {
-      return mockAlbums;
-    }
-    return mockAlbums.filter((album) => album.sport === selectedSport);
+    const albums = getAllPublicAlbums();
+    if (selectedSport === "all") return albums;
+    return albums.filter((album) => album.sport === selectedSport);
   }, [selectedSport]);
 
   return (

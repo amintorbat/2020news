@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { Footer } from "@/components/layout/Footer";
-import { getAlbumById, getPhotosByAlbum } from "@/lib/data/gallery";
+import { getPublicAlbumById, getPhotosByAlbumId } from "@/lib/admin/mediaData";
 import { AlbumView } from "@/components/gallery/AlbumView";
 import { notFound } from "next/navigation";
 
@@ -9,13 +9,13 @@ type AlbumPageProps = {
 };
 
 export default function AlbumPage({ params }: AlbumPageProps) {
-  const album = getAlbumById(params.slug);
+  const album = getPublicAlbumById(params.slug);
 
   if (!album) {
     notFound();
   }
 
-  const photos = getPhotosByAlbum(album.id);
+  const photos = getPhotosByAlbumId(album.id);
 
   return (
     <div className="min-h-screen bg-[var(--background)]">

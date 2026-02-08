@@ -6,7 +6,7 @@ import { Swiper, SwiperSlide } from "swiper/react";
 import { Pagination } from "swiper/modules";
 import type { LeagueKey } from "@/lib/data";
 import { leagueOptions } from "@/lib/data";
-import { mockVideos } from "@/lib/data/videos";
+import { getAllPublicVideos } from "@/lib/admin/mediaData";
 import { VideoCard } from "@/components/videos/VideoCard";
 import { cn } from "@/lib/cn";
 import "swiper/css";
@@ -21,10 +21,9 @@ export function VideosPreview({ container = true, className }: VideosPreviewProp
   const [selectedSport, setSelectedSport] = useState<LeagueKey | "all">("all");
 
   const filteredVideos = useMemo(() => {
-    if (selectedSport === "all") {
-      return mockVideos;
-    }
-    return mockVideos.filter((video) => video.sport === selectedSport);
+    const videos = getAllPublicVideos();
+    if (selectedSport === "all") return videos;
+    return videos.filter((video) => video.sport === selectedSport);
   }, [selectedSport]);
 
   return (
