@@ -80,6 +80,7 @@ export default function MatchesPage({ searchParams }: MatchesPageProps) {
 
         {/* نمای چارت برای مسابقات حذفی — وقتی نوع مسابقه جام است یا «همه» و برای این رشته لیگ حذفی داریم */}
         {(filters.competitionType === "cup" || filters.competitionType === "all") &&
+          filters.league != null &&
           getBracketLeagueForSport(filters.league) && (
             <section className="container" dir="rtl">
               <BracketCTA leagueKey={filters.league} variant="full" />
