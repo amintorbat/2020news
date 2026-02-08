@@ -551,6 +551,8 @@ function BlockEditorForm({
       return {};
     }
   });
+  const [showImagePicker, setShowImagePicker] = useState(false);
+  const [showVideoPicker, setShowVideoPicker] = useState(false);
 
   const handleSubmit = () => {
     onSave(JSON.stringify(content));
@@ -776,10 +778,22 @@ function BlockEditorForm({
       return (
         <div className="rounded-lg border-2 border-brand bg-white p-4 shadow-sm">
           <label className="mb-2 block text-xs font-medium text-slate-700">تصویر</label>
+          <button
+            type="button"
+            onClick={() => setShowImagePicker(true)}
+            className="w-full rounded-lg border border-[var(--border)] bg-slate-50 px-3 py-2 text-sm text-slate-700 hover:bg-slate-100"
+          >
+            {content.mediaId ? `انتخاب شده: ${content.mediaId}` : "انتخاب تصویر"}
+          </button>
           <MediaPicker
-            type="image"
-            value={content.mediaId || ""}
-            onChange={(mediaId) => setContent({ ...content, mediaId })}
+            isOpen={showImagePicker}
+            onClose={() => setShowImagePicker(false)}
+            onSelect={(media) => {
+              setContent({ ...content, mediaId: media.id });
+              setShowImagePicker(false);
+            }}
+            allowedTypes={["image"]}
+            title="انتخاب تصویر"
           />
           <input
             type="text"
@@ -853,10 +867,22 @@ function BlockEditorForm({
       return (
         <div className="rounded-lg border-2 border-brand bg-white p-4 shadow-sm">
           <label className="mb-2 block text-xs font-medium text-slate-700">ویدیو</label>
+          <button
+            type="button"
+            onClick={() => setShowVideoPicker(true)}
+            className="w-full rounded-lg border border-[var(--border)] bg-slate-50 px-3 py-2 text-sm text-slate-700 hover:bg-slate-100"
+          >
+            {content.mediaId ? `انتخاب شده: ${content.mediaId}` : "انتخاب ویدیو"}
+          </button>
           <MediaPicker
-            type="video"
-            value={content.mediaId || ""}
-            onChange={(mediaId) => setContent({ ...content, mediaId })}
+            isOpen={showVideoPicker}
+            onClose={() => setShowVideoPicker(false)}
+            onSelect={(media) => {
+              setContent({ ...content, mediaId: media.id });
+              setShowVideoPicker(false);
+            }}
+            allowedTypes={["video"]}
+            title="انتخاب ویدیو"
           />
           <input
             type="text"
