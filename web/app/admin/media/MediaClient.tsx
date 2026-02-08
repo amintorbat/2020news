@@ -36,7 +36,7 @@ const typeColors: Record<MediaTypeEnum, "default" | "info" | "warning" | "succes
 };
 
 export default function MediaClient() {
-  const [activeTab, setActiveTab] = useState<"media" | "gallery">("media");
+  const [activeTab, setActiveTab] = useState<"media" | "gallery" | "public-galleries" | "public-videos">("media");
   const [media, setMedia] = useState<Media[]>(getAllMedia());
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
   const [search, setSearch] = useState("");
